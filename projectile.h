@@ -1,5 +1,6 @@
 #include <ace/managers/bob.h>
 #include <ace/types.h>
+#include <ace/managers/copper.h>
 #include <fixmath/fixmath.h>
 
 #define MAX_PLAYER_PROJECTILES 20;
@@ -16,6 +17,8 @@ typedef enum tProjectileTypes {
 } tProjectileTypes;
 
 typedef struct _tProjectile {
-    tBob sBob;
-    UWORD uwTimeToLive;
+    tCopBlock *pProjectileBlock;
+    WORD wX;
+    WORD wY;
+    UBYTE ubTimeToLive;
 } tProjectile;

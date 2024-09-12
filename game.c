@@ -1,5 +1,7 @@
 #include "game.h"
+#include "asteroid.h"
 #include "projectile.h"
+#include "enemy.h"
 #include <ace/generic/screen.h>
 #include <ace/managers/game.h>
 #include <ace/managers/viewport/tilebuffer.h>
@@ -19,8 +21,11 @@
 #define PLAYER_MOVE_SPEED 2
 #define PROJECTILE_MOVE_SPEED 8
 #define MAX_PROJECTILES 5
-#define FIRE_DELAY 8
+#define MAX_ASTEROIDS 1
+#define MAX_ENEMEYS 2
+#define FIRE_DELAY 6
 #define VIEWPORT_HEIGHT 256
+#define NUM_FRAMES_PLAYER 4
 
 static void reinstanceSprite(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight);
 
@@ -28,30 +33,35 @@ static tView *s_pView; // View containing all the viewports
 static tVPort *s_pVPort; // Viewport for playfield
 static tCameraManager *s_pCamera;
 static tTileBufferManager *s_pTileBuffer;
+static tRandManager s_sRandManager;
+
 static tBitMap *s_pTiles;
 
 static tUwCoordYX playerPosition;
-static tBob s_sPlayerShipBob;
 
 static tProjectile s_tProjectiles[MAX_PROJECTILES];
-
-static tBitMap *s_pBulletSpriteImage;
-static tSprite *s_pSprite0;
-static tCopBlock *pProjectileBlock1;
-static tCopBlock *pProjectileBlock2;
-
-static tBitMap *s_pPlayerShipImage;
-static tBitMap *s_pPlayerShipMask;
+// static tAsteroid s_tAsteroids[MAX_ASTEROIDS];
+static tEnemy s_tEnemys[MAX_ENEMEYS];
 
 static tBitMap *s_pPlayerProjectileImage;
-static tBitMap *s_pPlayerProjectileMask;
+static tSprite *s_pSprite0;
+
+static tBob s_sPlayerShipBob;
+static tBitMap *s_pPlayerImage;
+static tBitMap *s_pPlayerMask;
+
+// static tBitMap *s_pAsteroidImage;
+// static tBitMap *s_pAsteroidMask;
+
+static tBitMap *s_pEnemyImage;
+static tBitMap *s_pEnemyMask;
 
 static UWORD fireDelay = 0;
 static UWORD animationTimer = 0;
-static UBYTE playerShipAnimFrame = 0;
 
+static UBYTE playerShipAnimFrame = 0;
 const ULONG playerShipAnimOffset[] = {0, 640, 1280, 1920};
-const BYTE mapData[] = {1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13,
+const UBYTE mapData[] = {1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13,
             2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 10, 14,
             3, 7, 11, 15, 19, 23, 27, 31, 3, 7, 11, 15, 19, 23, 27, 31, 3, 7, 11, 15,
             4, 8, 12, 16, 20, 24, 28, 32, 4, 8, 12, 16, 20, 24, 28, 32, 4, 8, 12, 16,
@@ -94,13 +104,17 @@ void gameGsCreate(void) {
 		TAG_VPORT_BPP, GAME_BPP,
     TAG_DONE);
 
+    randInit(&s_sRandManager, 1337, 2600);
+
     paletteLoad("data/shmup32.plt", s_pVPort->pPalette, 1 << GAME_BPP);
 
     s_pTiles = bitmapCreateFromFile("data/bgtiles.bm", 0);
-    s_pPlayerShipImage = bitmapCreateFromFile("data/playership.bm", 0);
-    s_pPlayerShipMask = bitmapCreateFromFile("data/playership_mask.bm", 0);
-    s_pPlayerProjectileImage = bitmapCreateFromFile("data/projectiles.bm", 0);
-    s_pPlayerProjectileMask = bitmapCreateFromFile("data/projectiles_mask.bm", 0);
+    s_pPlayerImage = bitmapCreateFromFile("data/player.bm", 0);
+    s_pPlayerMask = bitmapCreateFromFile("data/player-mask.bm", 0);
+    // s_pAsteroidImage = bitmapCreateFromFile("data/asteroid.bm", 0);
+    // s_pAsteroidMask = bitmapCreateFromFile("data/asteroid-mask.bm", 0);
+    s_pEnemyImage = bitmapCreateFromFile("data/enemy_small.bm", 0);
+    s_pEnemyMask = bitmapCreateFromFile("data/enemy_small-mask.bm", 0);
 
     // Tilemap stuff
 	s_pTileBuffer = tileBufferCreate(0,
@@ -131,36 +145,59 @@ void gameGsCreate(void) {
         &s_sPlayerShipBob,
         32, 32,
         1,
-        s_pPlayerShipImage->Planes[0],
-        s_pPlayerShipMask->Planes[0],
+        s_pPlayerImage->Planes[0],
+        s_pPlayerMask->Planes[0],
         0, 0
     );
 
-    for (UBYTE i=0; i<MAX_PROJECTILES; i++) {
+    UBYTE xPos = 32;
+    for (UBYTE i=0; i<MAX_ENEMEYS; i++) {
         bobInit(
-            &s_tProjectiles[i].sBob,
-            16, 16,
+            &s_tEnemys[i].sBob,
+            32, 32,               
             1,
-            s_pPlayerProjectileImage->Planes[0],
-            s_pPlayerProjectileMask->Planes[0],
+            s_pEnemyImage->Planes[0],
+            s_pEnemyMask->Planes[0],
             0, 0
-        ); 
-        
-        s_tProjectiles[i].uwTimeToLive = 0;
+        );
+
+        s_tEnemys[i].sBob.sPos.uwX = xPos;
+        s_tEnemys[i].sBob.sPos.uwY = 64;
+        xPos += 48;
     }
 
+    // for (UBYTE i=0; i<MAX_ASTEROIDS; i++) {
+    //     bobInit(
+    //         &s_tAsteroids[i].sBob,
+    //         32, 32,
+    //         1,
+    //         s_pAsteroidImage->Planes[0],
+    //         s_pAsteroidMask->Planes[0],
+    //         0, 0
+    //     );
+    //     s_tAsteroids[i].sBob.sPos.uwX = xPos;
+    //     s_tAsteroids[i].sBob.sPos.uwY = 64;
+    //     xPos += 64;
+    // }
+  
     bobReallocateBgBuffers();
 
     // Sprite stuff
     spriteManagerCreate(s_pView, 0);
     systemSetDmaBit(DMAB_SPRITE, 1);
-    s_pBulletSpriteImage = bitmapCreateFromFile("data/bulletsprite.bm", 0);
-    s_pSprite0 = spriteAdd(0, s_pBulletSpriteImage);
-    spriteProcess(s_pSprite0);
-    spriteProcessChannel(0);
+    s_pPlayerProjectileImage = bitmapCreateFromFile("data/bulletsprite.bm", 0);
+    s_pSprite0 = spriteAdd(0, s_pPlayerProjectileImage);
+    // spriteProcess(s_pSprite0);
+    // spriteProcessChannel(0);
 
-    pProjectileBlock1 = copBlockCreate(s_pView->pCopList, 2, 0, s_pView->ubPosY + 100);
-    pProjectileBlock2 = copBlockCreate(s_pView->pCopList, 2, 0, s_pView->ubPosY + 120);
+    UWORD offset = 100;
+    for (UBYTE i=0; i<MAX_PROJECTILES; i++) {
+        s_tProjectiles[i].pProjectileBlock = copBlockCreate(s_pView->pCopList, 4, 0, s_pView->ubPosY+offset);
+        s_tProjectiles[i].wX = 0;
+        s_tProjectiles[i].wY = 0;
+        s_tProjectiles[i].ubTimeToLive = 0;
+        offset += 20;
+    }
 
     // Finish up
     systemUnuse();
@@ -190,25 +227,27 @@ void gameGsLoop(void) {
 		playerPosition.uwX = playerPosition.uwX + PLAYER_MOVE_SPEED;
 	}
 
-    if (keyCheck(KEY_B)) {
-        s_pSprite0->isEnabled = 1;
-        s_pSprite0->wX = playerPosition.uwX + 14;
-        s_pSprite0->wY = playerPosition.uwY - 20;
-    }
-
     if (keyCheck(KEY_SPACE)) {
         if (fireDelay == 0) {
             for (UBYTE i=0; i<MAX_PROJECTILES; i++) {
-                if (s_tProjectiles[i].uwTimeToLive == 0) {
-                    s_tProjectiles[i].sBob.sPos = playerPosition;
-                    s_tProjectiles[i].sBob.sPos.uwX += 14;
-                    s_tProjectiles[i].uwTimeToLive = 256;
+                if (s_tProjectiles[i].ubTimeToLive == 0) {
+                    s_tProjectiles[i].wX = playerPosition.uwX + 7;
+                    s_tProjectiles[i].wY = playerPosition.uwY - 12;
+                    s_tProjectiles[i].ubTimeToLive = 255;
                     fireDelay = FIRE_DELAY;
                     break;
                 }
             }
         }
     }
+
+    UWORD uwY = 0;
+	if(keyCheck(KEY_UP)) {
+		uwY = -1;
+	}
+	if(keyCheck(KEY_DOWN)) {
+		uwY = 1;
+	}
 
     // Keep player inside viewport area.
     if (playerPosition.uwX <= 4) {
@@ -234,35 +273,41 @@ void gameGsLoop(void) {
     s_sPlayerShipBob.sPos = playerPosition;
     bobSetFrame(
         &s_sPlayerShipBob,
-        &s_pPlayerShipImage->Planes[0][playerShipAnimOffset[playerShipAnimFrame]],
-        &s_pPlayerShipMask->Planes[0][playerShipAnimOffset[playerShipAnimFrame]]
+        &s_pPlayerImage->Planes[0][playerShipAnimOffset[playerShipAnimFrame]],
+        &s_pPlayerMask->Planes[0][playerShipAnimOffset[playerShipAnimFrame]]
     );
     bobPush(&s_sPlayerShipBob);
 
-    for (UBYTE i=0; i<MAX_PROJECTILES; i++) {
-        if (s_tProjectiles[i].uwTimeToLive > 0) {
-            bobPush(&s_tProjectiles[i].sBob);
-            s_tProjectiles[i].sBob.sPos.uwY -= PROJECTILE_MOVE_SPEED;
-
-            if (s_tProjectiles[i].sBob.sPos.uwY < s_pCamera->uPos.uwY) {
-                s_tProjectiles[i].uwTimeToLive = 0;
-            } else {
-                s_tProjectiles[i].uwTimeToLive--;
-            }
-        }
+    for (UBYTE i=0; i<MAX_ENEMEYS; i++) {
+        bobPush(&s_tEnemys[i].sBob);        
     }
 
+    // for (UBYTE i=0; i<MAX_ASTEROIDS; i++) {
+    //     bobSetFrame(
+    //         &s_tAsteroids[i].sBob,
+    //         &s_pAsteroidImage->Planes[0][asteroidAnimOffset[s_tAsteroids[i].ubFrameIndex]],
+    //         &s_pAsteroidMask->Planes[0][asteroidAnimOffset[s_tAsteroids[i].ubFrameIndex]]
+    //     );
+    //     bobPush(&s_tAsteroids[i].sBob);        
+    // }
     bobEnd();
 
     // Sprites
-    reinstanceSprite(pProjectileBlock1, 100, 100, 18);
+    //logWrite("C:(%d, %d) => S:(%d, %d)", s_pCamera->uPos.uwX, s_pCamera->uPos.uwY, s_tProjectiles[0].uwX, s_tProjectiles[0].uwY);
 
-    // logWrite("S:(%d, %d) C:(%d, %d)", s_pSprite0->wX, s_pSprite0->wY, s_pCamera->uPos.uwX, s_pCamera->uPos.uwY);
-    // if (s_pSprite0->wY > 0) {
-    //     s_pSprite0->wY -= PROJECTILE_MOVE_SPEED;
-    //     spriteProcess(s_pSprite0);
-    //     spriteProcessChannel(0);
-    // }  
+    for (UBYTE i=0; i<MAX_PROJECTILES; i++) {
+        if (s_tProjectiles[i].ubTimeToLive > 0) {
+            reinstanceSprite(s_tProjectiles[i].pProjectileBlock, s_tProjectiles[i].wX, s_tProjectiles[i].wY - s_pCamera->uPos.uwY, s_pSprite0->uwHeight);
+            s_tProjectiles[i].wY -= PROJECTILE_MOVE_SPEED;
+
+            if (s_tProjectiles[i].wY < (s_pCamera->uPos.uwY-32)) {
+                s_tProjectiles[i].ubTimeToLive = 0;
+                //reinstanceSprite(s_tProjectiles[i].pProjectileBlock, 0, 0, s_pSprite0->uwHeight);
+            } else {
+                s_tProjectiles[i].ubTimeToLive--;
+            }
+        }
+    }
 
     // Timers
     animationTimer++;
@@ -271,12 +316,18 @@ void gameGsLoop(void) {
 
         // Increment all frame indexes.
         playerShipAnimFrame++;
-        if (playerShipAnimFrame > 3) { playerShipAnimFrame = 0; }
+        playerShipAnimFrame = playerShipAnimFrame % NUM_FRAMES_PLAYER;
+
+        // for (UBYTE i=0; i<MAX_ASTEROIDS; i++) {
+        //     s_tAsteroids[i].ubFrameIndex++;
+        //     s_tAsteroids[i].ubFrameIndex = s_tAsteroids[i].ubFrameIndex % NUM_FRAMES_ASTEROID;
+        // }
     }
 
     if (fireDelay > 0) { fireDelay--; }
 
     // Finish up.
+    cameraMoveBy(s_pCamera, 0, uwY);
     tileBufferQueueProcess(s_pTileBuffer);
     viewProcessManagers(s_pView);
     copProcessBlocks();
@@ -304,7 +355,16 @@ static void reinstanceSprite(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight
     );
 
     copBlockWait(s_pView->pCopList, pBlock, 0, s_pView->ubPosY + wY);
+
     pBlock->uwCurrCount = 0;
-    copMove(s_pView->pCopList, pBlock, g_pCustom->spr[0].pos, uwPos);
-    copMove(s_pView->pCopList, pBlock, g_pCustom->spr[0].ctl, uwCtl);
+    ULONG ulAddr = (ULONG)(
+        (UBYTE*)s_pSprite0->pBitmap->Planes[0] +
+        sizeof(g_pCustom->spr[0].pos) +
+        sizeof(g_pCustom->spr[0].ctl)
+    ); // skip the control words
+
+    copMove(s_pView->pCopList, pBlock, &g_pSprFetch[0].uwHi, ulAddr >> 16);
+    copMove(s_pView->pCopList, pBlock, &g_pSprFetch[0].uwLo, ulAddr & 0xFFFF);
+    copMove(s_pView->pCopList, pBlock, &g_pCustom->spr[0].pos, uwPos);
+    copMove(s_pView->pCopList, pBlock, &g_pCustom->spr[0].ctl, uwCtl);
 }
