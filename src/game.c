@@ -22,7 +22,7 @@
 
 #define FIRE_DELAY 6
 #define MAX_ENEMY_PROJECTILES 16
-#define ENEMY_PROJECTILE_SPEED 1
+#define ENEMY_PROJECTILE_SPEED 3
 #define ENEMY_PROJECTILE_HEIGHT 7
 #define ENEMY_SPRITE_CHANNELS 4
 
@@ -42,13 +42,7 @@ static tView *s_pView; // View containing all the viewports
 static tVPort *s_pVPort; // Viewport for playfield
 static tCameraManager *s_pCamera;
 static tTileBufferManager *s_pTileBuffer;
-
 static tBitMap *s_pTiles;
-
-static tEnemyProjectile s_tEnemyProjectiles[MAX_ENEMY_PROJECTILES];
-static tSprite *s_pEnemyProjectileSprite0;
-static tSprite *s_pEnemyProjectileSprite[ENEMY_SPRITE_CHANNELS];
-static fix16_t channelPos[ENEMY_SPRITE_CHANNELS] = {0};
 
 static tBitMap *s_pEnemyProjectileImage;
 static tBitMap *s_pEnemyProjectileImageA;
@@ -56,11 +50,16 @@ static tBitMap *s_pEnemyProjectileImageB;
 static tBitMap *s_pEnemyProjectileImageC;
 static tBitMap *s_pEnemyProjectileImageD;
 
-static tUwCoordYX s_tPlayerPosition;
-static UWORD fireDelay = 0;
-static UBYTE ubMoveDirection = 0;
+static tSprite *s_pEnemyProjectileSprite0;
+static tSprite *s_pEnemyProjectileSprite[ENEMY_SPRITE_CHANNELS];
+static tEnemyProjectile s_tEnemyProjectiles[MAX_ENEMY_PROJECTILES];
+static fix16_t s_fChannelPos[ENEMY_SPRITE_CHANNELS] = {0};
 
-const UBYTE mapData[] = {1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13,
+static tUwCoordYX s_tPlayerPosition;
+static UWORD s_uwFireDelay = 0;
+static UBYTE s_ubMoveDirection = 0;
+
+const UBYTE c_ubMapData[] = {1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13,
             2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 10, 14,
             3, 7, 11, 15, 19, 23, 27, 31, 3, 7, 11, 15, 19, 23, 27, 31, 3, 7, 11, 15,
             4, 8, 12, 16, 20, 24, 28, 32, 4, 8, 12, 16, 20, 24, 28, 32, 4, 8, 12, 16,
@@ -124,7 +123,7 @@ void gameGsCreate(void) {
     UWORD idx = 0;
     for (UWORD y=0; y<MAP_HEIGHT_IN_TILES; y++) {
         for (UWORD x=0; x<MAP_WIDTH_IN_TILES; x++) {
-            s_pTileBuffer->pTileData[x][y] = mapData[idx] - 1;
+            s_pTileBuffer->pTileData[x][y] = c_ubMapData[idx] - 1;
             idx++;
         }
     }
@@ -146,6 +145,11 @@ void gameGsCreate(void) {
     s_pEnemyProjectileSprite[1] = spriteAdd(3, s_pEnemyProjectileImageB);
     s_pEnemyProjectileSprite[2] = spriteAdd(4, s_pEnemyProjectileImageC);
     s_pEnemyProjectileSprite[3] = spriteAdd(5, s_pEnemyProjectileImageD);
+
+    s_fChannelPos[0] = fix16_from_int(0);
+    s_fChannelPos[1] = fix16_from_int(0);
+    s_fChannelPos[2] = fix16_from_int(0);
+    s_fChannelPos[3] = fix16_from_int(0);
 
     for (UBYTE i=0; i<MAX_ENEMY_PROJECTILES; i++) {
         s_tEnemyProjectiles[i].pProjectileBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
@@ -174,7 +178,7 @@ void gameGsLoop(void) {
     }
 
     if (keyCheck(KEY_SPACE)) {
-        if (fireDelay == 0) {
+        if (s_uwFireDelay == 0) {
             for (UBYTE projectileIdx=0; projectileIdx<MAX_ENEMY_PROJECTILES; projectileIdx++) {
                 if (s_tEnemyProjectiles[projectileIdx].ubAlive == 0) {
                     UBYTE ubAngle = getAngleBetweenPoints(160, 128, s_tPlayerPosition.uwX, s_tPlayerPosition.uwY);
@@ -184,7 +188,7 @@ void gameGsLoop(void) {
                     s_tEnemyProjectiles[projectileIdx].fDeltaY = csin(ubAngle) * ENEMY_PROJECTILE_SPEED;                    
                     s_tEnemyProjectiles[projectileIdx].ubAlive = 255;
                     s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
-                    fireDelay = FIRE_DELAY;
+                    s_uwFireDelay = FIRE_DELAY;
                     break;
                 }
             }
@@ -192,14 +196,14 @@ void gameGsLoop(void) {
     }
 
     // Move player position
-    if (ubMoveDirection == 0) {
+    if (s_ubMoveDirection == 0) {
         s_tPlayerPosition.uwX++;
     } else {
         s_tPlayerPosition.uwX--;
     }
 
-    if (s_tPlayerPosition.uwX <= 16) { ubMoveDirection = 0; s_tPlayerPosition.uwX = 16; }
-    if (s_tPlayerPosition.uwX >= 284) { ubMoveDirection = 1; s_tPlayerPosition.uwX = 284; }
+    if (s_tPlayerPosition.uwX <= 16) { s_ubMoveDirection = 0; s_tPlayerPosition.uwX = 16; }
+    if (s_tPlayerPosition.uwX >= 284) { s_ubMoveDirection = 1; s_tPlayerPosition.uwX = 284; }
     
     // Bobs
     tileBufferQueueProcess(s_pTileBuffer);
@@ -227,25 +231,27 @@ void gameGsLoop(void) {
             if (s_tEnemyProjectiles[projectileIdx].ubAlive == 0) {
                 UBYTE channelIdx = s_tEnemyProjectiles[projectileIdx].ubChannel;
                 moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, channelIdx);
-                channelPos[channelIdx] = 0;
+                s_fChannelPos[channelIdx] = fix16_from_int(0);
                 s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
                 continue;
             }
 
+            s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
             int spriteYPos = fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY);
 
             for (int channelIdx=0; channelIdx<ENEMY_SPRITE_CHANNELS; channelIdx++)
             {
-                int channelYPos = fix16_to_int(channelPos[channelIdx]);
+                int channelYPos = fix16_to_int(s_fChannelPos[channelIdx]);
                 if (spriteYPos > (channelYPos + ENEMY_PROJECTILE_HEIGHT+1) || (spriteYPos + ENEMY_PROJECTILE_HEIGHT+1) < channelYPos)
                 {
                     s_tEnemyProjectiles[projectileIdx].ubChannel = channelIdx;
-                    channelPos[channelIdx] = fix16_from_int(spriteYPos);
+                    s_fChannelPos[channelIdx] = fix16_from_int(spriteYPos);
                     break;
                 }
             }
 
             if (s_tEnemyProjectiles[projectileIdx].ubChannel == 255) {
+                moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
                 s_tEnemyProjectiles[projectileIdx].ubAlive = 0;
                 continue;
             }
@@ -254,7 +260,7 @@ void gameGsLoop(void) {
         }
     }
 
-    if (fireDelay > 0) { fireDelay--; }
+    if (s_uwFireDelay > 0) { s_uwFireDelay--; }
 
     // Finish up.
     tileBufferQueueProcess(s_pTileBuffer);
