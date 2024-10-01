@@ -22,7 +22,7 @@
 
 #define FIRE_DELAY 6
 #define MAX_ENEMY_PROJECTILES 16
-#define ENEMY_PROJECTILE_SPEED 3
+#define ENEMY_PROJECTILE_SPEED 1
 #define ENEMY_PROJECTILE_HEIGHT 7
 #define ENEMY_SPRITE_CHANNELS 4
 
@@ -55,9 +55,10 @@ static tSprite *s_pEnemyProjectileSprite[ENEMY_SPRITE_CHANNELS];
 static tEnemyProjectile s_tEnemyProjectiles[MAX_ENEMY_PROJECTILES];
 static fix16_t s_fChannelPos[ENEMY_SPRITE_CHANNELS] = {0};
 
-static tUwCoordYX s_tPlayerPosition;
 static UWORD s_uwFireDelay = 0;
-static UBYTE s_ubMoveDirection = 0;
+static UBYTE s_ubAngle = 0;
+
+static fix16_t s_fProjectileHeight;
 
 const UBYTE c_ubMapData[] = {1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13, 17, 21, 25, 29, 1, 5, 9, 13,
             2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 10, 14,
@@ -146,10 +147,10 @@ void gameGsCreate(void) {
     s_pEnemyProjectileSprite[2] = spriteAdd(4, s_pEnemyProjectileImageC);
     s_pEnemyProjectileSprite[3] = spriteAdd(5, s_pEnemyProjectileImageD);
 
-    s_fChannelPos[0] = fix16_from_int(0);
-    s_fChannelPos[1] = fix16_from_int(0);
-    s_fChannelPos[2] = fix16_from_int(0);
-    s_fChannelPos[3] = fix16_from_int(0);
+    s_fChannelPos[0] = 0;
+    s_fChannelPos[1] = 0;
+    s_fChannelPos[2] = 0;
+    s_fChannelPos[3] = 0;
 
     for (UBYTE i=0; i<MAX_ENEMY_PROJECTILES; i++) {
         s_tEnemyProjectiles[i].pProjectileBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
@@ -161,13 +162,14 @@ void gameGsCreate(void) {
         s_tEnemyProjectiles[i].ubChannel = 255;
     }
 
+    s_fProjectileHeight = fix16_from_int(ENEMY_PROJECTILE_HEIGHT+1);
+
     // Finish up
     gameMathInit();
     systemUnuse();
     viewLoad(s_pView);
     tileBufferRedrawAll(s_pTileBuffer);
 
-    s_tPlayerPosition.uwX = 16; s_tPlayerPosition.uwY = 240;
     cameraMoveBy(s_pCamera, 0, 32);
 }
 
@@ -177,15 +179,34 @@ void gameGsLoop(void) {
         gameExit();
     }
 
+    if (keyCheck(KEY_Q)) {
+        s_ubAngle = 62;
+    }
+
+    if (keyCheck(KEY_UP)) {
+        s_ubAngle++;
+        if (s_ubAngle >= 129) {
+            s_ubAngle = 1;
+        }
+        logWrite("ANGLE: %d", s_ubAngle);
+    }
+
+    if (keyCheck(KEY_DOWN)) {
+        s_ubAngle--;
+        if (s_ubAngle == 0) {
+            s_ubAngle = 128;
+        }
+        logWrite("ANGLE: %d", s_ubAngle);        
+    }
+
     if (keyCheck(KEY_SPACE)) {
         if (s_uwFireDelay == 0) {
             for (UBYTE projectileIdx=0; projectileIdx<MAX_ENEMY_PROJECTILES; projectileIdx++) {
                 if (s_tEnemyProjectiles[projectileIdx].ubAlive == 0) {
-                    UBYTE ubAngle = getAngleBetweenPoints(160, 128, s_tPlayerPosition.uwX, s_tPlayerPosition.uwY);
                     s_tEnemyProjectiles[projectileIdx].fX = fix16_from_int(160);
                     s_tEnemyProjectiles[projectileIdx].fY = fix16_from_int(128);
-                    s_tEnemyProjectiles[projectileIdx].fDeltaX = ccos(ubAngle) * ENEMY_PROJECTILE_SPEED;
-                    s_tEnemyProjectiles[projectileIdx].fDeltaY = csin(ubAngle) * ENEMY_PROJECTILE_SPEED;                    
+                    s_tEnemyProjectiles[projectileIdx].fDeltaX = ccos(s_ubAngle) * ENEMY_PROJECTILE_SPEED;
+                    s_tEnemyProjectiles[projectileIdx].fDeltaY = csin(s_ubAngle) * ENEMY_PROJECTILE_SPEED;
                     s_tEnemyProjectiles[projectileIdx].ubAlive = 255;
                     s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
                     s_uwFireDelay = FIRE_DELAY;
@@ -194,19 +215,14 @@ void gameGsLoop(void) {
             }
         }
     }
-
-    // Move player position
-    if (s_ubMoveDirection == 0) {
-        s_tPlayerPosition.uwX++;
-    } else {
-        s_tPlayerPosition.uwX--;
-    }
-
-    if (s_tPlayerPosition.uwX <= 16) { s_ubMoveDirection = 0; s_tPlayerPosition.uwX = 16; }
-    if (s_tPlayerPosition.uwX >= 284) { s_ubMoveDirection = 1; s_tPlayerPosition.uwX = 284; }
     
     // Bobs
     tileBufferQueueProcess(s_pTileBuffer);
+
+    s_fChannelPos[0] = 0;
+    s_fChannelPos[1] = 0;
+    s_fChannelPos[2] = 0;
+    s_fChannelPos[3] = 0;
 
     // Sprites
     for (int projectileIdx=0; projectileIdx<MAX_ENEMY_PROJECTILES; projectileIdx++) {
@@ -216,47 +232,52 @@ void gameGsLoop(void) {
             s_tEnemyProjectiles[projectileIdx].fY = fix16_add(s_tEnemyProjectiles[projectileIdx].fY, s_tEnemyProjectiles[projectileIdx].fDeltaY);                
             s_tEnemyProjectiles[projectileIdx].ubAlive--;
 
+            fix16_t fCameraY = fix16_from_int(s_pCamera->uPos.uwY);
+            fix16_t fCameraYMax = fix16_from_int(s_pCamera->uPos.uwY+256);
+            fix16_t fCameraXMax = fix16_from_int(320);
+
             // Check X bounds
-            if (s_tEnemyProjectiles[projectileIdx].fX < 0 || s_tEnemyProjectiles[projectileIdx].fX > fix16_from_int(320))
+            if (s_tEnemyProjectiles[projectileIdx].fX < 0 || s_tEnemyProjectiles[projectileIdx].fX > fCameraXMax)
             {
                 s_tEnemyProjectiles[projectileIdx].ubAlive = 0;
             }
 
             // Check Y bounds
-            if (s_tEnemyProjectiles[projectileIdx].fY < fix16_from_int(s_pCamera->uPos.uwY) || s_tEnemyProjectiles[projectileIdx].fY > fix16_from_int(s_pCamera->uPos.uwY+256))
+            if (s_tEnemyProjectiles[projectileIdx].fY < fCameraY || s_tEnemyProjectiles[projectileIdx].fY > fCameraYMax)
             {
                 s_tEnemyProjectiles[projectileIdx].ubAlive = 0;
             }
 
             if (s_tEnemyProjectiles[projectileIdx].ubAlive == 0) {
-                UBYTE channelIdx = s_tEnemyProjectiles[projectileIdx].ubChannel;
-                moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, channelIdx);
-                s_fChannelPos[channelIdx] = fix16_from_int(0);
+                moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
                 s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
                 continue;
             }
 
             s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
-            int spriteYPos = fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY);
+            fix16_t fSpriteY = s_tEnemyProjectiles[projectileIdx].fY;
+            fix16_t fSpriteYMax = fix16_add(fSpriteY, s_fProjectileHeight);
 
             for (int channelIdx=0; channelIdx<ENEMY_SPRITE_CHANNELS; channelIdx++)
             {
-                int channelYPos = fix16_to_int(s_fChannelPos[channelIdx]);
-                if (spriteYPos > (channelYPos + ENEMY_PROJECTILE_HEIGHT+1) || (spriteYPos + ENEMY_PROJECTILE_HEIGHT+1) < channelYPos)
+                fix16_t fChannelY = s_fChannelPos[channelIdx];
+                fix16_t fChannelYMax = fix16_add(fChannelY, s_fProjectileHeight);
+
+                if (fSpriteY > fChannelYMax || fSpriteYMax < fChannelY)
                 {
                     s_tEnemyProjectiles[projectileIdx].ubChannel = channelIdx;
-                    s_fChannelPos[channelIdx] = fix16_from_int(spriteYPos);
+                    s_fChannelPos[channelIdx] = fSpriteY;
                     break;
                 }
             }
 
             if (s_tEnemyProjectiles[projectileIdx].ubChannel == 255) {
-                moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
                 s_tEnemyProjectiles[projectileIdx].ubAlive = 0;
+                moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
                 continue;
             }
 
-            moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, fix16_to_int(s_tEnemyProjectiles[projectileIdx].fX), fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY) - s_pCamera->uPos.uwY, ENEMY_PROJECTILE_HEIGHT, s_tEnemyProjectiles[projectileIdx].ubChannel);
+            moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, fix16_to_int(s_tEnemyProjectiles[projectileIdx].fX), (fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY) - s_pCamera->uPos.uwY), ENEMY_PROJECTILE_HEIGHT, s_tEnemyProjectiles[projectileIdx].ubChannel);
         }
     }
 
