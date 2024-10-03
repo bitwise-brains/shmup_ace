@@ -48,6 +48,4 @@ else()
   add_executable(${GAME_LINKED} ${SOURCES} ${HEADERS})
 endif()
 
-target_link_libraries(${GAME_LINKED} ace_audio_mixer ace)
-
-file(COPY "${RES_DIR}/data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY "${RES_DIR}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
