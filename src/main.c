@@ -9,7 +9,6 @@ tState *g_pGameState = 0;
 
 void genericCreate(void) {
   // Here goes your startup code
-  logWrite("Demo starting...\n");
   keyCreate(); // We'll use keyboard
   // Initialize gamestate
   g_pGameStateManager = stateManagerCreate();
@@ -29,5 +28,4 @@ void genericDestroy(void) {
   stateManagerDestroy(g_pGameStateManager);
   stateDestroy(g_pGameState);
   keyDestroy(); // We don't need it anymore
-  logWrite("Demo finished!\n");
 }

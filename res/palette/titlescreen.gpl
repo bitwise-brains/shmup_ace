@@ -1,0 +1,36 @@
+GIMP Palette
+Name: \titlescreen
+Columns: 4
+#
+  0   0   0 Index 0
+  0   0  17 Index 1
+ 85   0  51 Index 2
+153  17  34 Index 3
+ 34  34  17 Index 4
+ 34  34  51 Index 5
+ 85  51  34 Index 6
+ 34  51  68 Index 7
+136  51  85 Index 8
+170  68  17 Index 9
+238 119   0 Index 10
+ 68  68  85 Index 11
+ 85  68 102 Index 12
+170  68 102 Index 13
+ 51  68 119 Index 14
+ 85 102 187 Index 15
+187 204 255 Index 16
+238  68  85 Index 17
+255 170 136 Index 18
+255 255 255 Index 19
+187 170 170 Index 20
+ 85  85 102 Index 21
+102 153 255 Index 22
+255 255 255 Index 23
+ 68 119  51 Index 24
+119 170  34 Index 25
+170 204  68 Index 26
+255 170  51 Index 27
+255 255 102 Index 28
+255 221 170 Index 29
+136 119 136 Index 30
+170 221 221 Index 31

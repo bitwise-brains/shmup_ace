@@ -11,7 +11,7 @@ set(VER_Z 1)
 set(VER_FULL "${VER_X}.${VER_Y}.${VER_Z}")
 
 if(NOT AMIGA)
-	message(SEND_ERROR "This project only compiles for Amiga")
+  message(SEND_ERROR "This project only compiles for Amiga")
 endif()
 
 set(CMAKE_C_STANDARD 11)
@@ -48,4 +48,7 @@ else()
   add_executable(${GAME_LINKED} ${SOURCES} ${HEADERS})
 endif()
 
-file(COPY "${RES_DIR}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
+target_link_libraries(${GAME_LINKED} ace)
+
+# Copy example maps files as is
+file(COPY "${RES_DIR}/data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

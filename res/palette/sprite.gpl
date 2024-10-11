@@ -1,0 +1,8 @@
+GIMP Palette
+Name: \sprite
+Columns: 4
+#
+  0   0   0 Index 0
+255  85  85 Index 1
+255 170 170 Index 2
+255 255 255 Index 3
