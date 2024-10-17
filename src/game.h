@@ -22,18 +22,18 @@
 #define GAME_BPP 5
 #define HUD_VIEWPORT_WIDTH 320
 #define HUD_VIEWPORT_HEIGHT 12
-#define HUD_SCORE_WIDTH 96
-#define HUD_SCORE_HEIGHT 8
+#define HUD_TEXT_WIDTH 32
+#define HUD_SCORE_WIDTH 64
+#define HUD_TEXT_HEIGHT 8
 #define TILE_VIEWPORT_WIDTH 320
 #define TILE_VIEWPORT_HEIGHT 244
-#define TILE_VIEWPORT_XMIN 0
 #define TILE_VIEWPORT_YMIN 4
-#define TILE_VIEWPORT_EDGE_MIN 32
-#define TILE_VIEWPORT_EDGE_MAX 352
-#define MAP_WIDTH_IN_TILES 24
-#define MAP_HEIGHT_IN_TILES 36
-#define MAP_BOTTOM 512
-#define CAMERA_MOVE_RATE 4
+#define TILE_VIEWPORT_XMIN 2
+#define TILE_VIEWPORT_XMAX 160
+#define MAP_WIDTH_IN_TILES 10
+#define MAP_HEIGHT_IN_TILES 32
+#define MAP_TILES_COUNT 40
+#define CAMERA_MOVE_RATE 2
 #define CAMERA_MOVE_AMOUNT -1
 
 // Debug
@@ -42,10 +42,13 @@
 void gameGsCreate(void);
 void gameGsLoop(void);
 void gameGsDestroy(void);
-static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel);
-static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel);
-static UBYTE checkCollision(WORD x1, WORD y1, UBYTE w1, UBYTE h1, WORD x2, WORD y2, UBYTE w2, UBYTE h2);
-static void createExplosionAtPosition(tUwCoordYX tPosition);
+
+static void initGame();
+static void initViews();
+static void initHud();
+static void initBobs();
+static void initSprites();
+
 static void processCamera();
 static void processHud();
 static void processInput();
@@ -54,5 +57,11 @@ static void processTimers();
 static void processEnemies();
 static void processPlayerProjectiles();
 static void processEnemyProjectiles();
+
+static void playerShoot();
+static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType, UBYTE ubSecondary);
+static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel);
+static UBYTE checkCollision(WORD x1, WORD y1, UBYTE w1, UBYTE h1, WORD x2, WORD y2, UBYTE w2, UBYTE h2);
+static void createExplosionAtPosition(tUwCoordYX tPosition);
 
 #endif // _GAME_H_
