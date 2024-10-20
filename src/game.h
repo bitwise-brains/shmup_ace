@@ -11,6 +11,7 @@
 #include <ace/managers/copper.h>
 #include <ace/managers/memory.h>
 #include <ace/managers/key.h>
+#include <ace/managers/ptplayer.h>
 #include <ace/managers/rand.h>
 #include <ace/managers/sprite.h>
 #include <ace/managers/system.h>
@@ -20,21 +21,23 @@
 #include <fixmath/fixmath.h>
 
 #define GAME_BPP 5
-#define HUD_VIEWPORT_WIDTH 320
+#define HUD_VIEWPORT_WIDTH 240
 #define HUD_VIEWPORT_HEIGHT 12
 #define HUD_TEXT_WIDTH 32
 #define HUD_SCORE_WIDTH 64
 #define HUD_TEXT_HEIGHT 8
-#define TILE_VIEWPORT_WIDTH 320
+#define TILE_VIEWPORT_WIDTH 160
 #define TILE_VIEWPORT_HEIGHT 244
 #define TILE_VIEWPORT_YMIN 4
-#define TILE_VIEWPORT_XMIN 2
-#define TILE_VIEWPORT_XMAX 160
-#define MAP_WIDTH_IN_TILES 10
+#define TILE_VIEWPORT_XMIN 32
+#define TILE_VIEWPORT_XMAX 192
+#define MAP_WIDTH_IN_TILES 14
 #define MAP_HEIGHT_IN_TILES 32
-#define MAP_TILES_COUNT 40
+#define MAP_TILES_COUNT 56
 #define CAMERA_MOVE_RATE 2
 #define CAMERA_MOVE_AMOUNT -1
+#define BOUNDS_MIN 8
+#define BOUNDS_MAX 65527
 
 // Debug
 //#define COLLISIONS_DISABLED
@@ -57,8 +60,11 @@ static void processTimers();
 static void processEnemies();
 static void processPlayerProjectiles();
 static void processEnemyProjectiles();
+static void processSimpleEnemyProjectiles();
 
-static void playerShoot();
+static void processPlayerShoot();
+static void processPlayerDie();
+
 static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType, UBYTE ubSecondary);
 static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel);
 static UBYTE checkCollision(WORD x1, WORD y1, UBYTE w1, UBYTE h1, WORD x2, WORD y2, UBYTE w2, UBYTE h2);

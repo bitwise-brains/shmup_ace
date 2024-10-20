@@ -10,7 +10,7 @@ static tView *s_pView; // View containing all the viewports
 static tVPort *s_pGameViewport; // Viewport for playfield
 static tVPort *s_pHudViewport; // Viewport for HUD
 static tTileBufferManager *s_pTileBuffer;
-static tSimpleBufferManager *s_pHudBuffer;
+static tScrollBufferManager *s_pHudBuffer;
 static tCameraManager *s_pCamera;
 static tRandManager s_tRandManager;
 static UBYTE s_ubFrameCounter = 0;
@@ -71,8 +71,9 @@ static tBitMap *s_pBigExplosionImage;
 static tBitMap *s_pBigExplosionMask;
 
 // Player Projectiles
-static tPlayerProjectile s_tPlayerProjectiles[PLAYER_PROJECTILE_MAX] = {0};
 static tPlayerProjectileType s_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {0};
+
+static tPlayerProjectile s_tPlayerProjectiles[PLAYER_PROJECTILE_MAX] = {0};
 static tSprite *s_pPlayerProjectileSprites[PLAYER_PROJECTILE_TYPES];
 static tBitMap *s_pPlayerProjectileImages[PLAYER_PROJECTILE_TYPES];
 
@@ -83,10 +84,16 @@ static tBitMap *s_pPlayerSecondaryProjectileImages[PLAYER_SECONDARY_PROJECTILE_T
 // Enemy Projectiles
 static tSprite *s_pEnemyProjectileSprite[ENEMY_SPRITE_CHANNELS];
 static tBob s_tEnemyProjectileBob[ENEMY_BOB_CHANNELS];
+static UBYTE s_ubProjectileBobIndex = 0;
+
+  // fix16
 static tEnemyProjectile s_tEnemyProjectiles[ENEMY_PROJECTILE_MAX] = {0};
 static tChannelBounds s_fChannelBounds[ENEMY_SPRITE_CHANNELS] = {0};
 static fix16_t s_fEnemyProjectileHeight;
-static UBYTE s_ubProjectileBobIndex = 0;
+
+  // UWORD
+static tSimpleEnemyProjectile s_tSimpleEnemyProjectiles[ENEMY_PROJECTILE_MAX] = {0};
+static tSimpleChannelBounds s_tSimpleChannelBounds[ENEMY_SPRITE_CHANNELS] = {0};
 
 static tBitMap *s_pEnemyProjectileBobImage;
 static tBitMap *s_pEnemyProjectileBobMask;
@@ -102,12 +109,13 @@ static fix16_t s_fViewportXMax;
 static UWORD s_uwPlayerShipAnimOffset[] = {0, 0, 160, 160, 320, 320, 480, 480};
 static UWORD s_uwExplosionAnimOffset[] = {0, 0, 640, 640, 1280, 1280, 1920, 1920, 2560, 2560, 3200, 3200, 3840, 3840, 4480, 4480};
 static UWORD s_uwBigExplosionAnimOffset[] = {0, 0, 0, 1440, 1440, 1440, 2880, 2880, 2880, 4320, 4320, 4320, 5760, 5760, 5760, 7200, 7200, 7200, 8640, 8640, 8640, 10080, 10080, 10080, 11520, 11520, 11520, 12960, 12960, 12960, 14400, 14400, 14400, 15840, 15840, 15840};
-static WORD s_wSpineX[] = {64, 64, 64, 64, 64, 64, 65, 65, 66, 66, 67, 68, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 83, 84, 86, 87, 89, 90, 92, 94, 95, 97, 99, 101, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 129, 131, 133, 135, 137, 139, 142, 144, 146, 148, 151, 153, 155, 157, 160, 162, 164, 166, 168, 171, 173, 175, 177, 180, 182, 184, 186, 188, 190, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215, 217, 218, 220, 222, 224, 226, 227, 229, 230, 232, 233, 235, 236, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 251, 252, 253, 253, 254, 254, 255, 255, 255, 255, 255, 256, 255, 255, 255, 255, 255, 254, 254, 253, 253, 252, 251, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 240, 239, 238, 236, 235, 233, 232, 230, 229, 227, 226, 224, 222, 220, 218, 217, 215, 213, 211, 209, 207, 205, 203, 201, 199, 197, 195, 193, 190, 188, 186, 184, 182, 180, 177, 175, 173, 171, 168, 166, 164, 162, 160, 157, 155, 153, 151, 148, 146, 144, 142, 139, 137, 135, 133, 131, 129, 126, 124, 122, 120, 118, 116, 114, 112, 110, 108, 106, 104, 102, 101, 99, 97, 95, 94, 92, 90, 89, 87, 86, 84, 83, 81, 80, 79, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 68, 67, 66, 66, 65, 65, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 65, 65, 66, 66, 67, 68, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 83, 84, 86, 87, 89, 90, 92, 94, 95, 97, 99, 101, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 129, 131, 133, 135, 137, 139, 142, 144, 146, 148, 151, 153, 155, 157, 160, 162, 164, 166, 168, 171, 173, 175, 177, 180, 182, 184, 186, 188, 190, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215, 217, 218, 220, 222, 224, 226, 227, 229, 230, 232, 233, 235, 236, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 251, 252, 253, 253, 254, 254, 255, 255, 255, 255, 255, 256, 255, 255, 255, 255, 255, 254, 254, 253, 253, 252, 251, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 240, 239, 238, 236, 235, 233, 232, 230, 229, 227, 226, 224, 222, 220, 218, 217, 215, 213, 211, 209, 207, 205, 203, 201, 199, 197, 195, 193, 190, 188, 186, 184, 182, 180, 177, 175, 173, 171, 168, 166, 164, 162, 160, 157, 155, 153, 151, 148, 146, 144, 142, 139, 137, 135, 133, 131, 129, 126, 124, 122, 120, 118, 116, 114, 112, 110, 108, 106, 104, 102, 101, 99, 97, 95, 94, 92, 90, 89, 87, 86, 84, 83, 81, 80, 79, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 68, 67, 66, 66, 65, 65, 64, 64, 64, 64, 64};
-static WORD s_wSpineY[] = {64, 63, 63, 62, 62, 61, 61, 60, 60, 59, 59, 58, 58, 58, 57, 57, 57, 56, 56, 55, 55, 55, 54, 54, 54, 53, 53, 53, 53, 52, 52, 52, 52, 51, 51, 51, 51, 50, 50, 50, 50, 50, 49, 49, 49, 49, 49, 49, 49, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 49, 49, 49, 49, 49, 49, 49, 50, 50, 50, 50, 50, 51, 51, 51, 51, 52, 52, 52, 52, 53, 53, 53, 53, 54, 54, 54, 55, 55, 55, 56, 56, 57, 57, 57, 58, 58, 58, 59, 59, 60, 60, 61, 61, 62, 62, 63, 63, 64, 64, 65, 65, 66, 66, 67, 68, 68, 69, 70, 70, 71, 72, 73, 73, 74, 75, 76, 77, 78, 79, 80, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 101, 102, 103, 104, 105, 107, 108, 109, 110, 111, 113, 114, 115, 116, 118, 119, 120, 121, 123, 124, 125, 126, 128, 129, 130, 131, 132, 134, 135, 136, 137, 139, 140, 141, 142, 144, 145, 146, 147, 148, 150, 151, 152, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 175, 176, 177, 178, 179, 180, 181, 182, 182, 183, 184, 185, 185, 186, 187, 187, 188, 189, 189, 190, 190, 191, 192, 192, 192, 193, 193, 194, 194, 195, 195, 196, 196, 197, 197, 197, 198, 198, 199, 199, 199, 200, 200, 200, 201, 201, 201, 202, 202, 202, 202, 203, 203, 203, 204, 204, 204, 204, 204, 205, 205, 205, 205, 205, 206, 206, 206, 206, 206, 206, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 208, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 207, 206, 206, 206, 206, 206, 206, 205, 205, 205, 205, 205, 204, 204, 204, 204, 204, 203, 203, 203, 202, 202, 202, 202, 201, 201, 201, 200, 200, 200, 199, 199, 199, 198, 198, 197, 197, 197, 196, 196, 195, 195, 194, 194, 193, 193, 192, 192, 192, 191, 190, 190, 189, 189, 188, 187, 187, 186, 185, 185, 184, 183, 182, 182, 181, 180, 179, 178, 177, 176, 175, 175, 174, 173, 172, 171, 170, 169, 168, 167, 166, 164, 163, 162, 161, 160, 159, 158, 157, 156, 154, 153, 152, 151, 150, 148, 147, 146, 145, 144, 142, 141, 140, 139, 137, 136, 135, 134, 132, 131, 130, 129, 128, 126, 125, 124, 123, 121, 120, 119, 118, 116, 115, 114, 113, 111, 110, 109, 108, 107, 105, 104, 103, 102, 101, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 88, 87, 86, 85, 84, 83, 82, 81, 80, 80, 79, 78, 77, 76, 75, 74, 73, 73, 72, 71, 70, 70, 69, 68, 68, 67, 66, 66, 65, 65, 64};
-static UBYTE s_ubMapData[] = {1, 5,  9, 13, 17, 21, 25, 29, 1, 5, 
-                              2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 
-                              3, 7, 11, 15, 19, 23, 27, 31, 3, 7, 
-                              4, 8, 12, 16, 20, 24, 28, 32, 4, 8};
+static WORD s_wSpineX[] = {112, 113, 113, 114, 114, 115, 116, 116, 117, 117, 118, 119, 119, 120, 121, 121, 122, 123, 123, 124, 125, 126, 126, 127, 128, 129, 129, 130, 131, 132, 132, 133, 134, 135, 135, 136, 137, 138, 138, 139, 140, 141, 141, 142, 143, 144, 145, 145, 146, 147, 148, 148, 149, 150, 151, 151, 152, 153, 154, 154, 155, 156, 156, 157, 158, 158, 159, 160, 160, 161, 162, 162, 163, 164, 164, 165, 165, 166, 167, 167, 168, 168, 169, 169, 170, 170, 171, 171, 172, 172, 173, 173, 173, 174, 174, 174, 175, 175, 175, 176, 176, 176, 177, 177, 177, 177, 177, 177, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 177, 177, 177, 177, 177, 176, 176, 176, 175, 175, 174, 174, 173, 173, 172, 172, 171, 170, 170, 169, 168, 167, 167, 166, 165, 164, 163, 162, 161, 160, 159, 158, 157, 156, 155, 153, 152, 151, 150, 149, 147, 146, 145, 143, 142, 141, 139, 138, 137, 135, 134, 132, 131, 130, 128, 127, 125, 124, 122, 121, 119, 118, 116, 115, 113, 112, 110, 109, 107, 106, 104, 103, 101, 100, 98, 97, 95, 93, 92, 90, 89, 88, 86, 85, 83, 82, 80, 79, 77, 76, 75, 73, 72, 70, 69, 68, 66, 65, 64, 63, 61, 60, 59, 58, 57, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 43, 42, 41, 40, 40, 39, 38, 38, 37, 37, 36, 36, 35, 35, 35, 34, 34, 34, 34, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 34, 34, 34, 34, 35, 35, 35, 36, 36, 36, 37, 37, 37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 43, 43, 44, 44, 45, 46, 46, 47, 48, 48, 49, 50, 51, 51, 52, 53, 54, 54, 55, 56, 57, 58, 58, 59, 60, 61, 62, 63, 64, 64, 65, 66, 67, 68, 69, 70, 71, 71, 72, 73, 74, 75, 76, 77, 78, 79, 79, 80, 81, 82, 83, 84, 85, 86, 87, 87, 88, 89, 90, 91, 92, 93, 93, 94, 95, 96, 97, 98, 98, 99, 100, 101, 101, 102, 103, 104, 104, 105, 106, 106, 107, 108, 108, 109, 110, 110, 111, 111, 112};
+static WORD s_wSpineY[] = {32, 32, 32, 32, 32, 33, 33, 33, 34, 34, 34, 35, 35, 36, 36, 37, 38, 38, 39, 40, 41, 42, 43, 44, 44, 45, 46, 48, 49, 50, 51, 52, 53, 54, 56, 57, 58, 60, 61, 62, 64, 65, 67, 68, 70, 71, 73, 74, 76, 77, 79, 80, 82, 84, 85, 87, 88, 90, 92, 93, 95, 97, 99, 100, 102, 104, 105, 107, 109, 111, 112, 114, 116, 118, 119, 121, 123, 125, 126, 128, 130, 131, 133, 135, 136, 138, 140, 141, 143, 145, 146, 148, 150, 151, 153, 154, 156, 157, 159, 160, 162, 163, 165, 166, 167, 169, 170, 171, 173, 174, 175, 176, 177, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 188, 189, 190, 191, 191, 192, 193, 193, 194, 194, 195, 196, 196, 197, 197, 198, 198, 199, 199, 200, 200, 201, 201, 202, 202, 203, 203, 203, 204, 204, 205, 205, 205, 206, 206, 206, 207, 207, 207, 208, 208, 208, 208, 209, 209, 209, 209, 210, 210, 210, 210, 210, 211, 211, 211, 211, 211, 211, 211, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 211, 211, 211, 211, 211, 211, 211, 210, 210, 210, 210, 210, 209, 209, 209, 209, 208, 208, 208, 208, 207, 207, 207, 206, 206, 206, 205, 205, 205, 204, 204, 203, 203, 203, 202, 202, 201, 201, 200, 200, 199, 199, 198, 198, 197, 197, 196, 196, 195, 194, 194, 193, 193, 192, 191, 191, 190, 189, 188, 188, 187, 186, 185, 184, 183, 182, 181, 180, 179, 177, 176, 175, 174, 173, 171, 170, 169, 167, 166, 165, 163, 162, 160, 159, 157, 156, 154, 153, 151, 150, 148, 146, 145, 143, 141, 140, 138, 136, 135, 133, 131, 130, 128, 126, 125, 123, 121, 119, 118, 116, 114, 112, 111, 109, 107, 105, 104, 102, 100, 99, 97, 95, 93, 92, 90, 88, 87, 85, 84, 82, 80, 79, 77, 76, 74, 73, 71, 70, 68, 67, 65, 64, 62, 61, 60, 58, 57, 56, 54, 53, 52, 51, 50, 49, 48, 46, 45, 44, 44, 43, 42, 41, 40, 39, 38, 38, 37, 36, 36, 35, 35, 34, 34, 34, 33, 33, 33, 32, 32, 32, 32, 32};
+
+static UBYTE s_ubMapData[] = {0, 0, 1, 5,  9, 13, 17, 21, 25, 29, 1, 5, 0, 0, 
+                              0, 0, 2, 6, 10, 14, 18, 22, 26, 30, 2, 6, 0, 0, 
+                              0, 0, 3, 7, 11, 15, 19, 23, 27, 31, 3, 7, 0, 0, 
+                              0, 0, 4, 8, 12, 16, 20, 24, 28, 32, 4, 8, 0, 0};
 
 // Debug
 static UBYTE s_ubEnemyCanFire;
@@ -137,7 +145,7 @@ void gameGsLoop(void) {
     processInput();
     processPlayerProjectiles();
     processEnemies();
-    processEnemyProjectiles();
+    processSimpleEnemyProjectiles();
     processBobs();
     processTimers();
     processHud();
@@ -162,32 +170,32 @@ void gameGsDestroy(void) {
 // Initialize game.
 static void initGame() {
     // Setup projectile types
-    s_tPlayerProjectileTypes[0] = (tPlayerProjectileType){ .ubDamage = 10, .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -6, .ubXOffset =  8, .ubXOffset2 =  0, .ubWidth = 15, .ubHeight =  5, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
-    s_tPlayerProjectileTypes[1] = (tPlayerProjectileType){ .ubDamage = 12, .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -6, .ubXOffset = 10, .ubXOffset2 =  0, .ubWidth = 11, .ubHeight = 11, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
-    s_tPlayerProjectileTypes[2] = (tPlayerProjectileType){ .ubDamage = 14, .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -6, .ubXOffset =  9, .ubXOffset2 =  0, .ubWidth = 13, .ubHeight = 12, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
-    s_tPlayerProjectileTypes[3] = (tPlayerProjectileType){ .ubDamage = 20, .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -5, .ubXOffset = 10, .ubXOffset2 =  0, .ubWidth = 12, .ubHeight = 12, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
-    s_tPlayerProjectileTypes[4] = (tPlayerProjectileType){ .ubDamage = 30, .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -4, .ubXOffset = 10, .ubXOffset2 =  0, .ubWidth = 11, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
-    s_tPlayerProjectileTypes[5] = (tPlayerProjectileType){ .ubDamage = 5,  .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
-    s_tPlayerProjectileTypes[6] = (tPlayerProjectileType){ .ubDamage = 25, .ubDelay = 8, .bDeltaX = -5, .bDeltaX2 =  5, .bDeltaY = -5, .ubXOffset =  9, .ubXOffset2 = 16, .ubWidth =  7, .ubHeight =  8, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = TRUE,  .ubSecondarySpriteIndex = 1 }; // SpreadShot
+    s_tPlayerProjectileTypes[0] = (tPlayerProjectileType){ .ubDamage = 10, .ubDelay =  5, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -6, .ubXOffset =  2, .ubXOffset2 =  0, .ubWidth = 11, .ubHeight = 10, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
+    s_tPlayerProjectileTypes[1] = (tPlayerProjectileType){ .ubDamage = 12, .ubDelay =  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -6, .ubXOffset =  1, .ubXOffset2 =  0, .ubWidth = 11, .ubHeight = 12, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
+    s_tPlayerProjectileTypes[2] = (tPlayerProjectileType){ .ubDamage = 14, .ubDelay = 10, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -3, .ubXOffset =  0, .ubXOffset2 =  0, .ubWidth = 13, .ubHeight = 11, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
+    s_tPlayerProjectileTypes[3] = (tPlayerProjectileType){ .ubDamage =  5, .ubDelay =  4, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  2, .ubXOffset2 =  0, .ubWidth = 12, .ubHeight = 12, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
+    // s_tPlayerProjectileTypes[4] = (tPlayerProjectileType){ .ubDamage = 30, .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -4, .ubXOffset = 10, .ubXOffset2 =  0, .ubWidth = 11, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 };
+    // s_tPlayerProjectileTypes[5] = (tPlayerProjectileType){ .ubDamage = 5,  .ubDelay = 8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
+    // s_tPlayerProjectileTypes[6] = (tPlayerProjectileType){ .ubDamage = 25, .ubDelay = 8, .bDeltaX = -5, .bDeltaX2 =  5, .bDeltaY = -5, .ubXOffset =  9, .ubXOffset2 = 16, .ubWidth =  7, .ubHeight =  8, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = TRUE,  .ubSecondarySpriteIndex = 1 }; // SpreadShot
 }
 
 static void initViews() {
     // Setup screen and viewports.
     s_pView = viewCreate(0,
         TAG_VIEW_GLOBAL_PALETTE, 1,
+        TAG_VIEW_WINDOW_WIDTH, 160,
+        TAG_VIEW_WINDOW_START_X, SCREEN_XOFFSET + 80,
     TAG_DONE);
 
     s_pGameViewport = vPortCreate(0,
         TAG_VPORT_VIEW, s_pView,
         TAG_VPORT_BPP, GAME_BPP,
-        TAG_VPORT_WIDTH, TILE_VIEWPORT_WIDTH,        
         TAG_VPORT_HEIGHT, TILE_VIEWPORT_HEIGHT,
     TAG_DONE);
 
     s_pHudViewport = vPortCreate(0,
         TAG_VPORT_VIEW, s_pView,
         TAG_VPORT_BPP, GAME_BPP,
-        TAG_VPORT_WIDTH, HUD_VIEWPORT_WIDTH,
         TAG_VPORT_HEIGHT, HUD_VIEWPORT_HEIGHT,
     TAG_DONE);
 
@@ -210,9 +218,20 @@ static void initViews() {
     TAG_DONE);
 
     // Init simple buffer.
-    s_pHudBuffer = simpleBufferCreate(0,
-        TAG_SIMPLEBUFFER_VPORT, s_pHudViewport,
-        TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR,
+    // s_pHudBuffer = simpleBufferCreate(0,
+    //     TAG_SIMPLEBUFFER_VPORT, s_pHudViewport,
+    //     TAG_SIMPLEBUFFER_USE_X_SCROLLING, 1,
+    //     TAG_SIMPLEBUFFER_IS_DBLBUF, 0,
+    //     TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR,
+    // TAG_DONE);
+
+    s_pHudBuffer = scrollBufferCreate(0,
+        TAG_SCROLLBUFFER_VPORT, s_pHudViewport,
+        TAG_SCROLLBUFFER_IS_DBLBUF, 0,
+        TAG_SCROLLBUFFER_MARGIN_WIDTH, 4,
+        TAG_SCROLLBUFFER_BOUND_WIDTH, 160,
+        TAG_SCROLLBUFFER_BOUND_HEIGHT, 12,        
+        TAG_SCROLLBUFFER_BITMAP_FLAGS, BMF_CLEAR,
     TAG_DONE);
 
     // Populate tilemap.
@@ -228,7 +247,7 @@ static void initViews() {
     // Setup camera.
     s_pCamera = s_pTileBuffer->pCamera;
     s_fViewportXMax = fix16_from_int(TILE_VIEWPORT_XMAX);
-    //cameraMoveBy(s_pCamera, TILE_VIEWPORT_XMIN, 32);
+    cameraMoveBy(s_pCamera, 32, 32);
 }
 
 static void initHud() {
@@ -268,12 +287,13 @@ static void initBobs() {
     // Init enemy structs.
     for (UBYTE i=0; i<ENEMY_MAX; i++) {
         bobInit( &s_tEnemy[i].sBob, ENEMY_WIDTH, ENEMY_HEIGHT, 1, s_pEnemyImage->Planes[0], s_pEnemyMask->Planes[0], 0, 0 );
-        s_tEnemy[i].tPosition.wX = 0;
-        s_tEnemy[i].tPosition.wY = 0;
+        s_tEnemy[i].tPosition.uwX = 0;
+        s_tEnemy[i].tPosition.uwY = 0;
         s_tEnemy[i].bHealth = 0;
         s_tEnemy[i].ubCooldownTimer = 0;
-        s_tEnemy[i].ubSpeed = 2;        
-        s_tEnemy[i].uwPositionOffsetIdx = 0;
+        s_tEnemy[i].ubEnemyType = 0;
+        s_tEnemy[i].ubPathType = 0;
+        s_tEnemy[i].uwPathIdx = 0;
         s_tEnemy[i].uwScoreValue = ENEMY_SCORE_VALUE;
     }
 
@@ -286,22 +306,23 @@ static void initBobs() {
     }
 
     // Large explosion bob
-    // s_pBigExplosionImage = bitmapCreateFromFile("data/bigexplosion.bm", 0);
-    // s_pBigExplosionMask = bitmapCreateFromFile("data/bigexplosion_mask.bm", 0);
+    s_pBigExplosionImage = bitmapCreateFromFile("data/bigexplosion.bm", 0);
+    s_pBigExplosionMask = bitmapCreateFromFile("data/bigexplosion_mask.bm", 0);
 
-    // bobInit(&s_tBigExplosionBob, 48, 48, 1, s_pBigExplosionImage->Planes[0], s_pBigExplosionMask->Planes[0], 0, 0);
+    bobInit(&s_tBigExplosionBob, 48, 48, 1, s_pBigExplosionImage->Planes[0], s_pBigExplosionMask->Planes[0], 0, 0);
 
     // Enemy projectiles.
-    s_pEnemyProjectileBobImage = bitmapCreateFromFile("data/enemy_bullet_bob_1.bm", 0);
-    s_pEnemyProjectileBobMask = bitmapCreateFromFile("data/enemy_bullet_bob_1_mask.bm", 0);
+    s_pEnemyProjectileBobImage = bitmapCreateFromFile("data/enemy_bullet_bob_2.bm", 0);
+    s_pEnemyProjectileBobMask = bitmapCreateFromFile("data/enemy_bullet_bob_2_mask.bm", 0);
 
     for (UBYTE i=0; i<ENEMY_BOB_CHANNELS; i++) {
         bobInit(&s_tEnemyProjectileBob[i], 16, 6, 1, s_pEnemyProjectileBobImage->Planes[0], s_pEnemyProjectileBobMask->Planes[0], 0, 0);
     }
 
-    // s_pTextGameOverImage = bitmapCreateFromFile("data/text_gameover.bm", 0);
-    // s_pTextGameOverMask = bitmapCreateFromFile("data/text_gameover_mask.bm", 0);
-    // bobInit(&s_tTextGameOverBob, 112, 60, 0, s_pTextGameOverImage->Planes[0], s_pTextGameOverMask->Planes[0], 0, 0);
+    // Game Over text
+    s_pTextGameOverImage = bitmapCreateFromFile("data/text_gameover.bm", 0);
+    s_pTextGameOverMask = bitmapCreateFromFile("data/text_gameover_mask.bm", 0);
+    bobInit(&s_tTextGameOverBob, 112, 60, 0, s_pTextGameOverImage->Planes[0], s_pTextGameOverMask->Planes[0], 0, 0);
 
     // Finish tilebuffer bob init.
     bobReallocateBgBuffers();
@@ -314,19 +335,25 @@ static void initSprites() {
 
     // Enemy projectile sprites.
     s_fEnemyProjectileHeight = fix16_from_int(ENEMY_PROJECTILE_HEIGHT+1);    
-    s_pEnemyProjectileSpriteImage = bitmapCreateFromFile("data/enemy_bullet_sprite_1.bm", 0);
+    s_pEnemyProjectileSpriteImage = bitmapCreateFromFile("data/enemy_bullet_sprite_2.bm", 0);
     s_pEnemyProjectileSprite[0] = spriteAdd(0, s_pEnemyProjectileSpriteImage);
     s_pEnemyProjectileSprite[1] = spriteAdd(1, s_pEnemyProjectileSpriteImage);
     s_pEnemyProjectileSprite[2] = spriteAdd(2, s_pEnemyProjectileSpriteImage);
     s_pEnemyProjectileSprite[3] = spriteAdd(3, s_pEnemyProjectileSpriteImage);
 
-    s_fChannelBounds[0] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
-    s_fChannelBounds[1] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
-    s_fChannelBounds[2] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
-    s_fChannelBounds[3] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
+    // s_fChannelBounds[0] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
+    // s_fChannelBounds[1] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
+    // s_fChannelBounds[2] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
+    // s_fChannelBounds[3] = (tChannelBounds){.fMin = fix16_maximum, .fMax = fix16_minimum};
+
+    s_tSimpleChannelBounds[0] = (tSimpleChannelBounds){.uwMin = 8, .uwMax = 65527};
+    s_tSimpleChannelBounds[1] = (tSimpleChannelBounds){.uwMin = 8, .uwMax = 65527};
+    s_tSimpleChannelBounds[2] = (tSimpleChannelBounds){.uwMin = 8, .uwMax = 65527};
+    s_tSimpleChannelBounds[3] = (tSimpleChannelBounds){.uwMin = 8, .uwMax = 65527};
 
     for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
-        s_tEnemyProjectiles[i].pProjectileBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
+        //s_tEnemyProjectiles[i].pCopBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
+        s_tSimpleEnemyProjectiles[i].pCopBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
     }
 
     // Player projectile sprite.   
@@ -347,8 +374,8 @@ static void initSprites() {
     // s_pPlayerSecondaryProjectileSprites[1] = spriteAdd(5, s_pPlayerSecondaryProjectileImages[1]);
 
     for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
-        s_tPlayerProjectiles[i].pProjectileBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
-        s_tPlayerSecondaryProjectiles[i].pProjectileBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
+        s_tPlayerProjectiles[i].pCopBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
+        //s_tPlayerSecondaryProjectiles[i].pCopBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
     }
 }
 
@@ -395,7 +422,7 @@ static void processInput() {
 
     // Shoot
     if (keyCheck(KEY_SPACE)) {
-        playerShoot();
+        processPlayerShoot();
     }
    
     // DEBUG: toggle enemy fire
@@ -415,12 +442,11 @@ static void processInput() {
             if (s_ubActiveEnemies < ENEMY_MAX) {
                 for (UBYTE i=0; i<ENEMY_MAX; i++) {
                     if (s_tEnemy[i].bHealth > 0) { continue; }
-                    s_tEnemy[i].tPosition.wX = s_wSpineX[0];
-                    s_tEnemy[i].tPosition.wY = s_wSpineY[0];
+                    s_tEnemy[i].tPosition.uwX = s_wSpineX[0];
+                    s_tEnemy[i].tPosition.uwY = s_wSpineY[0];
                     s_tEnemy[i].bHealth = 20;
                     s_tEnemy[i].ubCooldownTimer = 0;
-                    s_tEnemy[i].ubSpeed = 2;        
-                    s_tEnemy[i].uwPositionOffsetIdx = 0;
+                    s_tEnemy[i].uwPathIdx = 0;
                     s_tEnemy[i].uwScoreValue = ENEMY_SCORE_VALUE;
                     s_ubActiveEnemies++;
                     break;
@@ -613,52 +639,71 @@ static void processEnemies() {
         if (s_tEnemy[enemyIdx].bHealth == 0) { continue; }
         
         // Move
-        s_tEnemy[enemyIdx].uwPositionOffsetIdx++;
-        if (s_tEnemy[enemyIdx].uwPositionOffsetIdx >= ENEMY_PATH_LENGTH) {
-            s_tEnemy[enemyIdx].uwPositionOffsetIdx = 0;
+        s_tEnemy[enemyIdx].uwPathIdx++;
+        if (s_tEnemy[enemyIdx].uwPathIdx >= ENEMY_PATH_LENGTH) {
+            s_tEnemy[enemyIdx].uwPathIdx = 0;
         }
 
-        s_tEnemy[enemyIdx].tPosition.wX = s_wSpineX[s_tEnemy[enemyIdx].uwPositionOffsetIdx];
-        s_tEnemy[enemyIdx].tPosition.wY = s_wSpineY[s_tEnemy[enemyIdx].uwPositionOffsetIdx];
-        s_tEnemy[enemyIdx].sBob.sPos.uwX = s_tEnemy[enemyIdx].tPosition.wX;
-        s_tEnemy[enemyIdx].sBob.sPos.uwY = s_tEnemy[enemyIdx].tPosition.wY;
+        s_tEnemy[enemyIdx].tPosition.uwX = s_wSpineX[s_tEnemy[enemyIdx].uwPathIdx];
+        s_tEnemy[enemyIdx].tPosition.uwY = s_wSpineY[s_tEnemy[enemyIdx].uwPathIdx];
+        s_tEnemy[enemyIdx].sBob.sPos = s_tEnemy[enemyIdx].tPosition;
 
         // Check X bounds
-        if (s_tEnemy[enemyIdx].tPosition.wX < uwCameraXMin || s_tEnemy[enemyIdx].tPosition.wX > uwCameraXMax)
+        if (s_tEnemy[enemyIdx].tPosition.uwX < uwCameraXMin || s_tEnemy[enemyIdx].tPosition.uwX > uwCameraXMax)
         {
-            s_tEnemy[enemyIdx].bHealth = 0;
-            s_tEnemy[enemyIdx].tPosition.wX = 0;
-            s_tEnemy[enemyIdx].tPosition.wY = 0;
+            // s_tEnemy[enemyIdx].bHealth = 0;
+            // s_tEnemy[enemyIdx].tPosition.wX = 0;
+            // s_tEnemy[enemyIdx].tPosition.wY = 0;
             continue;
         }
 
         // Check Y bounds
-        if (s_tEnemy[enemyIdx].tPosition.wY < uwCameraYMin || s_tEnemy[enemyIdx].tPosition.wY > uwCameraYMax)
+        if (s_tEnemy[enemyIdx].tPosition.uwY < uwCameraYMin || s_tEnemy[enemyIdx].tPosition.uwY > uwCameraYMax)
         {
-            s_tEnemy[enemyIdx].bHealth = 0;
-            s_tEnemy[enemyIdx].tPosition.wX = 0;
-            s_tEnemy[enemyIdx].tPosition.wY = 0;
+            // s_tEnemy[enemyIdx].bHealth = 0;
+            // s_tEnemy[enemyIdx].tPosition.wX = 0;
+            // s_tEnemy[enemyIdx].tPosition.wY = 0;
             continue;
         }
+
+        #ifndef COLLISIONS_DISABLED
+        // Check collision with player.
+        if (s_ubPlayerAlive == TRUE) {
+            UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX+PLAYER_HITBOX_OFFSET_X, s_tPlayerPosition.uwY+PLAYER_HITBOX_OFFSET_Y, PLAYER_HITBOX_WIDTH, PLAYER_HITBOX_HEIGHT, 
+                                               s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, ENEMY_WIDTH, ENEMY_HEIGHT);
+            if (ubCollision == TRUE) { 
+                processPlayerDie();
+            }
+        }
+        #endif
 
         // Shoot
         if (s_ubEnemyCanFire == 0) { continue; }
 
         if (s_tEnemy[enemyIdx].ubCooldownTimer == 0) {
             for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
-                if (s_tEnemyProjectiles[i].ubAlive == 0) {
-                    UWORD uwPlayerCenterX = s_tPlayerPosition.uwX + PLAYER_CENTER_OFFSET_X;
-                    UWORD uwPlayerCenterY = s_tPlayerPosition.uwY + PLAYER_CENTER_OFFSET_Y;
-                    UWORD uwEnemyGunX = s_tEnemy[enemyIdx].tPosition.wX + ENEMY_GUN_OFFSET_X;
-                    UWORD uwEnemyGunY = s_tEnemy[enemyIdx].tPosition.wY + ENEMY_GUN_OFFSET_Y;
+                if (s_tSimpleEnemyProjectiles[i].ubAlive == 0) {
+                    // UWORD uwPlayerCenterX = s_tPlayerPosition.uwX + PLAYER_CENTER_OFFSET_X;
+                    // UWORD uwPlayerCenterY = s_tPlayerPosition.uwY + PLAYER_CENTER_OFFSET_Y;
+                    UWORD uwEnemyGunX = s_tEnemy[enemyIdx].tPosition.uwX + ENEMY_GUN_OFFSET_X;
+                    UWORD uwEnemyGunY = s_tEnemy[enemyIdx].tPosition.uwY + ENEMY_GUN_OFFSET_Y;
 
-                    UBYTE ubAngle = getAngleBetweenPoints(uwEnemyGunX, uwEnemyGunY, uwPlayerCenterX, uwPlayerCenterY);
-                    s_tEnemyProjectiles[i].fX = fix16_from_int(uwEnemyGunX - ENEMY_PROJECTILE_OFFSET_X);
-                    s_tEnemyProjectiles[i].fY = fix16_from_int(uwEnemyGunY);
-                    s_tEnemyProjectiles[i].fDeltaX = ccos(ubAngle) * ENEMY_PROJECTILE_SPEED;
-                    s_tEnemyProjectiles[i].fDeltaY = csin(ubAngle) * ENEMY_PROJECTILE_SPEED;
-                    s_tEnemyProjectiles[i].ubAlive = 255;
-                    s_tEnemyProjectiles[i].ubChannel = 255;
+                    // UBYTE ubAngle = getAngleBetweenPoints(uwEnemyGunX, uwEnemyGunY, uwPlayerCenterX, uwPlayerCenterY);
+                    // s_tEnemyProjectiles[i].fX = fix16_from_int(uwEnemyGunX - ENEMY_PROJECTILE_OFFSET_X);
+                    // s_tEnemyProjectiles[i].fY = fix16_from_int(uwEnemyGunY);
+                    // s_tEnemyProjectiles[i].fDeltaX = ccos(ubAngle) * ENEMY_PROJECTILE_SPEED;
+                    // s_tEnemyProjectiles[i].fDeltaY = csin(ubAngle) * ENEMY_PROJECTILE_SPEED;
+                    // s_tEnemyProjectiles[i].fDeltaX = 0;
+                    // s_tEnemyProjectiles[i].fDeltaY = fix16_from_int(ENEMY_PROJECTILE_SPEED);
+                    // s_tEnemyProjectiles[i].ubAlive = 255;
+                    // s_tEnemyProjectiles[i].ubChannel = 255;
+
+                    s_tSimpleEnemyProjectiles[i].uwX = uwEnemyGunX;
+                    s_tSimpleEnemyProjectiles[i].uwY = uwEnemyGunY;
+                    s_tSimpleEnemyProjectiles[i].bDeltaX = 0;
+                    s_tSimpleEnemyProjectiles[i].bDeltaY = 2;
+                    s_tSimpleEnemyProjectiles[i].ubAlive = 255;
+                    s_tSimpleEnemyProjectiles[i].ubChannel = 255;
                     s_tEnemy[enemyIdx].ubCooldownTimer = ENEMY_FIRE_DELAY;
                     break;
                 }
@@ -669,7 +714,16 @@ static void processEnemies() {
 
 // Utility functions
 
-static void playerShoot() {
+static void processPlayerDie() {
+    s_tBigExplosionBob.sPos.uwX = s_tPlayerPosition.uwX - 16;
+    s_tBigExplosionBob.sPos.uwY = s_tPlayerPosition.uwY - 16;
+    s_ubBigExplosionActive = 1;
+    s_ubPlayerAlive = FALSE;
+    if (s_ubPlayerLives != 0) { s_ubPlayerLives--; }
+    s_ubUpdateLives = TRUE;    
+}
+
+static void processPlayerShoot() {
     if (s_ubFireDelay == 0 && s_ubPlayerAlive == TRUE) {
         for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
             if (s_tPlayerProjectiles[i].ubAlive == 0) {
@@ -732,10 +786,10 @@ static void processPlayerProjectiles() {
             //if (uwY < (uwCameraYMin-ubHeight) || uwX < (uwCameraXMin-ubWidth) || uwX > uwCameraXMax) {
             if (uwY < (uwCameraYMin-ubHeight)) {
                 s_tPlayerProjectiles[projectileIdx].ubAlive = 0;
-                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pProjectileBlock, -16, -32, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
+                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
 
                 if (ubHasSecondary) {
-                    movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pProjectileBlock, -16, -32, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE); 
+                    movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE); 
                 }
 
                 continue;
@@ -747,22 +801,22 @@ static void processPlayerProjectiles() {
                 if (s_tEnemy[enemyIdx].bHealth <= 0) { continue; }
 
                 // Check if enemy is on screen.
-                if (s_tEnemy[enemyIdx].tPosition.wX+ENEMY_WIDTH < uwCameraXMin || s_tEnemy[enemyIdx].tPosition.wX > uwCameraXMax) { continue; }
-                if (s_tEnemy[enemyIdx].tPosition.wY+ENEMY_HEIGHT < uwCameraYMin || s_tEnemy[enemyIdx].tPosition.wY > uwCameraYMax) { continue; }
+                if (s_tEnemy[enemyIdx].tPosition.uwX+ENEMY_WIDTH < uwCameraXMin || s_tEnemy[enemyIdx].tPosition.uwX > uwCameraXMax) { continue; }
+                if (s_tEnemy[enemyIdx].tPosition.uwY+ENEMY_HEIGHT < uwCameraYMin || s_tEnemy[enemyIdx].tPosition.uwY > uwCameraYMax) { continue; }
 
                 // TODO: Rethink this approach, ends up basically doing collision detection twice. Unroll into individual checks? Include checks in checkCollision()?
 
                 // Check if projectile is to far to the left of the enemy
-                if (s_tEnemy[enemyIdx].tPosition.wX+ENEMY_WIDTH < uwX) { continue; }
+                if (s_tEnemy[enemyIdx].tPosition.uwX+ENEMY_WIDTH < uwX) { continue; }
 
                 // Check if projectile is to far to the right of the enemy
-                if (s_tEnemy[enemyIdx].tPosition.wX > uwX+ubWidth) { continue; }
+                if (s_tEnemy[enemyIdx].tPosition.uwX > uwX+ubWidth) { continue; }
 
                 // Check if projectile is above enemy
-                if (s_tEnemy[enemyIdx].tPosition.wY > uwY+(ubHeight+bDeltaY)) { continue; }
+                if (s_tEnemy[enemyIdx].tPosition.uwY > uwY+(ubHeight+bDeltaY)) { continue; }
 
                 // Test collision
-                UBYTE ubCollision = checkCollision(uwX, uwY+bDeltaY, ubWidth, ubHeight, s_tEnemy[enemyIdx].tPosition.wX, s_tEnemy[enemyIdx].tPosition.wY, ENEMY_WIDTH, ENEMY_HEIGHT);
+                UBYTE ubCollision = checkCollision(uwX, uwY+bDeltaY, ubWidth, ubHeight, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, ENEMY_WIDTH, ENEMY_HEIGHT);
 
                 // Check spread shot collision
                 // if (ubSpreadShot == TRUE) {
@@ -781,7 +835,7 @@ static void processPlayerProjectiles() {
 
                 // Enemy is dead.
                 if (s_tEnemy[enemyIdx].bHealth <= 0) {
-                    tUwCoordYX tExplosionPosition = (tUwCoordYX){.uwX = s_tEnemy[enemyIdx].tPosition.wX, .uwY = s_tEnemy[enemyIdx].tPosition.wY};
+                    tUwCoordYX tExplosionPosition = (tUwCoordYX){.uwX = s_tEnemy[enemyIdx].tPosition.uwX-8, .uwY = s_tEnemy[enemyIdx].tPosition.uwY-8};
                     createExplosionAtPosition(tExplosionPosition);
                     s_tEnemy[enemyIdx].bHealth = 0;
                     s_ulPlayerScore += s_tEnemy[enemyIdx].uwScoreValue;
@@ -792,20 +846,21 @@ static void processPlayerProjectiles() {
             #endif
 
             if (s_tPlayerProjectiles[projectileIdx].ubAlive == 0) {
-                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pProjectileBlock, -16, -32, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
+                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
                 if (ubHasSecondary) { 
-                    movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pProjectileBlock, -16, -32, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE); 
+                    movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE); 
                 }
                 continue;
             }
 
-            UWORD uwScreenY = uwY - s_pCamera->uPos.uwY;
+            UWORD uwScreenY = (uwY - s_pCamera->uPos.uwY);
+            UWORD uwScreenX = (uwX - TILE_VIEWPORT_XMIN) + 80;
 
-            movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pProjectileBlock, (uwX - TILE_VIEWPORT_XMIN), uwScreenY, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
+            movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, uwScreenX, uwScreenY, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
 
             // Secondary projectile
             if (ubHasSecondary) {
-                movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pProjectileBlock, (uwX2 - TILE_VIEWPORT_XMIN), uwScreenY, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE);
+                movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pCopBlock, uwX2, uwScreenY, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE);
             }
 
             // Move projectile
@@ -855,24 +910,19 @@ static void processEnemyProjectiles() {
                                            fix16_to_int(s_tEnemyProjectiles[projectileIdx].fX), fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY), ENEMY_PROJECTILE_WIDTH, ENEMY_PROJECTILE_HEIGHT);
         if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) { 
             s_tEnemyProjectiles[projectileIdx].ubAlive = 0;
-            s_tBigExplosionBob.sPos.uwX = s_tPlayerPosition.uwX - 8;
-            s_tBigExplosionBob.sPos.uwY = s_tPlayerPosition.uwY - 8;
-            s_ubBigExplosionActive = 1;
-            s_ubPlayerAlive = FALSE;
-            if (s_ubPlayerLives != 0) { s_ubPlayerLives--; }
-            s_ubUpdateLives = TRUE;
+            processPlayerDie();
         }
         #endif
 
         if (s_tEnemyProjectiles[projectileIdx].ubAlive == 0) {
-            moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
+            moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pCopBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
             s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
             continue;
         }
 
         s_tEnemyProjectiles[projectileIdx].ubChannel = 255;
-        fix16_t fSpriteY = s_tEnemyProjectiles[projectileIdx].fY;
-        fix16_t fSpriteYMax = fix16_add(fSpriteY, s_fEnemyProjectileHeight);
+        fix16_t fSpriteYMin = s_tEnemyProjectiles[projectileIdx].fY;
+        fix16_t fSpriteYMax = fix16_add(fSpriteYMin, s_fEnemyProjectileHeight);
 
         for (UBYTE channelIdx=0; channelIdx<ENEMY_SPRITE_CHANNELS; channelIdx++)
         {
@@ -880,18 +930,18 @@ static void processEnemyProjectiles() {
             {
                 // logWrite("before %d: %ld < %ld", channelIdx, fSpriteYMax, fChannelY);
                 s_tEnemyProjectiles[projectileIdx].ubChannel = channelIdx;
-                s_fChannelBounds[channelIdx].fMin = fSpriteY;
+                s_fChannelBounds[channelIdx].fMin = fSpriteYMin;
                 if(s_fChannelBounds[channelIdx].fMax == fix16_minimum) {
                     s_fChannelBounds[channelIdx].fMax = fSpriteYMax;
                 }
                 break;
             }
-            else if (fSpriteY > s_fChannelBounds[channelIdx].fMax)
+            else if (fSpriteYMin > s_fChannelBounds[channelIdx].fMax)
             {
                 // logWrite("after %d: %ld > %ld", channelIdx, fSpriteY, fChannelYMax);
                 s_tEnemyProjectiles[projectileIdx].ubChannel = channelIdx;
                 if(s_fChannelBounds[channelIdx].fMin == fix16_maximum) {
-                    s_fChannelBounds[channelIdx].fMin = fSpriteY;
+                    s_fChannelBounds[channelIdx].fMin = fSpriteYMin;
                 }
                 s_fChannelBounds[channelIdx].fMax = fSpriteYMax;
                 break;
@@ -899,7 +949,7 @@ static void processEnemyProjectiles() {
         }
 
         if (s_tEnemyProjectiles[projectileIdx].ubChannel == 255) {
-            moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
+            moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pCopBlock, 0, -16, ENEMY_PROJECTILE_HEIGHT, 0);
 
             if (s_ubProjectileBobIndex < ENEMY_SPRITE_CHANNELS) {
                 s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwX = fix16_to_int(s_tEnemyProjectiles[projectileIdx].fX);
@@ -912,8 +962,94 @@ static void processEnemyProjectiles() {
             }
         }
 
-        moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pProjectileBlock, (fix16_to_int(s_tEnemyProjectiles[projectileIdx].fX) - TILE_VIEWPORT_XMIN), (fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY) - s_pCamera->uPos.uwY), ENEMY_PROJECTILE_HEIGHT, s_tEnemyProjectiles[projectileIdx].ubChannel);
+        moveEnemyProjectile(s_tEnemyProjectiles[projectileIdx].pCopBlock, ((fix16_to_int(s_tEnemyProjectiles[projectileIdx].fX) - TILE_VIEWPORT_XMIN)+80), (fix16_to_int(s_tEnemyProjectiles[projectileIdx].fY) - s_pCamera->uPos.uwY), ENEMY_PROJECTILE_HEIGHT, s_tEnemyProjectiles[projectileIdx].ubChannel);
     }    
+}
+
+static void processSimpleEnemyProjectiles() {
+    UWORD uwCameraYMin = s_pCamera->uPos.uwY;
+    UWORD uwCameraYMax = s_pCamera->uPos.uwY+(TILE_VIEWPORT_HEIGHT-ENEMY_PROJECTILE_HEIGHT);
+    UWORD uwCameraXMin = TILE_VIEWPORT_XMIN;
+    UWORD uwCameraXMax = TILE_VIEWPORT_XMAX;
+    s_ubProjectileBobIndex = 0;
+
+    s_tSimpleChannelBounds[0] = (tSimpleChannelBounds){.uwMin = 65527, .uwMax = 8};
+    s_tSimpleChannelBounds[1] = (tSimpleChannelBounds){.uwMin = 65527, .uwMax = 8};
+    s_tSimpleChannelBounds[2] = (tSimpleChannelBounds){.uwMin = 65527, .uwMax = 8};
+    s_tSimpleChannelBounds[3] = (tSimpleChannelBounds){.uwMin = 65527, .uwMax = 8};
+
+    for (UBYTE projectileIdx=0; projectileIdx<ENEMY_PROJECTILE_MAX; projectileIdx++) {
+        if (s_tSimpleEnemyProjectiles[projectileIdx].ubAlive == 0) { continue; }
+
+        s_tSimpleEnemyProjectiles[projectileIdx].uwY += s_tSimpleEnemyProjectiles[projectileIdx].bDeltaY;
+        s_tSimpleEnemyProjectiles[projectileIdx].ubAlive--;
+
+        if (s_tSimpleEnemyProjectiles[projectileIdx].uwX < uwCameraXMin || s_tSimpleEnemyProjectiles[projectileIdx].uwX > uwCameraXMax) {
+            s_tSimpleEnemyProjectiles[projectileIdx].ubAlive = 0;
+        }
+
+        if (s_tSimpleEnemyProjectiles[projectileIdx].uwY < uwCameraYMin || s_tSimpleEnemyProjectiles[projectileIdx].uwY > uwCameraYMax) {
+            s_tSimpleEnemyProjectiles[projectileIdx].ubAlive = 0;
+        }
+
+        #ifndef COLLISIONS_DISABLED
+        // Check collision with player.
+        UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX+PLAYER_HITBOX_OFFSET_X, s_tPlayerPosition.uwY+PLAYER_HITBOX_OFFSET_Y, PLAYER_HITBOX_WIDTH, PLAYER_HITBOX_HEIGHT, 
+                                           s_tSimpleEnemyProjectiles[projectileIdx].uwX, s_tSimpleEnemyProjectiles[projectileIdx].uwY, ENEMY_PROJECTILE_WIDTH, ENEMY_PROJECTILE_HEIGHT);
+        if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) { 
+            s_tEnemyProjectiles[projectileIdx].ubAlive = 0;
+            processPlayerDie();
+        }
+        #endif
+
+        if (s_tSimpleEnemyProjectiles[projectileIdx].ubAlive == 0) {
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ENEMY_PROJECTILE_HEIGHT, 0);
+            s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = 255;
+            continue;
+        }
+
+        s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = 255;
+        UWORD uwSpriteYMin = s_tSimpleEnemyProjectiles[projectileIdx].uwY;
+        UWORD uwSpriteYMax = s_tSimpleEnemyProjectiles[projectileIdx].uwY + ENEMY_PROJECTILE_HEIGHT;
+
+        for (UBYTE channelIdx=0; channelIdx<ENEMY_SPRITE_CHANNELS; channelIdx++)
+        {
+            if(uwSpriteYMax < s_tSimpleChannelBounds[channelIdx].uwMin)
+            {
+                s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = channelIdx;
+                s_tSimpleChannelBounds[channelIdx].uwMin = uwSpriteYMin;
+                if(s_tSimpleChannelBounds[channelIdx].uwMax <= BOUNDS_MIN) {
+                    s_tSimpleChannelBounds[channelIdx].uwMax = uwSpriteYMax;
+                }
+                break;
+            }
+            else if (uwSpriteYMin > s_tSimpleChannelBounds[channelIdx].uwMax)
+            {
+                s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = channelIdx;
+                if(s_tSimpleChannelBounds[channelIdx].uwMin >= BOUNDS_MAX) {
+                    s_tSimpleChannelBounds[channelIdx].uwMin = uwSpriteYMin;
+                }
+                s_tSimpleChannelBounds[channelIdx].uwMax = uwSpriteYMax;
+                break;
+            }
+        }
+
+        if (s_tSimpleEnemyProjectiles[projectileIdx].ubChannel == 255) {
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ENEMY_PROJECTILE_HEIGHT, 0);
+
+            if (s_ubProjectileBobIndex < ENEMY_SPRITE_CHANNELS) {
+                s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwX = s_tSimpleEnemyProjectiles[projectileIdx].uwX;
+                s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwY = s_tSimpleEnemyProjectiles[projectileIdx].uwY;
+                s_ubProjectileBobIndex++;
+                continue;
+            } else {
+                s_tSimpleEnemyProjectiles[projectileIdx].ubAlive = 0;
+                continue;
+            }
+        }
+
+        moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, ((s_tSimpleEnemyProjectiles[projectileIdx].uwX-TILE_VIEWPORT_XMIN)+80), (s_tSimpleEnemyProjectiles[projectileIdx].uwY - s_pCamera->uPos.uwY), ENEMY_PROJECTILE_HEIGHT, s_tSimpleEnemyProjectiles[projectileIdx].ubChannel);       
+    }
 }
 
 static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType, UBYTE ubSecondary) {
