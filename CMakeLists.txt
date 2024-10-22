@@ -20,6 +20,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAMIGA -Wall -Wextra -fomit-frame-pointer")
 file(GLOB_RECURSE SOURCES src/*.c)
 file(GLOB_RECURSE HEADERS src/*.h)
 
+list(APPEND CMAKE_MODULE_PATH "../AmigaCMakeCrossToolchains/Modules/m68k-amigaos")
+
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(ace/include)
 
@@ -27,7 +29,17 @@ set(RES_DIR ${CMAKE_CURRENT_LIST_DIR}/res)
 set(DATA_DIR ${CMAKE_CURRENT_BINARY_DIR}/data)
 
 # ACE
+set(AUDIO_MIXER_HW_CHANNEL_MODE "SINGLE")
+set(AUDIO_MIXER_WORD_SIZED ON)
+set(AUDIO_MIXER_ROUND_TO_32 ON)
+set(AUDIO_MIXER_PROFILER OFF)
+set(AUDIO_MIXER_HW_CHANNELS 3)
+set(AUDIO_MIXER_SW_CHANNEL_COUNT 3)
+set(AUDIO_MIXER_PERIOD 161)
+set(ACE_TILEBUFFER_TILE_TYPE UWORD)
+
 add_subdirectory(ace)
+add_subdirectory(ace_audio_mixer ace_audio_mixer)
 
 # Linux/other UNIX get a lower-case binary name
 set(TARGET_NAME ${PROJECT_NAME_LOWER})
@@ -48,7 +60,7 @@ else()
   add_executable(${GAME_LINKED} ${SOURCES} ${HEADERS})
 endif()
 
-target_link_libraries(${GAME_LINKED} ace)
+target_link_libraries(${GAME_LINKED} ace_audio_mixer ace)
 
 # Copy example maps files as is
 file(COPY "${RES_DIR}/data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
