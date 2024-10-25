@@ -2,32 +2,35 @@
 #include <ace/managers/key.h>
 #include <ace/managers/joy.h>
 #include <ace/managers/state.h>
-// Without it compiler will yell about undeclared gameGsCreate etc
 #include "game.h"
 
 tStateManager *g_pGameStateManager = 0;
-tState *g_pGameState = 0;
+//tState *g_pGameState = 0;
+tState g_pGameStates[GAME_STATES] = {
+  [STATE_INTRO] = {.cbCreate = introGsCreate, .cbLoop = introGsLoop, .cbDestroy = introGsDestroy},
+  [STATE_GAME] = {.cbCreate = gameGsCreate, .cbLoop = gameGsLoop, .cbDestroy = gameGsDestroy},
+};
 
 void genericCreate(void) {
-  // Here goes your startup code
-  keyCreate(); // We'll use keyboard
+  keyCreate();
   joyOpen();
-  // Initialize gamestate
-  g_pGameStateManager = stateManagerCreate();
-  g_pGameState = stateCreate(gameGsCreate, gameGsLoop, gameGsDestroy, 0, 0);
 
-  statePush(g_pGameStateManager, g_pGameState);
+  g_pGameStateManager = stateManagerCreate();
+  // g_pGameState = stateCreate(gameGsCreate, gameGsLoop, gameGsDestroy, 0, 0);
+  // statePush(g_pGameStateManager, g_pGameState);
+
+  stateChange(g_pGameStateManager, &g_pGameStates[STATE_INTRO]);
 }
 
 void genericProcess(void) {
   keyProcess();
   joyProcess();
-  stateProcess(g_pGameStateManager); // Process current gamestate's loop
+  stateProcess(g_pGameStateManager);
 }
 
 void genericDestroy(void) {
   stateManagerDestroy(g_pGameStateManager);
-  stateDestroy(g_pGameState);
+  //stateDestroy(g_pGameState);
   keyDestroy();
   joyClose();
 }

@@ -12,6 +12,7 @@ typedef struct _tEnemy {
     UBYTE ubOnScreen;
     UBYTE ubCanShoot;    
     UBYTE ubCooldownTimer;
+    UBYTE ubBitmapOffset;
     UBYTE ubEnemyType;
     UBYTE ubPowerupType;
     UBYTE ubWaveIdx;
@@ -28,6 +29,7 @@ typedef struct _tEnemyType {
     BYTE bHealth;
     UBYTE ubWidth, ubHeight;
     UBYTE ubGunOffsetX, ubGunOffsetY;
+    UBYTE ubBitmapOffset;
     UBYTE ubMoveSpeed; // MUST BE MULTIPLE OF 2 
     UBYTE ubCanShoot;
     UBYTE ubCooldownTime;

@@ -15,6 +15,7 @@
 #include <ace/managers/ptplayer.h>
 #include <ace/managers/rand.h>
 #include <ace/managers/sprite.h>
+#include <ace/managers/state.h>
 #include <ace/managers/system.h>
 #include <ace/utils/font.h>
 #include <ace/utils/palette.h>
@@ -23,11 +24,13 @@
 #include "../ace_audio_mixer/include/ace/contrib/managers/audio_mixer.h"
 
 #define GAME_BPP 5
+#define GAME_STATES 2
 #define HUD_VIEWPORT_WIDTH 240
 #define HUD_VIEWPORT_HEIGHT 12
 #define HUD_TEXT_WIDTH 32
 #define HUD_SCORE_WIDTH 64
 #define HUD_TEXT_HEIGHT 8
+#define HUD_TEXT_COLOR 27
 #define TILE_VIEWPORT_WIDTH 160
 #define TILE_VIEWPORT_HEIGHT 244
 #define TILE_VIEWPORT_YMIN 4
@@ -35,7 +38,8 @@
 #define TILE_VIEWPORT_XMAX 192
 #define MAP_WIDTH_IN_TILES 14
 #define MAP_HEIGHT_IN_TILES 256
-#define MAP_TILES_COUNT 56
+//#define MAP_TILES_COUNT 56
+#define MAP_TILES_COUNT 3584
 #define CAMERA_START_YPOS 3872
 #define CAMERA_Y_MIN 32
 #define CAMERA_MOVE_RATE 2
@@ -60,9 +64,23 @@
 #define DEBUG_COMMAND_DELAY 20
 //#define COLLISIONS_DISABLED
 
+typedef enum tGameState {
+    STATE_INTRO,
+    STATE_GAME,
+} tGameState;
+
+extern tStateManager *g_pGameStateManager;
+extern tState g_pGameStates[GAME_STATES];
+
 void gameGsCreate(void);
 void gameGsLoop(void);
 void gameGsDestroy(void);
+
+void introGsCreate(void);
+void introGsLoop(void);
+void introGsDestroy(void);
+
+static void showIntro();
 
 static void initGame();
 static void initViews();
