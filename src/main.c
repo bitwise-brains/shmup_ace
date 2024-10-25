@@ -14,11 +14,7 @@ tState g_pGameStates[GAME_STATES] = {
 void genericCreate(void) {
   keyCreate();
   joyOpen();
-
   g_pGameStateManager = stateManagerCreate();
-  // g_pGameState = stateCreate(gameGsCreate, gameGsLoop, gameGsDestroy, 0, 0);
-  // statePush(g_pGameStateManager, g_pGameState);
-
   stateChange(g_pGameStateManager, &g_pGameStates[STATE_INTRO]);
 }
 
@@ -30,7 +26,6 @@ void genericProcess(void) {
 
 void genericDestroy(void) {
   stateManagerDestroy(g_pGameStateManager);
-  //stateDestroy(g_pGameState);
   keyDestroy();
   joyClose();
 }

@@ -697,24 +697,7 @@ static void processInput() {
             s_ubCameraCanMove = !s_ubCameraCanMove;
             s_ubFireDelay = DEBUG_COMMAND_DELAY;
         }        
-    }
-    
-    if (keyCheck(KEY_0)) {
-        if (s_ubFireDelay == 0 && s_ubBigExplosionActive == FALSE) {
-            s_tBigExplosionBob.sPos.uwX = s_pCamera->uPos.uwX + 64;
-            s_tBigExplosionBob.sPos.uwY = s_pCamera->uPos.uwY + 128;
-            s_ubBigExplosionActive = TRUE;
-            s_ubFireDelay = DEBUG_COMMAND_DELAY;
-        }         
-    }
-    // DEBUG: respawn player
-    if (keyCheck(KEY_R)) {
-        if (s_ubPlayerAlive == 0 && s_ubPlayerLives > 0) {
-            s_tPlayerPosition.uwX = s_pCamera->uPos.uwX+(80 - (PLAYER_SHIP_WIDTH/2));
-            s_tPlayerPosition.uwY = s_pCamera->uPos.uwY+128;
-            s_ubPlayerAlive = TRUE;
-        }
-    }
+    }    
 }
 
 static void processHud() {

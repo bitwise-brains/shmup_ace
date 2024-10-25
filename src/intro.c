@@ -19,8 +19,6 @@ void introGsCreate(void) {
         TAG_VPORT_BPP, GAME_BPP,
     TAG_DONE);
 
-    paletteLoad("data/acelogo.plt", s_pIntroViewport->pPalette, 1 << GAME_BPP);
-
     s_pIntroBuffer = simpleBufferCreate(0,
         TAG_SIMPLEBUFFER_VPORT, s_pIntroViewport,
         TAG_SIMPLEBUFFER_USE_X_SCROLLING, 0,
@@ -42,7 +40,7 @@ void introGsLoop(void) {
 
 	if (keyUse(KEY_SPACE)) {
 		stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
-        //statePush(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
+        return;
 	}
 
     viewProcessManagers(s_pView);
