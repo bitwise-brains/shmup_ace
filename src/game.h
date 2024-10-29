@@ -57,8 +57,10 @@
 #define POWERUP_FALL_SPEED 1
 #define POWERUP_WIDTH 16
 #define POWERUP_HEIGHT 16
+#define POWERUP_SCORE 5000
 
 #define FLASH_TIME 4
+#define FLASH_TIME_SHORT 2
 
 // Debug
 #define DEBUG_COMMAND_DELAY 20
@@ -68,6 +70,14 @@ typedef enum tGameState {
     STATE_INTRO,
     STATE_GAME,
 } tGameState;
+
+typedef enum tIntroStage {
+    INTRO_BRAINS,
+    INTRO_ACE,
+    INTRO_TITLE,
+    INTRO_TEXT,
+    INTRO_FINISHED,
+} tIntroStage;
 
 extern tStateManager *g_pGameStateManager;
 extern tState g_pGameStates[GAME_STATES];
@@ -79,8 +89,6 @@ void gameGsDestroy(void);
 void introGsCreate(void);
 void introGsLoop(void);
 void introGsDestroy(void);
-
-static void showIntro();
 
 static void initGame();
 static void initViews();
@@ -100,15 +108,16 @@ static void processWaves();
 static void processPlayer();
 static void processEnemies();
 static void processPlayerProjectiles();
-static void processEnemyProjectiles();
 static void processSimpleEnemyProjectiles();
+static void processComplexEnemyProjectiles();
 
 static void processPlayerShoot();
+static void processPlayerSpecial();
 static void processPlayerDie();
 
 //static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType, UBYTE ubSecondary);
 static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType);
-static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel);
+static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType);
 static UBYTE checkCollision(WORD x1, WORD y1, UBYTE w1, UBYTE h1, WORD x2, WORD y2, UBYTE w2, UBYTE h2);
 static void createExplosionAtPosition(tUwCoordYX tPosition);
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType);

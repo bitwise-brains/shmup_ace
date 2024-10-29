@@ -16,19 +16,26 @@
 .\tools\bitmap_conv.exe .\data\game.plt explosion_big.png -mc #FF00FF -i -o .\data\explosion_big.bm
 .\tools\bitmap_conv.exe .\data\game.plt powerups_square.png -mc #FF00FF -i -o .\data\powerups_square.bm
 .\tools\bitmap_conv.exe .\data\game.plt hud_icons.png -mc #FF00FF -i -o .\data\hud_icons.bm
-.\tools\bitmap_conv.exe .\data\game.plt enemy_bullet_bob_1.png -mc #FF00FF -i -o .\data\enemy_bullet_bob_1.bm
-.\tools\bitmap_conv.exe .\data\game.plt enemy_bullet_bob_2.png -mc #FF00FF -i -o .\data\enemy_bullet_bob_2.bm
+.\tools\bitmap_conv.exe .\data\game.plt enemy_bullet_bobs.png -mc #FF00FF -i -o .\data\enemy_bullet_bobs.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_gameover.png -mc #FF00FF -i -o .\data\text_gameover.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_ready.png -mc #FF00FF -i -o .\data\text_ready.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_go.png -mc #FF00FF -i -o .\data\text_go.bm
+
 .\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_1.png -i -o .\data\enemy_bullet_sprite_1.bm
 .\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_2.png -i -o .\data\enemy_bullet_sprite_2.bm
+.\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_3.png -i -o .\data\enemy_bullet_sprite_3.bm
+.\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_4.png -i -o .\data\enemy_bullet_sprite_4.bm
 .\tools\bitmap_conv.exe sprite.plt player_bullet_sprite_1.png -i -o .\data\player_bullet_sprite_1.bm
 .\tools\bitmap_conv.exe sprite.plt player_bullet_sprite_2.png -i -o .\data\player_bullet_sprite_2.bm
 .\tools\bitmap_conv.exe sprite.plt player_bullet_sprite_3.png -i -o .\data\player_bullet_sprite_3.bm
 .\tools\bitmap_conv.exe sprite.plt player_bullet_sprite_4.png -i -o .\data\player_bullet_sprite_4.bm
+
 .\tools\font_conv.exe hudfont fnt -size 8 -charFile .\hudfont\charfile.txt -out .\data\hudfont.fnt
-.\tools\audio_conv.exe .\sfx\laser.wav -d 2 -o .\data\laser.sfx
+
+.\tools\audio_conv.exe .\sfx\lightlaser.wav -d 2 -o .\data\lightlaser.sfx
+.\tools\audio_conv.exe .\sfx\heavylaser.wav -d 2 -o .\data\heavylaser.sfx
+.\tools\audio_conv.exe .\sfx\fastlaser.wav -d 2 -o .\data\fastlaser.sfx
 .\tools\audio_conv.exe .\sfx\explosion.wav -d 2 -o .\data\explosion.sfx
+.\tools\audio_conv.exe .\sfx\collect.wav -d 2 -o .\data\collect.sfx
 
 copy .\data\* ..\build\data

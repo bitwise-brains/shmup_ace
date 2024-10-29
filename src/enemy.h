@@ -1,8 +1,8 @@
 #include "game.h"
 
-#define ENEMY_TYPES 3
+#define ENEMY_TYPES 10
+#define ENEMY_BIG_TYPE 9
 #define ENEMY_MAX 8
-#define ENEMY_WAVES 2
 #define ENEMY_WAVE_MAX 4
 
 typedef struct _tEnemy {
@@ -10,6 +10,7 @@ typedef struct _tEnemy {
     tBob sBob;
     BYTE bHealth;
     UBYTE ubOnScreen;
+    UBYTE ubInvincible;
     UBYTE ubCanShoot;    
     UBYTE ubCooldownTimer;
     UBYTE ubBitmapOffset;
@@ -44,7 +45,6 @@ typedef struct _tEnemyWave {
     UBYTE ubSpacing;
     UWORD uwSpawnYPosition;
     UWORD uwPathYOffset;
-    UWORD uwPathArrayOffset;    
-    UWORD uwPathLength;
+    UBYTE ubPathType;
     UBYTE ubPathLoops;
 } tEnemyWave;
