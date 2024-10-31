@@ -1,30 +1,8 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
-#include <ace/types.h>
-#include <ace/generic/screen.h>
-#include <ace/managers/game.h>
-#include <ace/managers/viewport/simplebuffer.h>
-#include <ace/managers/viewport/tilebuffer.h>
-#include <ace/managers/blit.h>
-#include <ace/managers/bob.h>
-#include <ace/managers/copper.h>
-#include <ace/managers/memory.h>
-#include <ace/managers/key.h>
-#include <ace/managers/joy.h>
-#include <ace/managers/ptplayer.h>
-#include <ace/managers/rand.h>
-#include <ace/managers/sprite.h>
-#include <ace/managers/state.h>
-#include <ace/managers/system.h>
-#include <ace/utils/font.h>
-#include <ace/utils/palette.h>
-#include <ace/utils/string.h>
-#include <fixmath/fixmath.h>
-#include "../ace_audio_mixer/include/ace/contrib/managers/audio_mixer.h"
+#include "main.h"
 
-#define GAME_BPP 5
-#define GAME_STATES 2
 #define HUD_VIEWPORT_WIDTH 240
 #define HUD_VIEWPORT_HEIGHT 12
 #define HUD_TEXT_WIDTH 32
@@ -40,7 +18,7 @@
 #define MAP_HEIGHT_IN_TILES 256
 //#define MAP_TILES_COUNT 56
 #define MAP_TILES_COUNT 3584
-#define CAMERA_START_YPOS 3872
+#define CAMERA_START_YPOS 3852
 #define CAMERA_Y_MIN 32
 #define CAMERA_MOVE_RATE 2
 #define CAMERA_MOVE_AMOUNT -1
@@ -65,30 +43,6 @@
 // Debug
 #define DEBUG_COMMAND_DELAY 20
 //#define COLLISIONS_DISABLED
-
-typedef enum tGameState {
-    STATE_INTRO,
-    STATE_GAME,
-} tGameState;
-
-typedef enum tIntroStage {
-    INTRO_BRAINS,
-    INTRO_ACE,
-    INTRO_TITLE,
-    INTRO_TEXT,
-    INTRO_FINISHED,
-} tIntroStage;
-
-extern tStateManager *g_pGameStateManager;
-extern tState g_pGameStates[GAME_STATES];
-
-void gameGsCreate(void);
-void gameGsLoop(void);
-void gameGsDestroy(void);
-
-void introGsCreate(void);
-void introGsLoop(void);
-void introGsDestroy(void);
 
 static void initGame();
 static void initViews();
@@ -115,6 +69,7 @@ static void processPlayerShoot();
 static void processPlayerSpecial();
 static void processPlayerDie();
 
+static void resetEverything();
 //static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType, UBYTE ubSecondary);
 static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType);
 static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType);
