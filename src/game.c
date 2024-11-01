@@ -14,6 +14,7 @@ static tSimpleBufferManager *s_pHudBuffer;
 static tCameraManager *s_pCamera;
 static UWORD s_uwFadePalette[16][32] = {0};
 static UBYTE s_ubDimLevel = 0;
+static UBYTE s_ubFadeOut = FALSE;
 static UBYTE s_ubFrameCounter = 0;
 static UBYTE s_ubFlashTimer = 0;
 static UBYTE s_ubFlashOn = FALSE;
@@ -457,7 +458,28 @@ void gameGsLoop(void) {
     //g_pCustom->color[0] = 0xF00;
     ptplayerProcess();
 
-    if (s_ubShowTextGameOver == TRUE && s_ubShowTextGameOverTimer == 0) {
+    if (s_ubFadeOut == TRUE && s_ubDimLevel != 0) {
+        s_ubDimLevel--;
+        if (s_ubDimLevel == 0) { s_ubFadeOut = FALSE; }
+
+        for (UBYTE i=0; i<32; i++) {
+            s_pGameViewport->pPalette[i] = s_uwFadePalette[s_ubDimLevel][i];
+        }
+
+        viewUpdateGlobalPalette(s_pView);
+        viewProcessManagers(s_pView);
+        copProcessBlocks();
+        systemIdleBegin();
+        vPortWaitForEnd(s_pGameViewport);
+        systemIdleEnd();          
+        return;
+    }
+
+    if (s_ubShowTextGameOver == TRUE && s_ubShowTextGameOverTimer == 0 && s_ubDimLevel == 15) {
+        s_ubFadeOut = TRUE;
+    }
+
+    if (s_ubShowTextGameOver == TRUE && s_ubShowTextGameOverTimer == 0 && s_ubDimLevel == 0) {
         g_ulPlayerScore = s_ulPlayerScore;
         resetEverything();
         ptplayerSetMasterVolume(0);
@@ -1867,6 +1889,7 @@ static void processComplexEnemyProjectiles() {
 
 static void resetEverything() {
     s_ubDimLevel = 0;
+    s_ubFadeOut = FALSE;
     s_ubFrameCounter = 0;
     s_ubFlashTimer = 0;
     s_ubFlashOn = FALSE;
