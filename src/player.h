@@ -1,7 +1,7 @@
 #include "game.h"
 
 #define PLAYER_LIVES_MAX 5
-#define PLAYER_LIVES_START 1
+#define PLAYER_LIVES_START 3
 #define PLAYER_SPECIAL_MAX 4
 #define PLAYER_SPECIAL_START 2
 #define PLAYER_SPECIAL_DAMAGE 20

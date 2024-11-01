@@ -2,6 +2,7 @@
 .\tools\palette_conv.exe .\palette\splash_ace.gpl .\data\splash_ace.plt
 .\tools\palette_conv.exe .\palette\game.gpl .\data\game.plt
 .\tools\palette_conv.exe .\palette\titlescreen.gpl .\data\titlescreen.plt
+.\tools\palette_conv.exe .\palette\highscore.gpl .\data\highscore.plt
 
 .\tools\bitmap_conv.exe .\data\splash_brains.plt splash_brains.png -i -o .\data\splash_brains.bm
 .\tools\bitmap_conv.exe .\data\splash_ace.plt splash_ace.png -i -o .\data\splash_ace.bm
@@ -20,7 +21,8 @@
 .\tools\bitmap_conv.exe .\data\game.plt text_gameover.png -mc #FF00FF -i -o .\data\text_gameover.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_ready.png -mc #FF00FF -i -o .\data\text_ready.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_go.png -mc #FF00FF -i -o .\data\text_go.bm
-.\tools\bitmap_conv.exe .\data\game.plt text_title.png -mc #FF00FF -i -o .\data\text_title.bm
+.\tools\bitmap_conv.exe .\data\highscore.plt text_title.png -i -o .\data\text_title.bm
+.\tools\bitmap_conv.exe .\data\highscore.plt text_credits.png -i -o .\data\text_credits.bm
 
 .\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_1.png -i -o .\data\enemy_bullet_sprite_1.bm
 .\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_2.png -i -o .\data\enemy_bullet_sprite_2.bm

@@ -14,7 +14,7 @@ void genericCreate(void) {
   keyCreate();
   joyOpen();
   g_pGameStateManager = stateManagerCreate();
-  stateChange(g_pGameStateManager, &g_pGameStates[STATE_INTRO]);
+  stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
 }
 
 void genericProcess(void) {
