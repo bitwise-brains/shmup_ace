@@ -74,6 +74,7 @@ static void resetEverything();
 static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType);
 static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType);
 static UBYTE checkCollision(WORD x1, WORD y1, UBYTE w1, UBYTE h1, WORD x2, WORD y2, UBYTE w2, UBYTE h2);
+static void destroyEnemy(UBYTE ubEnemyIdx);
 static void createExplosionAtPosition(tUwCoordYX tPosition);
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType);
 

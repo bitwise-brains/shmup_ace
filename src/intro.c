@@ -12,12 +12,11 @@ static tFont *s_pFont;
 static tPtplayerMod *s_pIntroMusic;
 
 static tIntroStage s_eIntroStage = INTRO_BRAINS;
-static UBYTE ubFrameCounter = 0;
-static UBYTE ubWaitTimer = 50;
-static UBYTE ubDimLevel = 0;
-static UBYTE ubFadeInComplete = FALSE;
-static UBYTE ubFadeOutComplete = FALSE;
-static UBYTE ubMusicVolume = 24;
+static UBYTE s_ubFrameCounter = 0;
+static UWORD s_ubWaitTimer = 100;
+static UBYTE s_ubDimLevel = 0;
+static UBYTE s_ubFadeInComplete = FALSE;
+static UBYTE s_ubFadeOutComplete = FALSE;
 
 static UWORD s_uwAcePalette[32] = {0};
 static UWORD s_uwTitlescreenPalette[32] = {0};
@@ -45,7 +44,7 @@ void introGsCreate(void) {
     // Load music
     ptplayerCreate(1);
     ptplayerSetChannelsForPlayer(0b1111);
-    ptplayerSetMasterVolume(ubMusicVolume);
+    ptplayerSetMasterVolume(56);
     s_pIntroMusic = ptplayerModCreate("data/intro.mod");
     ptplayerLoadMod(s_pIntroMusic, 0, 0);
     ptplayerEnableMusic(1);
@@ -86,37 +85,37 @@ void introGsLoop(void) {
 	}
 
     // Only process every 5 frames.
-    if (ubFrameCounter >=5) {
-        ubFrameCounter = 0;
-        updatePalette(ubDimLevel);
+    if (s_ubFrameCounter >=5) {
+        s_ubFrameCounter = 0;
+        updatePalette(s_ubDimLevel);
 
         // Fade in finished?
-        if (ubFadeInComplete == FALSE && ubDimLevel == 15) {
-            ubFadeInComplete = TRUE;
+        if (s_ubFadeInComplete == FALSE && s_ubDimLevel == 15) {
+            s_ubFadeInComplete = TRUE;
         }
 
         // Fade out finished?
-        if (ubFadeInComplete == TRUE && ubFadeOutComplete == FALSE && ubDimLevel == 0) {
-            ubFadeOutComplete = TRUE;
-            ubWaitTimer = 50;
+        if (s_ubFadeInComplete == TRUE && s_ubFadeOutComplete == FALSE && s_ubDimLevel == 0) {
+            s_ubFadeOutComplete = TRUE;
+            s_ubWaitTimer = 100;
         }
 
-        if (ubFadeInComplete == FALSE && ubDimLevel < 15) {
-            ubDimLevel++;
+        if (s_ubFadeInComplete == FALSE && s_ubDimLevel < 15) {
+            s_ubDimLevel++;
         }
 
-        if (ubFadeInComplete == TRUE && ubDimLevel > 0 && ubWaitTimer == 0) {
-            ubDimLevel--;
+        if (s_ubFadeInComplete == TRUE && s_ubDimLevel > 0 && s_ubWaitTimer == 0) {
+            s_ubDimLevel--;
         }
         
-        if (ubDimLevel == 15 && ubWaitTimer > 0) {
-            ubWaitTimer--;
+        if (s_ubDimLevel == 15 && s_ubWaitTimer > 0) {
+            s_ubWaitTimer--;
         }
     }
 
-    if (ubFadeInComplete == TRUE && ubFadeOutComplete == TRUE) {
-        ubFadeInComplete = FALSE;
-        ubFadeOutComplete = FALSE;
+    if (s_ubFadeInComplete == TRUE && s_ubFadeOutComplete == TRUE) {
+        s_ubFadeInComplete = FALSE;
+        s_ubFadeOutComplete = FALSE;
 
         switch (s_eIntroStage) {
             case INTRO_BRAINS:
@@ -137,7 +136,7 @@ void introGsLoop(void) {
             case INTRO_TITLE:
                 fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cIntroText, 19, FONT_SHADOW | FONT_COOKIE, s_pIntroText);
                 s_eIntroStage = INTRO_TEXT;
-                ubWaitTimer = 255;
+                s_ubWaitTimer = 525;
                 break;
             case INTRO_TEXT:
                 ptplayerSetMasterVolume(0);
@@ -155,7 +154,7 @@ void introGsLoop(void) {
     systemIdleBegin();
     vPortWaitForEnd(s_pViewport);
     systemIdleEnd();
-    ubFrameCounter++;
+    s_ubFrameCounter++;
 }
 
 void introGsDestroy(void) {

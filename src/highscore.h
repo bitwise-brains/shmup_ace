@@ -10,17 +10,23 @@
 #define HIGHSCORE_OFFSET_R 150
 #define HIGHSCORE_SPACING 12
 #define HIGHSCORE_COLOR 17
-#define HIGHSCORE_TIMER 250
+#define HIGHSCORE_TIMER 500
 
 #define CREDITS_XPOS 56
-#define CREDITS_YPOS 100
+#define CREDITS_YPOS 108
 #define CREDITS_WIDTH 208
-#define CREDITS_HEIGHT 64
+#define CREDITS_HEIGHT 52
 
+#define GREETS_MAX 8
 #define GREETS_XPOS 32
-#define GREETS_YPOS 166
+#define GREETS_YPOS 168
 #define GREETS_WIDTH 256
-#define GREETS_HEIGHT 64
+#define GREETS_HEIGHT 8
+#define GREETS_COLOR 18
+
+#define PULSE_COLOR 19
+#define GRADIENT_LENGTH 7
+#define PULSE_LENGTH 29
 
 typedef struct _tHighScore {
     char cInitials[4];

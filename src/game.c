@@ -61,6 +61,9 @@ static tBob s_tEngineBob;
 static tBitMap *s_pEngineImage;
 static tBitMap *s_pEngineMask;
 static UBYTE s_ubEngineAnimFrame = 0;
+static tBob s_tPlayerExplosionBob;
+static UBYTE s_ubPlayerExplosionAnimFrame = 0;
+static UBYTE s_ubPlayerExplosionActive = FALSE;
 static UBYTE s_ubFireDelay = 0;
 static UBYTE s_ubSpecialDelay = 0;
 static UBYTE s_ubAudioDelay = 0;
@@ -80,6 +83,12 @@ static tBitMap *s_pEnemyImage;
 static tBitMap *s_pEnemyMask;
 static UBYTE s_ubWaveIndex = 0;
 static UBYTE s_ubActiveEnemies = 0;
+
+// Big enemy
+static tBitMap *s_pBigEnemyImage;
+static tBitMap *s_pBigEnemyMask;
+static tBob s_tBigEnemyBob;
+static UBYTE s_ubBigEnemyAlive = FALSE;
 
 // Explosions
 static tExplosion s_tExplosions[EXPLOSIONS_MAX] = {0};
@@ -197,14 +206,14 @@ static tEnemyType s_tEnemyTypes[ENEMY_TYPES] = {{ 10, 16, 16,  3, 15, 0, 4, FALS
                                                 { 10, 16, 16,  3, 15, 4, 4, FALSE,   0, 0, 0, 1337},
                                                 { 10, 16, 16,  3, 15, 4, 4,  TRUE,  50, 0, 0, 1337},
                                                 { 20, 16, 16,  3, 15, 5, 4,  TRUE,  60, 1, 2, 1987},
-                                                { 40, 32, 32, 16, 16, 0, 4,  TRUE,  40, 1, 0, 2600}};
+                                                { 40, 32, 32, 16, 16, 0, 4,  TRUE,  20, 1, 0, 2600}};
 
 // Enemy waves.
 static UBYTE s_ubWavesInLevel[NUMBER_OF_LEVELS] = {235};
 static tEnemyWave s_tEnemyWaves[] = {{ {  1,   0, 255, 255}, 2,  96, 3824, 48, 0, FALSE },
                                      { {  0,   1, 255, 255}, 2,  96, 3808, 48, 1, FALSE },
                                      { {  0,   0, 255, 255}, 2, 128, 3792, 64, 2, FALSE },
-                                     { {  2,   0, 255, 255}, 2, 128, 3776, 64, 3, FALSE },
+                                     { {  9, 255, 255, 255}, 1, 128, 3776, 64, 3, FALSE },
                                      { {  0,   0, 255, 255}, 2, 128, 3760, 64, 4, FALSE },
                                      { {  1,   0, 255, 255}, 2, 128, 3744, 64, 5, FALSE },
                                      { {  0,   0, 255, 255}, 2, 128, 3728, 64, 6, FALSE },
@@ -714,6 +723,11 @@ static void initBobs() {
         s_tEnemy[i].bHealth = 0;
     }
 
+    // Big enemy bob
+    s_pBigEnemyImage = bitmapCreateFromFile("data/enemy_big.bm", 0);
+    s_pBigEnemyMask = bitmapCreateFromFile("data/enemy_big_mask.bm", 0);
+    bobInit(&s_tBigEnemyBob, 32, 32, 1, s_pBigEnemyImage->Planes[0], s_pBigEnemyMask->Planes[0], 0, 0);
+
     // Small explosion bobs
     s_pSmallExplosionImage = bitmapCreateFromFile("data/explosion_small.bm", 0);
     s_pSmallExplosionMask = bitmapCreateFromFile("data/explosion_small_mask.bm", 0);
@@ -727,6 +741,7 @@ static void initBobs() {
     s_pBigExplosionMask = bitmapCreateFromFile("data/explosion_big_mask.bm", 0);
 
     bobInit(&s_tBigExplosionBob, 32, 32, 1, s_pBigExplosionImage->Planes[0], s_pBigExplosionMask->Planes[0], 0, 0);
+    bobInit(&s_tPlayerExplosionBob, 32, 32, 1, s_pBigExplosionImage->Planes[0], s_pBigExplosionMask->Planes[0], 0, 0);
 
     // Enemy projectiles.
     s_pEnemyProjectileBobsImage = bitmapCreateFromFile("data/enemy_bullet_bobs.bm", 0);
@@ -1070,6 +1085,17 @@ static void processBobs() {
         }
     }
 
+    // Player Explosion
+    if (s_ubPlayerExplosionActive == TRUE) {
+        bobSetFrame(
+            &s_tPlayerExplosionBob,
+            &s_pBigExplosionImage->Planes[0][s_uwBigExplosionAnimOffset[s_ubPlayerExplosionAnimFrame]],
+            &s_pBigExplosionMask->Planes[0][s_uwBigExplosionAnimOffset[s_ubPlayerExplosionAnimFrame]]
+        );
+
+        bobPush(&s_tPlayerExplosionBob);        
+    }
+
     // Extra Life Powerup
     if (s_ubLifePowActive == TRUE) { bobPush(&s_tLifePowBob); }
 
@@ -1081,10 +1107,21 @@ static void processBobs() {
 
     // Enemies
     if (s_ubActiveEnemies > 0) {
+        UBYTE ubBigEnemyProcessed = FALSE;
+
         for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
             if (s_tEnemy[enemyIdx].bHealth == 0 || s_tEnemy[enemyIdx].ubOnScreen == FALSE) { continue; }
-            //UBYTE bufferCheck = tileBufferIsRectFullyOnBuffer(s_pTileBuffer, s_tEnemy[enemyIdx].sBob.sPos.uwX, s_tEnemy[enemyIdx].sBob.sPos.uwY, 16, 16);           
+            //UBYTE bufferCheck = tileBufferIsRectFullyOnBuffer(s_pTileBuffer, s_tEnemy[enemyIdx].sBob.sPos.uwX, s_tEnemy[enemyIdx].sBob.sPos.uwY, 16, 16);
             //if (bufferCheck == TRUE) { bobPush(&s_tEnemy[enemyIdx].sBob); }
+
+            if (s_tEnemy[enemyIdx].ubEnemyType == ENEMY_BIG_TYPE) {
+                if (ubBigEnemyProcessed == TRUE) { continue; } // Can only have one big enemy on screen at a time.
+                s_tBigEnemyBob.sPos = s_tEnemy[enemyIdx].tPosition;
+                bobPush(&s_tBigEnemyBob);
+                ubBigEnemyProcessed = TRUE;
+                continue;
+            }
+
             bobPush(&s_tEnemy[enemyIdx].sBob);
         }
     }
@@ -1107,7 +1144,7 @@ static void processBobs() {
     }
 
     // Big Explosion
-    if (s_ubBigExplosionActive == 1) {
+    if (s_ubBigExplosionActive == TRUE) {
         bobSetFrame(
             &s_tBigExplosionBob,
             &s_pBigExplosionImage->Planes[0][s_uwBigExplosionAnimOffset[s_ubBigExplosionFrame]],
@@ -1196,11 +1233,20 @@ static void processTimers() {
     }
 
     // Big Explosion
-    if (s_ubBigExplosionActive == 1) {
+    if (s_ubBigExplosionActive == TRUE) {
         s_ubBigExplosionFrame++;
         if (s_ubBigExplosionFrame == BIGEXPLOSION_ANIM_FRAMES) {
-            s_ubBigExplosionActive = 0;
+            s_ubBigExplosionActive = FALSE;
             s_ubBigExplosionFrame = 0;
+        }
+    }
+
+    // Player Explosion
+    if (s_ubPlayerExplosionActive == TRUE) {
+        s_ubPlayerExplosionAnimFrame++;
+        if (s_ubPlayerExplosionAnimFrame == BIGEXPLOSION_ANIM_FRAMES) {
+            s_ubPlayerExplosionActive = FALSE;
+            s_ubPlayerExplosionAnimFrame = 0;
         }
     }
 }
@@ -1309,7 +1355,7 @@ static void processPlayer() {
     }
 
     // Respawn player.
-    if (s_ubPlayerAlive == FALSE && s_ubPlayerLives > 0 && s_ubBigExplosionActive == FALSE) {
+    if (s_ubPlayerAlive == FALSE && s_ubPlayerLives > 0 && s_ubPlayerExplosionActive == FALSE) {
         s_tPlayerPosition.uwX = s_pCamera->uPos.uwX+(80 - (PLAYER_SHIP_WIDTH/2));
         s_tPlayerPosition.uwY = s_pCamera->uPos.uwY+192;
         s_ubPlayerAlive = TRUE;
@@ -1357,6 +1403,12 @@ static void processEnemies() {
         s_tEnemy[enemyIdx].tPosition.uwY = s_uwPathData[uwPathIdx+1] + s_tEnemy[enemyIdx].uwPathYOffset;
         s_tEnemy[enemyIdx].sBob.sPos = s_tEnemy[enemyIdx].tPosition;
 
+        // UBYTE onBufferCheck = tileBufferIsRectFullyOnBuffer(s_pTileBuffer, s_tEnemy[enemyIdx].sBob.sPos.uwX, s_tEnemy[enemyIdx].sBob.sPos.uwY, 16, 16);
+        // if (onBufferCheck == FALSE) {
+        //     s_tEnemy[enemyIdx].ubOnScreen = FALSE;
+        //     continue;
+        // }
+
         // Check X bounds
         if ((s_tEnemy[enemyIdx].tPosition.uwX+s_tEnemyTypes[ubEnemyType].ubWidth) < uwCameraXMin || s_tEnemy[enemyIdx].tPosition.uwX > uwCameraXMax)
         {
@@ -1388,6 +1440,7 @@ static void processEnemies() {
             if (s_tEnemy[enemyIdx].tPosition.uwY > uwCameraYMin+16) {
                 s_tEnemy[enemyIdx].ubInvincible = FALSE;
             }
+            // TODO: Check X?
         }
 
         #ifndef COLLISIONS_DISABLED
@@ -1456,9 +1509,10 @@ static void processEnemies() {
 
 static void processPlayerDie() {
     if (s_ubPlayerIsInvincible == TRUE) { return; }
-    s_tBigExplosionBob.sPos.uwX = s_tPlayerPosition.uwX - 8;
-    s_tBigExplosionBob.sPos.uwY = s_tPlayerPosition.uwY - 8;
-    s_ubBigExplosionActive = 1;
+    s_tPlayerExplosionBob.sPos.uwX = s_tPlayerPosition.uwX - 8;
+    s_tPlayerExplosionBob.sPos.uwY = s_tPlayerPosition.uwY - 8;
+    s_ubPlayerExplosionActive = TRUE;
+    s_ubPlayerExplosionAnimFrame = 0;
     audioMixerPlaySfx(s_pSfxExplosion, CHANNEL_FOR_EXPLOSION, 10, 0);
     s_ubPlayerAlive = FALSE;
     if (s_ubPlayerLives != 0) { s_ubPlayerLives--; }
@@ -1530,17 +1584,13 @@ static void processPlayerSpecial() {
             s_ubPlayerInvincibleTimer = PLAYER_INVINCIBLE_TIME;
 
             for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-                if (s_tEnemy[enemyIdx].bHealth > 0) {
-                    // TODO: Check if on screen
+                if (s_tEnemy[enemyIdx].bHealth > 0 && s_tEnemy[enemyIdx].ubOnScreen == TRUE) {
+                    if (s_tEnemy[enemyIdx].ubInvincible == TRUE) { continue; }
                     s_tEnemy[enemyIdx].bHealth -= PLAYER_SPECIAL_DAMAGE;
 
                     // Enemy is dead.
                     if (s_tEnemy[enemyIdx].bHealth <= 0) {
-                        s_tEnemy[enemyIdx].bHealth = 0;
-                        createExplosionAtPosition(s_tEnemy[enemyIdx].tPosition);                      
-                        s_ulPlayerScore += s_tEnemy[enemyIdx].uwScoreValue;
-                        s_ubUpdateScore = TRUE;
-                        s_ubActiveEnemies--;
+                        destroyEnemy(enemyIdx);
                         logWrite("[%d] Killed by Special at (%d,%d) => Active: %d", enemyIdx, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, s_ubActiveEnemies);
                     }
                 }
@@ -1637,16 +1687,7 @@ static void processPlayerProjectiles() {
 
                 // Enemy is dead.
                 if (s_tEnemy[enemyIdx].bHealth <= 0) {
-                    s_tEnemy[enemyIdx].bHealth = 0;
-                    createExplosionAtPosition(s_tEnemy[enemyIdx].tPosition);
-
-                    if (s_tEnemy[enemyIdx].ubPowerupType > 0) {
-                        createPowerupAtPosition(s_tEnemy[enemyIdx].tPosition, s_tEnemy[enemyIdx].ubPowerupType);
-                    }
-                    
-                    s_ulPlayerScore += s_tEnemy[enemyIdx].uwScoreValue;
-                    s_ubUpdateScore = TRUE;
-                    s_ubActiveEnemies--;
+                    destroyEnemy(enemyIdx);
                     logWrite("[%d] Killed by Player at (%d,%d) => Active: %d", enemyIdx, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, s_ubActiveEnemies);
                 }
             }
@@ -1906,6 +1947,8 @@ static void resetEverything() {
     s_ubUpdateLives = TRUE;
     s_ubUpdateSpecial = TRUE;
     s_ubEngineAnimFrame = 0;
+    s_ubPlayerExplosionAnimFrame = 0;
+    s_ubPlayerExplosionActive = FALSE;    
     s_ubFireDelay = 0;
     s_ubSpecialDelay = 0;
     s_ubAudioDelay = 0;
@@ -1920,8 +1963,9 @@ static void resetEverything() {
     s_ubPlayerInvincibleTimer = 0;
     s_ubWaveIndex = 0;
     s_ubActiveEnemies = 0;
+    s_ubBigEnemyAlive = FALSE;
     s_ubActiveExplosions = 0;
-    s_ubBigExplosionActive = 0;
+    s_ubBigExplosionActive = FALSE;
     s_ubBigExplosionFrame = 0;
     s_ubLifePowActive = FALSE;
     s_ubSpecialPowActive = FALSE;
@@ -2040,6 +2084,31 @@ static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHei
     copMove(s_pView->pCopList, pBlock, &g_pSprFetch[ubChannel].uwLo, ulAddr & 0xFFFF);
     copMove(s_pView->pCopList, pBlock, &g_pCustom->spr[ubChannel].pos, uwPos);
     copMove(s_pView->pCopList, pBlock, &g_pCustom->spr[ubChannel].ctl, uwCtl);
+}
+
+static void destroyEnemy(UBYTE ubEnemyIdx) {
+    UBYTE ubEnemyType = s_tEnemy[ubEnemyIdx].ubEnemyType;
+    s_tEnemy[ubEnemyIdx].bHealth = 0;
+
+    if (ubEnemyType != ENEMY_BIG_TYPE) {
+        createExplosionAtPosition(s_tEnemy[ubEnemyIdx].tPosition);
+    } else {
+        if (s_ubBigExplosionActive == FALSE) {
+            s_tBigExplosionBob.sPos = s_tEnemy[ubEnemyIdx].tPosition;
+            s_ubBigExplosionActive = TRUE;
+            s_ubBigExplosionFrame = 0;
+        }
+
+        audioMixerPlaySfx(s_pSfxExplosion, CHANNEL_FOR_EXPLOSION, 10, 0);                        
+    }
+
+    if (s_tEnemy[ubEnemyIdx].ubPowerupType > 0) {
+        createPowerupAtPosition(s_tEnemy[ubEnemyIdx].tPosition, s_tEnemy[ubEnemyIdx].ubPowerupType);
+    }
+    
+    s_ulPlayerScore += s_tEnemy[ubEnemyIdx].uwScoreValue;
+    s_ubUpdateScore = TRUE;
+    s_ubActiveEnemies--;
 }
 
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType) {
