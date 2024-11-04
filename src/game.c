@@ -1417,8 +1417,8 @@ static void processEnemies() {
         }
 
         // Check Y bounds
-        //if ((s_tEnemy[enemyIdx].tPosition.uwY+s_tEnemyTypes[ubEnemyType].ubHeight)-1 < uwCameraYMin)
-        if (s_tEnemy[enemyIdx].tPosition.uwY+8 < uwCameraYMin)
+        if ((s_tEnemy[enemyIdx].tPosition.uwY+s_tEnemyTypes[ubEnemyType].ubHeight)-1 < uwCameraYMin)
+        //if (s_tEnemy[enemyIdx].tPosition.uwY+8 < uwCameraYMin)
         {
             s_tEnemy[enemyIdx].ubOnScreen = FALSE;
             continue;
@@ -1928,90 +1928,6 @@ static void processComplexEnemyProjectiles() {
 
 // Utility functions.
 
-static void resetEverything() {
-    s_ubDimLevel = 0;
-    s_ubFadeOut = FALSE;
-    s_ubFrameCounter = 0;
-    s_ubFlashTimer = 0;
-    s_ubFlashOn = FALSE;
-    s_ubLevelStart = TRUE;
-    s_ubLevelStartTimer = 128;
-    s_ubCameraCanMove = FALSE;
-    s_ubMoveCameraCounter = 0;
-    s_ubCurrentLevel = 0;
-    s_ulPlayerScore = 0; 
-    s_ubPlayerLives = PLAYER_LIVES_START;
-    s_ubPlayerSpecial = PLAYER_SPECIAL_START;
-    s_ubUpdateScore = TRUE;
-    s_ubUpdatePower = TRUE;
-    s_ubUpdateLives = TRUE;
-    s_ubUpdateSpecial = TRUE;
-    s_ubEngineAnimFrame = 0;
-    s_ubPlayerExplosionAnimFrame = 0;
-    s_ubPlayerExplosionActive = FALSE;    
-    s_ubFireDelay = 0;
-    s_ubSpecialDelay = 0;
-    s_ubAudioDelay = 0;
-    s_ubEquippedProjectileType = 0;
-    s_ubPlayerAlive = FALSE;
-    s_ubPlayerMovedLeft = FALSE;
-    s_ubPlayerMovedRight = FALSE;
-    s_ubPlayerMovedOnY = FALSE;
-    s_ubDisplayPlayer = TRUE;
-    s_ubDisplayEngine = TRUE;
-    s_ubPlayerIsInvincible = FALSE;
-    s_ubPlayerInvincibleTimer = 0;
-    s_ubWaveIndex = 0;
-    s_ubActiveEnemies = 0;
-    s_ubBigEnemyAlive = FALSE;
-    s_ubActiveExplosions = 0;
-    s_ubBigExplosionActive = FALSE;
-    s_ubBigExplosionFrame = 0;
-    s_ubLifePowActive = FALSE;
-    s_ubSpecialPowActive = FALSE;
-    s_ubWeaponPowActive = FALSE;
-    s_ubShowTextGameOver = FALSE;
-    s_ubShowTextGameOverTimer = 255;
-    s_ubShowTextReady = FALSE;
-    s_ubShowTextGo = FALSE;
-
-    for (UBYTE i=0; i<ENEMY_MAX; i++) {
-        s_tEnemy[i].bHealth = 0;
-    }
-
-    for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
-        s_tPlayerProjectiles[i].ubAlive = 0;
-    }
-
-    for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
-        s_tSimpleEnemyProjectiles[i].ubAlive = 0;
-        s_tComplexEnemyProjectiles[i].ubAlive = 0;
-    }
-
-    // for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
-    //     if (s_tPlayerProjectiles[i].ubAlive != 0) {
-    //         UBYTE ubType = s_tPlayerProjectiles[i].ubType;
-    //         UBYTE ubHeight = s_tPlayerProjectileTypes[ubType].ubHeight;
-    //         movePlayerProjectile(s_tPlayerProjectiles[i].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType);
-    //         s_tPlayerProjectiles[i].ubAlive = 0;
-    //     }
-    // }
-
-    // for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
-    //     if (s_tSimpleEnemyProjectiles[i].ubAlive != 0) {
-    //         moveEnemyProjectile(s_tSimpleEnemyProjectiles[i].pCopBlock, -16, -16, ENEMY_SIMPLEPROJECTILE_HEIGHT, 0, 0);
-    //         s_tSimpleEnemyProjectiles[i].ubAlive = 0;
-    //     }
-        
-    //     if (s_tComplexEnemyProjectiles[i].ubAlive != 0) {
-    //         UBYTE ubType = s_tSimpleEnemyProjectiles[i].ubType;
-    //         UBYTE ubHeight = s_tEnemyProjectileTypes[ubType].ubHeight;            
-    //         moveEnemyProjectile(s_tComplexEnemyProjectiles[i].pCopBlock, -16, -16, ubHeight, 0, 0);
-    //         s_tComplexEnemyProjectiles[i].ubAlive = 0;
-    //     }
-    // }
-}
-
 //static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType, UBYTE ubSecondary) {
 static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType) {
     UWORD uwVStart = s_pView->ubPosY + wY;
@@ -2160,4 +2076,88 @@ static void createExplosionAtPosition(tUwCoordYX tPosition) {
 
 static UBYTE checkCollision(WORD x1, WORD y1, UBYTE w1, UBYTE h1, WORD x2, WORD y2, UBYTE w2, UBYTE h2) {
     return x1 < x2+w2 && x1+w1 > x2 && y1 < y2+h2 && y1+h1 > y2;
+}
+
+static void resetEverything() {
+    s_ubDimLevel = 0;
+    s_ubFadeOut = FALSE;
+    s_ubFrameCounter = 0;
+    s_ubFlashTimer = 0;
+    s_ubFlashOn = FALSE;
+    s_ubLevelStart = TRUE;
+    s_ubLevelStartTimer = 128;
+    s_ubCameraCanMove = FALSE;
+    s_ubMoveCameraCounter = 0;
+    s_ubCurrentLevel = 0;
+    s_ulPlayerScore = 0; 
+    s_ubPlayerLives = PLAYER_LIVES_START;
+    s_ubPlayerSpecial = PLAYER_SPECIAL_START;
+    s_ubUpdateScore = TRUE;
+    s_ubUpdatePower = TRUE;
+    s_ubUpdateLives = TRUE;
+    s_ubUpdateSpecial = TRUE;
+    s_ubEngineAnimFrame = 0;
+    s_ubPlayerExplosionAnimFrame = 0;
+    s_ubPlayerExplosionActive = FALSE;    
+    s_ubFireDelay = 0;
+    s_ubSpecialDelay = 0;
+    s_ubAudioDelay = 0;
+    s_ubEquippedProjectileType = 0;
+    s_ubPlayerAlive = FALSE;
+    s_ubPlayerMovedLeft = FALSE;
+    s_ubPlayerMovedRight = FALSE;
+    s_ubPlayerMovedOnY = FALSE;
+    s_ubDisplayPlayer = TRUE;
+    s_ubDisplayEngine = TRUE;
+    s_ubPlayerIsInvincible = FALSE;
+    s_ubPlayerInvincibleTimer = 0;
+    s_ubWaveIndex = 0;
+    s_ubActiveEnemies = 0;
+    s_ubBigEnemyAlive = FALSE;
+    s_ubActiveExplosions = 0;
+    s_ubBigExplosionActive = FALSE;
+    s_ubBigExplosionFrame = 0;
+    s_ubLifePowActive = FALSE;
+    s_ubSpecialPowActive = FALSE;
+    s_ubWeaponPowActive = FALSE;
+    s_ubShowTextGameOver = FALSE;
+    s_ubShowTextGameOverTimer = 255;
+    s_ubShowTextReady = FALSE;
+    s_ubShowTextGo = FALSE;
+
+    for (UBYTE i=0; i<ENEMY_MAX; i++) {
+        s_tEnemy[i].bHealth = 0;
+    }
+
+    for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
+        s_tPlayerProjectiles[i].ubAlive = 0;
+    }
+
+    for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
+        s_tSimpleEnemyProjectiles[i].ubAlive = 0;
+        s_tComplexEnemyProjectiles[i].ubAlive = 0;
+    }
+
+    // for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
+    //     if (s_tPlayerProjectiles[i].ubAlive != 0) {
+    //         UBYTE ubType = s_tPlayerProjectiles[i].ubType;
+    //         UBYTE ubHeight = s_tPlayerProjectileTypes[ubType].ubHeight;
+    //         movePlayerProjectile(s_tPlayerProjectiles[i].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType);
+    //         s_tPlayerProjectiles[i].ubAlive = 0;
+    //     }
+    // }
+
+    // for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
+    //     if (s_tSimpleEnemyProjectiles[i].ubAlive != 0) {
+    //         moveEnemyProjectile(s_tSimpleEnemyProjectiles[i].pCopBlock, -16, -16, ENEMY_SIMPLEPROJECTILE_HEIGHT, 0, 0);
+    //         s_tSimpleEnemyProjectiles[i].ubAlive = 0;
+    //     }
+        
+    //     if (s_tComplexEnemyProjectiles[i].ubAlive != 0) {
+    //         UBYTE ubType = s_tSimpleEnemyProjectiles[i].ubType;
+    //         UBYTE ubHeight = s_tEnemyProjectileTypes[ubType].ubHeight;            
+    //         moveEnemyProjectile(s_tComplexEnemyProjectiles[i].pCopBlock, -16, -16, ubHeight, 0, 0);
+    //         s_tComplexEnemyProjectiles[i].ubAlive = 0;
+    //     }
+    // }
 }
