@@ -72,3 +72,15 @@ typedef struct _tSimpleEnemyProjectile {
     UBYTE ubChannel;
     UBYTE ubType;
 } tSimpleEnemyProjectile;
+
+// Enemy projectile types
+tEnemyProjectileType g_tEnemyProjectileTypes[ENEMY_PROJECTILE_TYPES] = {{ 10,  6, 0, 3},
+                                                                        {  5,  6, 2, 3},
+                                                                        {  8,  8, 4, 2},
+                                                                        { 14, 14, 7, 2}};
+
+// Player projectile types
+tPlayerProjectileType g_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {{ 20, 12, 0, 0, -6, 4, 0,  8,  7, TRUE, FALSE, FALSE, 0 },
+                                                                           { 15, 10, 0, 0, -6, 4, 0,  8, 10, TRUE, FALSE, FALSE, 0 },
+                                                                           { 10,  8, 0, 0, -7, 3, 0, 10, 12, FALSE, FALSE, FALSE, 0 },
+                                                                           { 10,  6, 0, 0, -8, 2, 0, 12, 16, TRUE, FALSE, FALSE, 0 }};

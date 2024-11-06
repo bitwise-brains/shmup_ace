@@ -13,7 +13,7 @@ static tPtplayerMod *s_pIntroMusic;
 
 static tIntroStage s_eIntroStage = INTRO_BRAINS;
 static UBYTE s_ubFrameCounter = 0;
-static UWORD s_ubWaitTimer = 100;
+static UWORD s_uwWaitTimer = 100;
 static UBYTE s_ubDimLevel = 0;
 static UBYTE s_ubFadeInComplete = FALSE;
 static UBYTE s_ubFadeOutComplete = FALSE;
@@ -88,7 +88,7 @@ void introGsLoop(void) {
     if (s_ubFrameCounter >=5) {
         s_ubFrameCounter = 0;
         updatePalette(s_ubDimLevel);
-
+        
         // Fade in finished?
         if (s_ubFadeInComplete == FALSE && s_ubDimLevel == 15) {
             s_ubFadeInComplete = TRUE;
@@ -97,19 +97,19 @@ void introGsLoop(void) {
         // Fade out finished?
         if (s_ubFadeInComplete == TRUE && s_ubFadeOutComplete == FALSE && s_ubDimLevel == 0) {
             s_ubFadeOutComplete = TRUE;
-            s_ubWaitTimer = 100;
+            s_uwWaitTimer = 100;
         }
 
         if (s_ubFadeInComplete == FALSE && s_ubDimLevel < 15) {
             s_ubDimLevel++;
         }
 
-        if (s_ubFadeInComplete == TRUE && s_ubDimLevel > 0 && s_ubWaitTimer == 0) {
+        if (s_ubFadeInComplete == TRUE && s_ubDimLevel > 0 && s_uwWaitTimer == 0) {
             s_ubDimLevel--;
         }
         
-        if (s_ubDimLevel == 15 && s_ubWaitTimer > 0) {
-            s_ubWaitTimer--;
+        if (s_ubDimLevel == 15 && s_uwWaitTimer > 0) {
+            s_uwWaitTimer--;
         }
     }
 
@@ -136,7 +136,7 @@ void introGsLoop(void) {
             case INTRO_TITLE:
                 fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cIntroText, 19, FONT_SHADOW | FONT_COOKIE, s_pIntroText);
                 s_eIntroStage = INTRO_TEXT;
-                s_ubWaitTimer = 525;
+                s_uwWaitTimer = 525;
                 break;
             case INTRO_TEXT:
                 ptplayerSetMasterVolume(0);
@@ -148,7 +148,6 @@ void introGsLoop(void) {
         }
     }
 
-    //viewUpdateGlobalPalette(s_pView);
     viewProcessManagers(s_pView);
     copProcessBlocks();
     systemIdleBegin();

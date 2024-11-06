@@ -36,7 +36,7 @@ set(AUDIO_MIXER_PROFILER OFF)
 set(AUDIO_MIXER_HW_CHANNELS 3)
 set(AUDIO_MIXER_SW_CHANNEL_COUNT 3)
 set(AUDIO_MIXER_PERIOD 161)
-set(ACE_TILEBUFFER_TILE_TYPE UBYTE)
+set(ACE_TILEBUFFER_TILE_TYPE UWORD)
 
 add_subdirectory(ace)
 add_subdirectory(ace_audio_mixer ace_audio_mixer)

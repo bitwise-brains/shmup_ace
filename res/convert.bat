@@ -8,7 +8,8 @@
 .\tools\bitmap_conv.exe .\data\splash_ace.plt splash_ace.png -i -o .\data\splash_ace.bm
 .\tools\bitmap_conv.exe .\data\titlescreen.plt titlescreen.png -i -o .\data\titlescreen.bm
 
-.\tools\bitmap_conv.exe .\data\game.plt bigmap.png -i -o .\data\bigmap.bm
+.\tools\bitmap_conv.exe .\data\game.plt tiles_stage1.png -i -o .\data\tiles_stage1.bm
+.\tools\bitmap_conv.exe .\data\game.plt tiles_stage2.png -i -o .\data\tiles_stage2.bm
 .\tools\bitmap_conv.exe .\data\game.plt player.png -mc #FF00FF -i -o .\data\player.bm
 .\tools\bitmap_conv.exe .\data\game.plt player_engine.png -mc #FF00FF -i -o .\data\player_engine.bm
 .\tools\bitmap_conv.exe .\data\game.plt enemy_small.png -mc #FF00FF -i -o .\data\enemy_small.bm
@@ -21,6 +22,8 @@
 .\tools\bitmap_conv.exe .\data\game.plt text_gameover.png -mc #FF00FF -i -o .\data\text_gameover.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_ready.png -mc #FF00FF -i -o .\data\text_ready.bm
 .\tools\bitmap_conv.exe .\data\game.plt text_go.png -mc #FF00FF -i -o .\data\text_go.bm
+.\tools\bitmap_conv.exe .\data\game.plt stage_complete_bg.png -mc #FF00FF -i -o .\data\stage_complete_bg.bm
+
 .\tools\bitmap_conv.exe .\data\highscore.plt text_title.png -i -o .\data\text_title.bm
 .\tools\bitmap_conv.exe .\data\highscore.plt text_credits.png -i -o .\data\text_credits.bm
 

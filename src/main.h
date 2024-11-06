@@ -24,7 +24,8 @@
 #include "../ace_audio_mixer/include/ace/contrib/managers/audio_mixer.h"
 
 #define GAME_BPP 5
-#define GAME_STATES 3
+#define GAME_STATES 5
+#define GAME_STAGES 3
 
 void introGsCreate(void);
 void introGsLoop(void);
@@ -34,18 +35,33 @@ void gameGsCreate(void);
 void gameGsLoop(void);
 void gameGsDestroy(void);
 
+// void bossGsCreate(void);
+// void bossGsLoop(void);
+// void bossGsDestroy(void);
+
+void intermissionGsCreate(void);
+void intermissionGsLoop(void);
+void intermissionGsDestroy(void);
+
 void highscoreGsCreate(void);
 void highscoreGsLoop(void);
 void highscoreGsDestroy(void);
 
+void winGsCreate(void);
+void winGsLoop(void);
+void winGsDestroy(void);
+
 typedef enum tGameState {
     STATE_INTRO,
     STATE_GAME,
+    STATE_INTERMISSION,
     STATE_SCORE,
+    STATE_WIN,
 } tGameState;
 
 extern tStateManager *g_pGameStateManager;
 extern tState g_pGameStates[GAME_STATES];
 extern ULONG g_ulPlayerScore;
+extern UBYTE g_ubCurrentStage;
 
 #endif // _MAIN_H_

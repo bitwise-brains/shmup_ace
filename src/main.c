@@ -1,14 +1,16 @@
 #include <ace/generic/main.h>
 #include "main.h"
 
+ULONG g_ulPlayerScore = 0;
+UBYTE g_ubCurrentStage = 0;
 tStateManager *g_pGameStateManager = 0;
 tState g_pGameStates[GAME_STATES] = {
   [STATE_INTRO] = {.cbCreate = introGsCreate, .cbLoop = introGsLoop, .cbDestroy = introGsDestroy},
   [STATE_GAME] = {.cbCreate = gameGsCreate, .cbLoop = gameGsLoop, .cbDestroy = gameGsDestroy},
+  [STATE_INTERMISSION] = {.cbCreate = intermissionGsCreate, .cbLoop = intermissionGsLoop, .cbDestroy = intermissionGsDestroy},
   [STATE_SCORE] = {.cbCreate = highscoreGsCreate, .cbLoop = highscoreGsLoop, .cbDestroy = highscoreGsDestroy},
+  [STATE_WIN] = {.cbCreate = winGsCreate, .cbLoop = winGsLoop, .cbDestroy = winGsDestroy},
 };
-
-ULONG g_ulPlayerScore = 0;
 
 void genericCreate(void) {
   keyCreate();

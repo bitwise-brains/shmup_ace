@@ -9,6 +9,7 @@ static tPtplayerMod *s_pMusic;
 static tBitMap *s_tTitleImage;
 static tBitMap *s_tCreditsImage;
 static tTextBitMap *s_pScoreText;
+static tTextBitMap *s_pPressFireText;
 static tTextBitMap *s_pGreetsText[GREETS_MAX];
 
 static UWORD s_uwFadePalette[16][32] = {0};
@@ -21,13 +22,14 @@ static UBYTE s_ubSaveHighscore = FALSE;
 static UBYTE s_ubInitialsYPos = 0;
 static char s_cInitialsInput[4] = {0};
 static char s_cGreets[GREETS_MAX][32] = {{"  AN AMIGAMEJAM 2024 ENTRY  "},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ02"},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ03"},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ04"},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ05"},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ06"},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ07"},
-                                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ08"}};
+                                         {"    GREETS TO ALL IN TTE    "},
+                                         {"BIG THANKS TO AGJ ORGANIZERS"},
+                                         {"                            "},
+                                         {"    ACE LOGO BY THAYSON     "},
+                                         {"  TITLESCREEN BY PETE LYON  "},
+                                         {"AUDIO MIXER BY DUTCHRETROGUY"},
+                                         {"   SPECIAL THANKS TO KAIN   "}};
+
 static UBYTE s_ubInitialsIndex = 0;
 static UBYTE s_ubTableIndex = 0;
 static tHighScore s_tHighScores[HIGHSCORE_MAX] = {0};
@@ -66,7 +68,8 @@ void highscoreGsCreate(void) {
 
     // Load font and create text bitmaps.
     s_pFont = fontCreate("data/hudfont.fnt");
-    s_pScoreText = fontCreateTextBitMap(128, 128);  
+    s_pScoreText = fontCreateTextBitMap(96, 8);
+    s_pPressFireText = fontCreateTextBitMap(112, 8);
     for (UBYTE i=0; i<GREETS_MAX; i++) {
         s_pGreetsText[i] = fontCreateTextBitMap(GREETS_WIDTH, GREETS_HEIGHT);
         fontFillTextBitMap(s_pFont, s_pGreetsText[i], s_cGreets[i]);
@@ -193,6 +196,8 @@ void highscoreGsLoop(void) {
             if (s_ubSaveHighscore == TRUE) {
                 writeHighscore();
             }
+
+            g_ubCurrentStage = 0; // Reset to first stage.
             ptplayerSetMasterVolume(0);
             ptplayerStop();
             stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
@@ -215,15 +220,15 @@ void highscoreGsLoop(void) {
 
                 char cHighscoreText[16];
                 sprintf(cHighscoreText, "%c%c%c", s_cInitialsInput[0], s_cInitialsInput[1], s_cInitialsInput[2]);
-                fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+1, s_ubInitialsYPos+1, cHighscoreText, 1, 0, s_pScoreText);
+                fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+1, s_ubInitialsYPos+1, cHighscoreText, 1, 0, s_pScoreText); // Drop shadow
                 fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L, s_ubInitialsYPos, cHighscoreText, HIGHSCORE_COLOR, FONT_COOKIE, s_pScoreText);
 
                 s_ubInitialsIndex++;
                 if (s_ubInitialsIndex == 3) {
                     memcpy(s_tHighScores[s_ubTableIndex].cInitials, s_cInitialsInput, sizeof(s_tHighScores[s_ubTableIndex].cInitials));
                     blitRect(s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)), 128, 10, 0);
-                    //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, (HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)))+1, "  PRESS FIRE  ", 1, 0, s_pScoreText);
-                    fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)), "  PRESS FIRE  ", PULSE_COLOR, FONT_COOKIE, s_pScoreText);
+                    //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, (HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)))+1, "  PRESS FIRE", 1, 0, s_pPressFireText);
+                    fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)), "  PRESS FIRE", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
                     s_ubEnterInitials = FALSE;
                 }                
             } else {
@@ -261,7 +266,6 @@ void highscoreGsLoop(void) {
     s_pViewport->pPalette[PULSE_COLOR] = s_uwPulse[s_ubPulseIdx];
 
     viewUpdateGlobalPalette(s_pView);
-
     viewProcessManagers(s_pView);
     copProcessBlocks();
     systemIdleBegin();
@@ -270,11 +274,15 @@ void highscoreGsLoop(void) {
 }
 
 void highscoreGsDestroy(void) {
+    g_ulPlayerScore = 0;
+    g_ubCurrentStage = 0;
+    
     systemUse();
     fontDestroy(s_pFont);
     bitmapDestroy(s_tTitleImage);
     bitmapDestroy(s_tCreditsImage);
     fontDestroyTextBitMap(s_pScoreText);
+    fontDestroyTextBitMap(s_pPressFireText);
     for (UBYTE i=0; i<GREETS_MAX; i++) {
         fontDestroyTextBitMap(s_pGreetsText[i]);
     }
@@ -319,10 +327,10 @@ static void renderText(void) {
 
     uwYOffset += HIGHSCORE_SPACING+8;
     if (s_ubEnterInitials == TRUE) {
-        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "ENTER INITIALS", 1, 0, s_pScoreText);
-        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, uwYOffset, "ENTER INITIALS", PULSE_COLOR, FONT_COOKIE, s_pScoreText);
+        //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "ENTER INITIALS", 1, 0, s_pPressFireText);
+        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, uwYOffset, "ENTER INITIALS", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
     } else {
-        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "  PRESS FIRE", 1, 0, s_pScoreText);
-        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, uwYOffset, "  PRESS FIRE", PULSE_COLOR, FONT_COOKIE, s_pScoreText);
+        //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "  PRESS FIRE", 1, 0, s_pPressFireText);
+        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, uwYOffset, "  PRESS FIRE", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
     }
 }
