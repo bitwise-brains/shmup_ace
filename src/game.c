@@ -5,6 +5,8 @@
 #include "enemy.h"
 #include "explosion.h"
 #include "paths.h"
+#include "waves.h"
+//#include "lsplayer.h"
 
 // Display
 static tView *s_pView; // View containing all the viewports
@@ -30,11 +32,9 @@ static UBYTE s_ubGamePaused = FALSE;
 
 // Audio
 static tPtplayerMod *s_pGameMusic;
-static tPtplayerSfx *s_pSfxLightLaser;
-static tPtplayerSfx *s_pSfxHeavyLaser;
-static tPtplayerSfx *s_pSfxFastLaser;
+static tPtplayerSfx *s_pSfxPlayerShot;
 static tPtplayerSfx *s_pSfxExplosion;
-static tPtplayerSfx *s_pSfxCollect;
+static tPtplayerSfx *s_pSfxCollectPowerup;
 
 // Level
 static tBitMap *s_pTiles;
@@ -176,8 +176,14 @@ static UBYTE s_ubShowTextGo = FALSE;
 static UWORD s_uwEngineAnimOffset[] = {0, 0, 50, 50, 100, 100, 150, 150}; // 16x1==10
 static UWORD s_uwSmallExplosionAnimOffset[] = {0, 0, 160, 160, 320, 320, 480, 480, 640, 640, 800, 800, 960, 960, 1120, 1120, 1280, 1280}; // 16x16
 static UWORD s_uwBigExplosionAnimOffset[] = {0, 0, 0, 640, 640, 640, 1280, 1280, 1280, 1920, 1920, 1920, 2560, 2560, 2560, 3200, 3200, 3200, 3840, 3840, 3840, 4480, 4480, 4480}; // 32x32
-static UWORD s_uwEnemyBitmapOffset[] = {0, 160, 320, 480, 640, 800};
+static UWORD s_uwEnemyBitmapOffset[] = {0, 160, 320, 480, 640, 800, 960, 1120, 1280};
 static UWORD s_uwEnemyProjectileBitmapOffset[] = {0, 140, 280, 420};
+
+// TEST SHIT
+//static UBYTE s_ubBank[209742] = {0};
+//static UBYTE s_ubMusic[23624] = {0};
+// WORD _mfx_master_vol = 32;
+//tPtplayerSamplePack *s_pSamplePack;
 
 // Game states.
 
@@ -301,11 +307,14 @@ void gameGsDestroy(void) {
     ptplayerStop();
     audioMixerDestroy();
     ptplayerModDestroy(s_pGameMusic);
-    ptplayerSfxDestroy(s_pSfxLightLaser);
-    ptplayerSfxDestroy(s_pSfxHeavyLaser);
-    ptplayerSfxDestroy(s_pSfxFastLaser);
+    //ptplayerSamplePackDestroy(s_pSamplePack);
+    // for (UBYTE i=0; i<PLAYER_PROJECTILE_TYPES; i++) {
+    //     ptplayerSfxDestroy(s_pSfxPlayerShot[i]);
+    // }
+    ptplayerSfxDestroy(s_pSfxPlayerShot);
     ptplayerSfxDestroy(s_pSfxExplosion);
-    ptplayerSfxDestroy(s_pSfxCollect);
+    ptplayerSfxDestroy(s_pSfxCollectPowerup);
+    ptplayerDestroy();
 
     // Destroy font and text
     fontDestroyTextBitMap(s_pHudScoreText);
@@ -368,15 +377,25 @@ void gameGsDestroy(void) {
 static void initGame() {
     //resetEverything();
 
+    // LSP stuff
+	// tFile *pBankFile = fileOpen("data/gork.lsbank", "rb");
+	// fileRead(pBankFile, s_ubBank, sizeof(s_ubBank));
+    // fileClose(pBankFile);   
+    // tFile *pMusicFile = fileOpen("data/gork.lsmusic", "rb");
+	// fileRead(pMusicFile, s_ubMusic, sizeof(s_ubMusic));
+    // fileClose(pMusicFile);
+    // lsp_cia_start(&s_ubMusic, &s_ubBank);
+
+    // Load enemy path data.
+	tFile *pPathData = fileOpen("data/paths.dat", "rb");
+	fileRead(pPathData, g_ubPathData, sizeof(g_ubPathData));
+
     s_fViewportXMin = fix16_from_int(TILE_VIEWPORT_XMIN);
     s_fViewportXMax = fix16_from_int(TILE_VIEWPORT_XMAX);
     s_fBoundsMax = fix16_from_int(BOUNDS_MAX);
     s_fBoundsMin = fix16_from_int(BOUNDS_MIN);
 
     s_ulPlayerScore = g_ulPlayerScore;
-
-    // Setup random number generator.
-    //randInit(&s_tRandManager, 1337, 2600);
 
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 5,  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 25, 8, .bDeltaX = -5, .bDeltaX2 =  5, .bDeltaY = -5, .ubXOffset =  9, .ubXOffset2 = 16, .ubWidth =  7, .ubHeight =  8, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = TRUE,  .ubSecondarySpriteIndex = 1 }; // SpreadShot
@@ -490,18 +509,26 @@ static void initHud() {
 }
 
 static void initAudio() {
-    s_pSfxLightLaser = ptplayerSfxCreateFromFile("data/heavylaser.sfx", 1);
-    s_pSfxHeavyLaser = ptplayerSfxCreateFromFile("data/heavylaser.sfx", 1);
-    s_pSfxFastLaser = ptplayerSfxCreateFromFile("data/heavylaser.sfx", 1);
-    s_pSfxExplosion = ptplayerSfxCreateFromFile("data/explosion.sfx", 1);
-    s_pSfxCollect = ptplayerSfxCreateFromFile("data/collect.sfx", 1);
     ptplayerCreate(1);
+
+    s_pSfxPlayerShot = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
+    // s_pSfxPlayerShot[0] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
+    // s_pSfxPlayerShot[1] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
+    // s_pSfxPlayerShot[2] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
+    // s_pSfxPlayerShot[3] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
+
+    s_pSfxExplosion = ptplayerSfxCreateFromFile("data/explosion.sfx", 1);
+    s_pSfxCollectPowerup = ptplayerSfxCreateFromFile("data/collect.sfx", 1);
+
     ptplayerSetChannelsForPlayer(0b0111);
-    ptplayerSetMasterVolume(24);
+    ptplayerSetMasterVolume(32);
+
+    //s_pSamplePack = ptplayerSampleDataCreate("data/game.samples");
+    s_pGameMusic = ptplayerModCreate("data/game.patterns");
+    //ptplayerLoadMod(s_pGameMusic, s_pSamplePack, 0);
+
     audioMixerCreate();
-    s_pGameMusic = ptplayerModCreate("data/game.mod");
-    ptplayerLoadMod(s_pGameMusic, 0, 0);
-    ptplayerEnableMusic(1);
+    //ptplayerEnableMusic(1);
 }
 
 static void initBobs() {
@@ -613,6 +640,8 @@ static void initSprites() {
     for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
         s_tComplexEnemyProjectiles[i].pCopBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
         s_tSimpleEnemyProjectiles[i].pCopBlock = copBlockCreate(s_pView->pCopList, 4, 0, 0);
+        s_tComplexEnemyProjectiles[i].ubChannel = 255;
+        s_tSimpleEnemyProjectiles[i].ubChannel = 255;
     }
 
     // Player projectile sprite.   
@@ -783,51 +812,42 @@ static void processHud() {
 static void processWaves() {
     if (s_ubWaveIndex != 255) {
         if (s_pCamera->uPos.uwY == g_tEnemyWaves[s_ubWaveIndex].uwSpawnYPosition) {
-            if (s_ubActiveEnemies + g_tEnemyWaves[s_ubWaveIndex].ubNumberOfEnemies <= ENEMY_MAX) {
-                UBYTE ubPathIdxSpacingOffset = 0;
-                for (UBYTE spawnIdx=0; spawnIdx<g_tEnemyWaves[s_ubWaveIndex].ubNumberOfEnemies; spawnIdx++) {
-                    UBYTE ubEnemyTypeToSpawn = g_tEnemyWaves[s_ubWaveIndex].ubEnemies[spawnIdx];
-                    if (ubEnemyTypeToSpawn == 255) {
-                        ubPathIdxSpacingOffset += g_tEnemyWaves[s_ubWaveIndex].ubSpacing;
-                        continue;
-                    }
-                    
-                    logWrite("Wave[%d] %d/%d Spawn EnemyType: %d", s_ubWaveIndex, spawnIdx, g_tEnemyWaves[s_ubWaveIndex].ubNumberOfEnemies, ubEnemyTypeToSpawn);
-                    for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-                        if (s_tEnemy[enemyIdx].bHealth > 0) { continue; }
-                        UBYTE ubPathType = g_tEnemyWaves[s_ubWaveIndex].ubPathType;
-                        s_tEnemy[enemyIdx].bHealth = g_tEnemyTypes[ubEnemyTypeToSpawn].bHealth;
-                        s_tEnemy[enemyIdx].ubOnScreen = FALSE;
-                        s_tEnemy[enemyIdx].ubInvincible = TRUE;
-                        s_tEnemy[enemyIdx].ubCanShoot = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCanShoot;
-                        s_tEnemy[enemyIdx].ubCooldownTimer = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCooldownTime;
-                        s_tEnemy[enemyIdx].ubEnemyType = ubEnemyTypeToSpawn;
-                        s_tEnemy[enemyIdx].ubPowerupType = g_tEnemyTypes[ubEnemyTypeToSpawn].ubPowerupType;
-                        s_tEnemy[enemyIdx].ubWaveIdx = s_ubWaveIndex;
-                        s_tEnemy[enemyIdx].uwScoreValue = g_tEnemyTypes[ubEnemyTypeToSpawn].uwScoreValue;
-                        s_tEnemy[enemyIdx].ubMoveSpeed = g_tEnemyTypes[ubEnemyTypeToSpawn].ubMoveSpeed;
-                        s_tEnemy[enemyIdx].uwPathArrayOffset = g_uwPathOffset[ubPathType];
-                        s_tEnemy[enemyIdx].uwPathLength = g_uwPathLength[ubPathType];
-                        s_tEnemy[enemyIdx].ubPathLoops = g_tEnemyWaves[s_ubWaveIndex].ubPathLoops;
-                        s_tEnemy[enemyIdx].uwPathYOffset = g_tEnemyWaves[s_ubWaveIndex].uwSpawnYPosition - g_tEnemyWaves[s_ubWaveIndex].uwPathYOffset;
-                        s_tEnemy[enemyIdx].uwPathIdx = ubPathIdxSpacingOffset;
-                        ubPathIdxSpacingOffset += g_tEnemyWaves[s_ubWaveIndex].ubSpacing;
+            if (s_ubActiveEnemies + 1 <= ENEMY_MAX) {
+                logWrite("Wave[%d] Spawn EnemyType: %d", s_ubWaveIndex, g_tEnemyWaves[s_ubWaveIndex].ubEnemyType);
+                for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
+                    if (s_tEnemy[enemyIdx].bHealth > 0) { continue; }
+                    UBYTE ubEnemyTypeToSpawn = g_tEnemyWaves[s_ubWaveIndex].ubEnemyType;
+                    UBYTE ubPathType = g_tEnemyWaves[s_ubWaveIndex].ubPathType;
+                    s_tEnemy[enemyIdx].bHealth = g_tEnemyTypes[ubEnemyTypeToSpawn].bHealth;
+                    s_tEnemy[enemyIdx].ubOnScreen = FALSE;
+                    s_tEnemy[enemyIdx].ubInvincible = TRUE;
+                    s_tEnemy[enemyIdx].ubCanShoot = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCanShoot;
+                    s_tEnemy[enemyIdx].ubCooldownTimer = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCooldownTime;
+                    s_tEnemy[enemyIdx].ubEnemyType = ubEnemyTypeToSpawn;
+                    s_tEnemy[enemyIdx].ubPowerupType = g_tEnemyTypes[ubEnemyTypeToSpawn].ubPowerupType;
+                    s_tEnemy[enemyIdx].ubWaveIdx = s_ubWaveIndex;
+                    s_tEnemy[enemyIdx].uwScoreValue = g_tEnemyTypes[ubEnemyTypeToSpawn].uwScoreValue;
+                    s_tEnemy[enemyIdx].ubMoveSpeed = g_tEnemyTypes[ubEnemyTypeToSpawn].ubMoveSpeed;
+                    s_tEnemy[enemyIdx].uwPathArrayOffset = g_uwPathOffset[ubPathType];
+                    s_tEnemy[enemyIdx].uwPathLength = g_uwPathLength[ubPathType];
+                    s_tEnemy[enemyIdx].ubPathLoops = g_tEnemyWaves[s_ubWaveIndex].ubPathLoops;
+                    s_tEnemy[enemyIdx].uwPathYOffset = g_tEnemyWaves[s_ubWaveIndex].uwSpawnYPosition + g_tEnemyWaves[s_ubWaveIndex].bSpawnOffset;
+                    s_tEnemy[enemyIdx].uwPathIdx = 0;
 
-                        UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyTypeToSpawn].ubBitmapOffset;
-                        UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
-                        bobSetFrame(
-                            &s_tEnemy[enemyIdx].sBob,
-                            &s_pEnemyImage->Planes[0][uwOffset],
-                            &s_pEnemyMask->Planes[0][uwOffset]
-                        );
+                    UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyTypeToSpawn].ubBitmapOffset;
+                    UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
+                    bobSetFrame(
+                        &s_tEnemy[enemyIdx].sBob,
+                        &s_pEnemyImage->Planes[0][uwOffset],
+                        &s_pEnemyMask->Planes[0][uwOffset]
+                    );
 
-                        logWrite("Wave[%d] Spawned %d:%d to EnemyIdx:%d", s_ubWaveIndex, spawnIdx, ubEnemyTypeToSpawn, enemyIdx);
-                        s_ubActiveEnemies++;
-                        break;
-                    }
+                    logWrite("Wave[%d] Spawned EnemyType:%d => EnemyIdx:%d", s_ubWaveIndex, ubEnemyTypeToSpawn, enemyIdx);
+                    s_ubActiveEnemies++;
+                    break;
                 }
             } else {
-                logWrite("Wave[%d] Too many enemies => Active:%d Spawn:%d", s_ubWaveIndex, s_ubActiveEnemies, g_tEnemyWaves[s_ubWaveIndex].ubNumberOfEnemies);
+                logWrite("Wave[%d] Too many enemies => Active:%d", s_ubWaveIndex, s_ubActiveEnemies);
             }
 
             s_ubWaveIndex++;
@@ -1077,7 +1097,7 @@ static void processPowerups() {
         UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX, s_tPlayerPosition.uwY, PLAYER_SHIP_WIDTH, PLAYER_SHIP_HEIGHT, 
                                            s_tLifePowBob.sPos.uwX, s_tLifePowBob.sPos.uwY, POWERUP_WIDTH, POWERUP_HEIGHT);
         if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) {
-            audioMixerPlaySfx(s_pSfxCollect, CHANNEL_FOR_PLAYER, 9, 0);
+            audioMixerPlaySfx(s_pSfxCollectPowerup, CHANNEL_FOR_PLAYER, 9, 0);
             if (s_ubPlayerLives < PLAYER_LIVES_MAX) {
                 s_ubPlayerLives++;
                 s_ubUpdateLives = TRUE;
@@ -1106,7 +1126,7 @@ static void processPowerups() {
         UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX, s_tPlayerPosition.uwY, PLAYER_SHIP_WIDTH, PLAYER_SHIP_HEIGHT, 
                                            s_tSpecialPowBob.sPos.uwX, s_tSpecialPowBob.sPos.uwY, POWERUP_WIDTH, POWERUP_HEIGHT);
         if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) { 
-            audioMixerPlaySfx(s_pSfxCollect, CHANNEL_FOR_PLAYER, 9, 0);
+            audioMixerPlaySfx(s_pSfxCollectPowerup, CHANNEL_FOR_PLAYER, 9, 0);
             if (s_ubPlayerSpecial < PLAYER_SPECIAL_MAX) {
                 s_ubPlayerSpecial++;
                 s_ubUpdateSpecial = TRUE;
@@ -1135,7 +1155,7 @@ static void processPowerups() {
         UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX, s_tPlayerPosition.uwY, PLAYER_SHIP_WIDTH, PLAYER_SHIP_HEIGHT, 
                                            s_tWeaponPowBob.sPos.uwX, s_tWeaponPowBob.sPos.uwY, POWERUP_WIDTH, POWERUP_HEIGHT);
         if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) {
-            audioMixerPlaySfx(s_pSfxCollect, CHANNEL_FOR_PLAYER, 9, 0);
+            audioMixerPlaySfx(s_pSfxCollectPowerup, CHANNEL_FOR_PLAYER, 9, 0);
             if (s_ubEquippedProjectileType < (PLAYER_PROJECTILE_TYPES-1)) {
                 s_ubEquippedProjectileType++;
                 s_ubUpdatePower = TRUE;
@@ -1389,21 +1409,7 @@ static void processPlayerShoot() {
                 // }
 
                 if (s_ubAudioDelay == 0) {
-                    switch (s_ubEquippedProjectileType) {
-                        case 0:
-                            audioMixerPlaySfx(s_pSfxLightLaser, CHANNEL_FOR_PLAYER, 8, 0);
-                            break;
-                        case 1:
-                            audioMixerPlaySfx(s_pSfxLightLaser, CHANNEL_FOR_PLAYER, 8, 0);
-                            break;
-                        case 2:
-                            audioMixerPlaySfx(s_pSfxHeavyLaser, CHANNEL_FOR_PLAYER, 8, 0);
-                            break;
-                        case 3:
-                            audioMixerPlaySfx(s_pSfxFastLaser, CHANNEL_FOR_PLAYER, 8, 0);
-                            break;                                                                                    
-                    }
-                    
+                    audioMixerPlaySfx(s_pSfxPlayerShot, CHANNEL_FOR_PLAYER, 8, 0);
                     s_ubAudioDelay = PLAYER_AUDIO_DELAY;
                 }
 
@@ -1653,7 +1659,7 @@ static void processSimpleEnemyProjectiles() {
         }
 
         moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, 
-                            ((s_tSimpleEnemyProjectiles[projectileIdx].uwX-TILE_VIEWPORT_XMIN)+80), 
+                            ((s_tSimpleEnemyProjectiles[projectileIdx].uwX-TILE_VIEWPORT_XMIN)), 
                             (s_tSimpleEnemyProjectiles[projectileIdx].uwY - s_pCamera->uPos.uwY), 
                             ubEnemyProjectileHeight, 
                             s_tSimpleEnemyProjectiles[projectileIdx].ubChannel, 
@@ -1666,13 +1672,19 @@ static void processComplexEnemyProjectiles() {
     fix16_t fCameraXMin = s_fViewportXMin;
     fix16_t fCameraXMax = s_fViewportXMax;
 
-    s_ubProjectileBobIndex = 0;
     s_fComplexChannelBounds[0] = (tComplexChannelBounds){.fMin = fix16_from_int(s_tSimpleChannelBounds[0].uwMin), .fMax = fix16_from_int(s_tSimpleChannelBounds[0].uwMax)};
     s_fComplexChannelBounds[1] = (tComplexChannelBounds){.fMin = fix16_from_int(s_tSimpleChannelBounds[1].uwMin), .fMax = fix16_from_int(s_tSimpleChannelBounds[1].uwMax)};
     s_fComplexChannelBounds[2] = (tComplexChannelBounds){.fMin = fix16_from_int(s_tSimpleChannelBounds[2].uwMin), .fMax = fix16_from_int(s_tSimpleChannelBounds[2].uwMax)};
     s_fComplexChannelBounds[3] = (tComplexChannelBounds){.fMin = fix16_from_int(s_tSimpleChannelBounds[3].uwMin), .fMax = fix16_from_int(s_tSimpleChannelBounds[3].uwMax)};
 
     for (UBYTE projectileIdx=0; projectileIdx<ENEMY_PROJECTILE_MAX; projectileIdx++) {
+        if (s_tComplexEnemyProjectiles[projectileIdx].ubAlive == 0 && s_tComplexEnemyProjectiles[projectileIdx].ubChannel != 255) { 
+            UBYTE ubEnemyProjectileType = s_tComplexEnemyProjectiles[projectileIdx].ubType;
+            UBYTE ubEnemyProjectileHeight = g_tEnemyProjectileTypes[ubEnemyProjectileType].ubHeight;
+            UBYTE ubChannel = s_tComplexEnemyProjectiles[projectileIdx].ubChannel;
+            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, ubChannel, ubEnemyProjectileType);            
+        }
+        
         if (s_tComplexEnemyProjectiles[projectileIdx].ubAlive == 0) { continue; }
         
         UBYTE ubEnemyProjectileType = s_tComplexEnemyProjectiles[projectileIdx].ubType;
@@ -1747,7 +1759,7 @@ static void processComplexEnemyProjectiles() {
         if (s_tComplexEnemyProjectiles[projectileIdx].ubChannel == 255) {
             moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, 0, ubEnemyProjectileType);
 
-            if (s_ubProjectileBobIndex < ENEMY_SPRITE_CHANNELS) {
+            if (s_ubProjectileBobIndex < ENEMY_BOB_CHANNELS) {
                 s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwX = fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fX);
                 s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwY = fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fY);
                 s_ubProjectileBobIndex++;
@@ -1759,7 +1771,7 @@ static void processComplexEnemyProjectiles() {
         }
 
         moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, 
-                            ((fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fX) - TILE_VIEWPORT_XMIN)+80), 
+                            ((fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fX) - TILE_VIEWPORT_XMIN)), 
                             (fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fY) - s_pCamera->uPos.uwY), 
                             ubEnemyProjectileHeight, 
                             s_tComplexEnemyProjectiles[projectileIdx].ubChannel, 
@@ -1817,7 +1829,8 @@ static void movePlayerProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHe
 static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHeight, UBYTE ubChannel, UBYTE ubType) {
     UWORD uwVStart = s_pView->ubPosY + wY;
     UWORD uwVStop = uwVStart + uwHeight;
-    UWORD uwHStart = 128 + wX;
+    UWORD uwHStart = (s_pView->ubPosX - 1) + wX;
+    //UWORD uwHStart = 128 + wX;
 
     UWORD uwPos = ((uwVStart << 8) | ((uwHStart) >> 1));
     UWORD uwCtl = (UWORD) (

@@ -80,7 +80,7 @@ tEnemyProjectileType g_tEnemyProjectileTypes[ENEMY_PROJECTILE_TYPES] = {{ 10,  6
                                                                         { 14, 14, 7, 2}};
 
 // Player projectile types
-tPlayerProjectileType g_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {{ 20, 12, 0, 0, -6, 4, 0,  8,  7, TRUE, FALSE, FALSE, 0 },
-                                                                           { 15, 10, 0, 0, -6, 4, 0,  8, 10, TRUE, FALSE, FALSE, 0 },
-                                                                           { 10,  8, 0, 0, -7, 3, 0, 10, 12, FALSE, FALSE, FALSE, 0 },
-                                                                           { 10,  6, 0, 0, -8, 2, 0, 12, 16, TRUE, FALSE, FALSE, 0 }};
+tPlayerProjectileType g_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {{ 30, 12, 0, 0, -6, 4, 0,  8,  7,  TRUE, FALSE, FALSE, 0 },
+                                                                           { 25, 10, 0, 0, -6, 4, 0,  8, 10,  TRUE, FALSE, FALSE, 0 },
+                                                                           { 20,  8, 0, 0, -7, 3, 0, 10, 12, FALSE, FALSE, FALSE, 0 },
+                                                                           { 15,  6, 0, 0, -8, 2, 0, 12, 16,  TRUE, FALSE, FALSE, 0 }};

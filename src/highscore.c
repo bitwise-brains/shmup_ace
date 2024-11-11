@@ -25,7 +25,7 @@ static char s_cGreets[GREETS_MAX][32] = {{"  AN AMIGAMEJAM 2024 ENTRY  "},
                                          {"    GREETS TO ALL IN TTE    "},
                                          {"BIG THANKS TO AGJ ORGANIZERS"},
                                          {"                            "},
-                                         {"    ACE LOGO BY THAYSON     "},
+                                         {"      ACE LOGO BY THAY      "},
                                          {"  TITLESCREEN BY PETE LYON  "},
                                          {"AUDIO MIXER BY DUTCHRETROGUY"},
                                          {"   SPECIAL THANKS TO KAIN   "}};
@@ -69,7 +69,7 @@ void highscoreGsCreate(void) {
     // Load font and create text bitmaps.
     s_pFont = fontCreate("data/hudfont.fnt");
     s_pScoreText = fontCreateTextBitMap(96, 8);
-    s_pPressFireText = fontCreateTextBitMap(112, 8);
+    s_pPressFireText = fontCreateTextBitMap(128, 8);
     for (UBYTE i=0; i<GREETS_MAX; i++) {
         s_pGreetsText[i] = fontCreateTextBitMap(GREETS_WIDTH, GREETS_HEIGHT);
         fontFillTextBitMap(s_pFont, s_pGreetsText[i], s_cGreets[i]);

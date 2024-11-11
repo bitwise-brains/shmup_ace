@@ -5,11 +5,12 @@ void intermissionGsCreate(void) {
 }
 
 void intermissionGsLoop(void) {
-    // if (g_ubCurrentStage >= GAME_STAGES) {
-    //     logWrite("LOADING BOSS STAGE");
-    //     stateChange(g_pGameStateManager, &g_pGameStates[STATE_BOSS]);
-    //     return;
-    // }
+    if (g_ubCurrentStage >= GAME_STAGES) {
+        logWrite("LOADING BOSS STAGE");
+        //stateChange(g_pGameStateManager, &g_pGameStates[STATE_BOSS]);
+        stateChange(g_pGameStateManager, &g_pGameStates[STATE_WIN]);
+        return;
+    }
 
     logWrite("LOADING STAGE: %d", g_ubCurrentStage);
     stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);

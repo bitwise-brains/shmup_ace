@@ -17,7 +17,7 @@ endif()
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAMIGA -Wall -Wextra -fomit-frame-pointer")
 #set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DACE_DEBUG")
-file(GLOB_RECURSE SOURCES src/*.c)
+file(GLOB_RECURSE SOURCES src/*.c src/*.vasm)
 file(GLOB_RECURSE HEADERS src/*.h)
 
 list(APPEND CMAKE_MODULE_PATH "D:/Code/projects/amiga/AmigaCMakeCrossToolchains/Modules/m68k-amigaos")
