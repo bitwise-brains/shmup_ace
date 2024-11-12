@@ -1,4 +1,4 @@
-UBYTE g_ubWavesInLevel[GAME_STAGES] = {255};
+UBYTE g_ubWavesInLevel[GAME_STAGES] = {255, 255, 255};
 tEnemyWave g_tEnemyWaves[] = {
 	{ 0, 3824, -32, 12, FALSE },
 	{ 0, 3812, -32, 12, FALSE },

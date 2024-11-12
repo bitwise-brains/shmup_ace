@@ -226,9 +226,9 @@ void highscoreGsLoop(void) {
                 s_ubInitialsIndex++;
                 if (s_ubInitialsIndex == 3) {
                     memcpy(s_tHighScores[s_ubTableIndex].cInitials, s_cInitialsInput, sizeof(s_tHighScores[s_ubTableIndex].cInitials));
-                    blitRect(s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)), 128, 10, 0);
-                    //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, (HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)))+1, "  PRESS FIRE", 1, 0, s_pPressFireText);
-                    fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+8)), "  PRESS FIRE", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
+                    blitRect(s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+4)), 128, 10, 0);
+                    fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, (HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+4)))+1, "  PRESS FIRE", 1, 0, s_pPressFireText);
+                    fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, HIGHSCORE_YPOS+((HIGHSCORE_SPACING*HIGHSCORE_MAX)+(HIGHSCORE_SPACING+4)), "  PRESS FIRE", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
                     s_ubEnterInitials = FALSE;
                 }                
             } else {
@@ -325,12 +325,12 @@ static void renderText(void) {
         uwYOffset += HIGHSCORE_SPACING;
     }
 
-    uwYOffset += HIGHSCORE_SPACING+8;
+    uwYOffset += HIGHSCORE_SPACING+4;
     if (s_ubEnterInitials == TRUE) {
-        //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "ENTER INITIALS", 1, 0, s_pPressFireText);
+        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "ENTER INITIALS", 1, 0, s_pPressFireText);
         fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, uwYOffset, "ENTER INITIALS", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
     } else {
-        //fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "  PRESS FIRE", 1, 0, s_pPressFireText);
+        fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+11, uwYOffset+1, "  PRESS FIRE", 1, 0, s_pPressFireText);
         fontDrawStr(s_pFont, s_pBuffer->pBack, HIGHSCORE_OFFSET_L+10, uwYOffset, "  PRESS FIRE", PULSE_COLOR, FONT_COOKIE, s_pPressFireText);
     }
 }

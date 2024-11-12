@@ -179,12 +179,6 @@ static UWORD s_uwBigExplosionAnimOffset[] = {0, 0, 0, 640, 640, 640, 1280, 1280,
 static UWORD s_uwEnemyBitmapOffset[] = {0, 160, 320, 480, 640, 800, 960, 1120, 1280};
 static UWORD s_uwEnemyProjectileBitmapOffset[] = {0, 140, 280, 420};
 
-// TEST SHIT
-//static UBYTE s_ubBank[209742] = {0};
-//static UBYTE s_ubMusic[23624] = {0};
-// WORD _mfx_master_vol = 32;
-//tPtplayerSamplePack *s_pSamplePack;
-
 // Game states.
 
 void gameGsCreate(void) {
@@ -307,7 +301,6 @@ void gameGsDestroy(void) {
     ptplayerStop();
     audioMixerDestroy();
     ptplayerModDestroy(s_pGameMusic);
-    //ptplayerSamplePackDestroy(s_pSamplePack);
     // for (UBYTE i=0; i<PLAYER_PROJECTILE_TYPES; i++) {
     //     ptplayerSfxDestroy(s_pSfxPlayerShot[i]);
     // }
@@ -509,8 +502,6 @@ static void initHud() {
 }
 
 static void initAudio() {
-    ptplayerCreate(1);
-
     s_pSfxPlayerShot = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
     // s_pSfxPlayerShot[0] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
     // s_pSfxPlayerShot[1] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
@@ -520,15 +511,14 @@ static void initAudio() {
     s_pSfxExplosion = ptplayerSfxCreateFromFile("data/explosion.sfx", 1);
     s_pSfxCollectPowerup = ptplayerSfxCreateFromFile("data/collect.sfx", 1);
 
+    ptplayerCreate(1);
     ptplayerSetChannelsForPlayer(0b0111);
-    ptplayerSetMasterVolume(32);
-
-    //s_pSamplePack = ptplayerSampleDataCreate("data/game.samples");
-    s_pGameMusic = ptplayerModCreate("data/game.patterns");
-    //ptplayerLoadMod(s_pGameMusic, s_pSamplePack, 0);
+    ptplayerSetMasterVolume(40);
+    s_pGameMusic = ptplayerModCreate("data/game.mod");
+    ptplayerLoadMod(s_pGameMusic, 0, 0);
 
     audioMixerCreate();
-    //ptplayerEnableMusic(1);
+    ptplayerEnableMusic(1);
 }
 
 static void initBobs() {
