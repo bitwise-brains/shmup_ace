@@ -32,6 +32,7 @@ static UBYTE s_ubGamePaused = FALSE;
 
 // Audio
 static tPtplayerMod *s_pGameMusic;
+static tPtplayerSamplePack *s_pSamplePack;
 static tPtplayerSfx *s_pSfxPlayerShot;
 static tPtplayerSfx *s_pSfxExplosion;
 static tPtplayerSfx *s_pSfxCollectPowerup;
@@ -40,7 +41,7 @@ static tPtplayerSfx *s_pSfxCollectPowerup;
 static tBitMap *s_pTiles;
 static UBYTE s_ubCameraCanMove = FALSE;
 static UBYTE s_ubMoveCameraCounter = 0;
-
+static UWORD s_uwLevelData[3072] = {0};
 // HUD
 static tFont *s_pFont;
 static tTextBitMap *s_pHudScoreText;
@@ -93,6 +94,7 @@ static UBYTE s_ubPlayerDeaths = 0;
 static tEnemy s_tEnemy[ENEMY_MAX] = {0};
 static tBitMap *s_pEnemyImage;
 static tBitMap *s_pEnemyMask;
+static tEnemyWave s_tNextWave = {0};
 static UBYTE s_ubWaveIndex = 0;
 static UBYTE s_ubActiveEnemies = 0;
 
@@ -184,14 +186,13 @@ static UWORD s_uwEnemyProjectileBitmapOffset[] = {0, 140, 280, 420};
 void gameGsCreate(void) {
     initGame();
     initViews();
-    initAudio();
     initHud();
     initBobs();
     initSprites();
+    initAudio();
     gameMathInit();
     viewLoad(s_pView);
     tileBufferRedrawAll(s_pTileBuffer);
-    memLogPeak();
     systemUnuse();
 }
 
@@ -243,6 +244,9 @@ void gameGsLoop(void) {
 
     if (s_ubShowTextGameOver == TRUE && s_ubShowTextGameOverTimer == 0 && s_ubDimLevel == 0) {
         g_ulPlayerScore = s_ulPlayerScore;
+        g_ubPlayerLives = 0;
+        g_ubPlayerSpecial = 0;
+
         resetEverything();
         ptplayerSetMasterVolume(0);
         ptplayerEnableMusic(0);
@@ -257,6 +261,8 @@ void gameGsLoop(void) {
 
     if (s_ubLevelEnd == TRUE && s_ubLevelEndTimer == 0 && s_ubDimLevel == 0) {
         g_ulPlayerScore = s_ulPlayerScore;
+        g_ubPlayerLives = s_ubPlayerLives;
+        g_ubPlayerSpecial = s_ubPlayerSpecial;
         g_ubCurrentStage++;
         //if (g_ubCurrentStage >= GAME_STAGES) { g_ubCurrentStage = 0; }
 
@@ -300,6 +306,7 @@ void gameGsDestroy(void) {
     // Destroy audio
     ptplayerStop();
     audioMixerDestroy();
+    ptplayerSamplePackDestroy(s_pSamplePack);
     ptplayerModDestroy(s_pGameMusic);
     // for (UBYTE i=0; i<PLAYER_PROJECTILE_TYPES; i++) {
     //     ptplayerSfxDestroy(s_pSfxPlayerShot[i]);
@@ -389,6 +396,35 @@ static void initGame() {
     s_fBoundsMin = fix16_from_int(BOUNDS_MIN);
 
     s_ulPlayerScore = g_ulPlayerScore;
+    s_ubPlayerLives = g_ubPlayerLives;
+    s_ubPlayerSpecial = g_ubPlayerSpecial;
+
+    tFile *pLevelData;
+
+    switch (g_ubCurrentStage) {
+        case (0):
+            pLevelData = fileOpen("data/stage1.dat", "rb");
+            fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+            fileClose(pLevelData);
+            s_tNextWave = g_tEnemyWavesForStage1[s_ubWaveIndex];
+            break;
+        case (1):
+            pLevelData = fileOpen("data/stage2.dat", "rb");
+            fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+            fileClose(pLevelData);        
+            s_tNextWave = g_tEnemyWavesForStage2[s_ubWaveIndex];
+            break;
+        // case (2):
+        //     pLevelData = fileOpen("data/stage3.dat", "rb");
+        //     fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+        //     fileClose(pLevelData);        
+        //     s_tNextWave = g_tEnemyWavesForStage3[s_ubWaveIndex];
+        //     break;            
+        default:
+            logWrite("Invalid stage: %d", g_ubCurrentStage);
+            s_tNextWave = g_tEnemyWavesForStage1[0];
+            break;
+    }
 
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 5,  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 25, 8, .bDeltaX = -5, .bDeltaX2 =  5, .bDeltaY = -5, .ubXOffset =  9, .ubXOffset2 = 16, .ubWidth =  7, .ubHeight =  8, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = TRUE,  .ubSecondarySpriteIndex = 1 }; // SpreadShot
@@ -461,21 +497,7 @@ static void initViews() {
     UWORD idx = 0;
     for (UWORD y=0; y<MAP_HEIGHT_IN_TILES; y++) {
         for (UWORD x=0; x<MAP_WIDTH_IN_TILES; x++) {
-            switch(g_ubCurrentStage) {
-                case 0:
-                    s_pTileBuffer->pTileData[x][y] = uwStage1Data[idx];
-                    break;
-                case 1:
-                    s_pTileBuffer->pTileData[x][y] = uwStage2Data[idx];
-                    break;
-                case 2:
-                    s_pTileBuffer->pTileData[x][y] = uwStage3Data[idx];
-                    break;
-                case 3:
-                    //s_pTileBuffer->pTileData[x][y] = uwStageBossData[idx];
-                    break;
-            }            
-            
+            s_pTileBuffer->pTileData[x][y] = s_uwLevelData[idx];            
             idx++;
             if (idx == MAP_TILES_COUNT) { idx = 0; }            
         }
@@ -514,10 +536,14 @@ static void initAudio() {
     ptplayerCreate(1);
     ptplayerSetChannelsForPlayer(0b0111);
     ptplayerSetMasterVolume(40);
-    s_pGameMusic = ptplayerModCreate("data/game.mod");
-    ptplayerLoadMod(s_pGameMusic, 0, 0);
-
     audioMixerCreate();
+
+    s_pGameMusic = ptplayerModCreate("data/game.patterns");
+    s_pSamplePack = ptplayerSampleDataCreate("data/game.samplepack");
+    if (s_pSamplePack == 0) {
+        return;
+    }
+    ptplayerLoadMod(s_pGameMusic, s_pSamplePack, 0);
     ptplayerEnableMusic(1);
 }
 
@@ -586,21 +612,21 @@ static void initBobs() {
     // Game Over text
     s_pTextGameOverImage = bitmapCreateFromFile("data/text_gameover.bm", 0);
     s_pTextGameOverMask = bitmapCreateFromFile("data/text_gameover_mask.bm", 0);
-    bobInit(&s_tTextGameOverBob, 112, 60, 0, s_pTextGameOverImage->Planes[0], s_pTextGameOverMask->Planes[0], 0, 0);
+    bobInit(&s_tTextGameOverBob, TEXT_GAMEOVER_WIDTH, TEXT_GAMEOVER_HEIGHT, 0, s_pTextGameOverImage->Planes[0], s_pTextGameOverMask->Planes[0], 0, 0);
 
     // Ready text
     s_pTextReadyImage = bitmapCreateFromFile("data/text_ready.bm", 0);
     s_pTextReadyMask = bitmapCreateFromFile("data/text_ready_mask.bm", 0);
-    bobInit(&s_tTextReadyBob, 144, 27, 1, s_pTextReadyImage->Planes[0], s_pTextReadyMask->Planes[0], 0, 0);
+    bobInit(&s_tTextReadyBob, TEXT_READY_WIDTH, TEXT_READY_HEIGHT, 1, s_pTextReadyImage->Planes[0], s_pTextReadyMask->Planes[0], 0, 0);
 
     // Go text
     s_pTextGoImage = bitmapCreateFromFile("data/text_go.bm", 0);
     s_pTextGoMask = bitmapCreateFromFile("data/text_go_mask.bm", 0);
-    bobInit(&s_tTextGoBob, 64, 38, 1, s_pTextGoImage->Planes[0], s_pTextGoMask->Planes[0], 0, 0);
+    bobInit(&s_tTextGoBob, TEXT_GO_WIDTH, TEXT_GO_HEIGHT, 1, s_pTextGoImage->Planes[0], s_pTextGoMask->Planes[0], 0, 0);
 
     s_pStageCompleteBgImage = bitmapCreateFromFile("data/stage_complete_bg.bm", 0);
     s_pStageCompleteBgMask = bitmapCreateFromFile("data/stage_complete_bg_mask.bm", 0);
-    bobInit(&s_tStageCompleteBgBob, 64, 90, 0, s_pStageCompleteBgImage->Planes[0], s_pStageCompleteBgMask->Planes[0], 0, 0);
+    bobInit(&s_tStageCompleteBgBob, TEXT_STAGECOMPLETE_WIDTH, TEXT_STAGECOMPLETE_HEIGHT, 0, s_pStageCompleteBgImage->Planes[0], s_pStageCompleteBgMask->Planes[0], 0, 0);
 
     // Finish bob init.
     bobReallocateBgBuffers();
@@ -801,13 +827,13 @@ static void processHud() {
 
 static void processWaves() {
     if (s_ubWaveIndex != 255) {
-        if (s_pCamera->uPos.uwY == g_tEnemyWaves[s_ubWaveIndex].uwSpawnYPosition) {
+        if (s_pCamera->uPos.uwY == s_tNextWave.uwSpawnYPosition) {
             if (s_ubActiveEnemies + 1 <= ENEMY_MAX) {
-                logWrite("Wave[%d] Spawn EnemyType: %d", s_ubWaveIndex, g_tEnemyWaves[s_ubWaveIndex].ubEnemyType);
+                logWrite("Wave[%d] Spawn EnemyType: %d", s_ubWaveIndex, s_tNextWave.ubEnemyType);
                 for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
                     if (s_tEnemy[enemyIdx].bHealth > 0) { continue; }
-                    UBYTE ubEnemyTypeToSpawn = g_tEnemyWaves[s_ubWaveIndex].ubEnemyType;
-                    UBYTE ubPathType = g_tEnemyWaves[s_ubWaveIndex].ubPathType;
+                    UBYTE ubEnemyTypeToSpawn = s_tNextWave.ubEnemyType;
+                    UBYTE ubPathType = s_tNextWave.ubPathType;
                     s_tEnemy[enemyIdx].bHealth = g_tEnemyTypes[ubEnemyTypeToSpawn].bHealth;
                     s_tEnemy[enemyIdx].ubOnScreen = FALSE;
                     s_tEnemy[enemyIdx].ubInvincible = TRUE;
@@ -820,8 +846,8 @@ static void processWaves() {
                     s_tEnemy[enemyIdx].ubMoveSpeed = g_tEnemyTypes[ubEnemyTypeToSpawn].ubMoveSpeed;
                     s_tEnemy[enemyIdx].uwPathArrayOffset = g_uwPathOffset[ubPathType];
                     s_tEnemy[enemyIdx].uwPathLength = g_uwPathLength[ubPathType];
-                    s_tEnemy[enemyIdx].ubPathLoops = g_tEnemyWaves[s_ubWaveIndex].ubPathLoops;
-                    s_tEnemy[enemyIdx].uwPathYOffset = g_tEnemyWaves[s_ubWaveIndex].uwSpawnYPosition + g_tEnemyWaves[s_ubWaveIndex].bSpawnOffset;
+                    s_tEnemy[enemyIdx].ubPathLoops = s_tNextWave.ubPathLoops;
+                    s_tEnemy[enemyIdx].uwPathYOffset = s_tNextWave.uwSpawnYPosition + s_tNextWave.bSpawnOffset;
                     s_tEnemy[enemyIdx].uwPathIdx = 0;
 
                     UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyTypeToSpawn].ubBitmapOffset;
@@ -841,9 +867,22 @@ static void processWaves() {
             }
 
             s_ubWaveIndex++;
-            if (s_ubWaveIndex >= g_ubWavesInLevel[g_ubCurrentStage]) {
+            if (s_ubWaveIndex >= g_uwWavesInLevel[g_ubCurrentStage]) {
                 logWrite("No more waves left!");
                 s_ubWaveIndex = 255;
+            }
+
+            switch (g_ubCurrentStage) {
+                case (0):
+                    s_tNextWave = g_tEnemyWavesForStage1[s_ubWaveIndex];
+                    break;
+                case (1):
+                    s_tNextWave = g_tEnemyWavesForStage2[s_ubWaveIndex];
+                    break;
+                default:
+                    logWrite("Invalid stage: %d", g_ubCurrentStage);
+                    s_tNextWave = g_tEnemyWavesForStage1[0];
+                    break;                
             }
         }
     }
@@ -986,22 +1025,22 @@ static void processBobs() {
     
     // Game Over text
     if (s_ubShowTextGameOver == TRUE) {
-        s_tTextGameOverBob.sPos.uwX = 41; 
-        s_tTextGameOverBob.sPos.uwY = s_pCamera->uPos.uwY+99;
+        s_tTextGameOverBob.sPos.uwX = TEXT_GAMEOVER_OFFX; 
+        s_tTextGameOverBob.sPos.uwY = s_pCamera->uPos.uwY+TEXT_GAMEOVER_OFFY;
         bobPush(&s_tTextGameOverBob);
     }
 
     // Ready text
     if (s_ubShowTextReady == TRUE) {
-        s_tTextReadyBob.sPos.uwX = 25; 
-        s_tTextReadyBob.sPos.uwY = s_pCamera->uPos.uwY+115;
+        s_tTextReadyBob.sPos.uwX = TEXT_READY_OFFX; 
+        s_tTextReadyBob.sPos.uwY = s_pCamera->uPos.uwY+TEXT_READY_OFFY;
         bobPush(&s_tTextReadyBob);
     }
 
     // Go text
     if (s_ubShowTextGo == TRUE) {
-        s_tTextGoBob.sPos.uwX = 65; 
-        s_tTextGoBob.sPos.uwY = s_pCamera->uPos.uwY+110;
+        s_tTextGoBob.sPos.uwX = TEXT_GO_OFFX; 
+        s_tTextGoBob.sPos.uwY = s_pCamera->uPos.uwY+TEXT_GO_OFFY;
         bobPush(&s_tTextGoBob);
     }
 
@@ -1203,16 +1242,16 @@ static void processPlayer() {
 
         char cSummaryText[6];
         sprintf(cSummaryText, "%03d", s_uwPlayerKills);
-        fontDrawStr(s_pFont, s_pStageCompleteBgImage, 19, 35, cSummaryText, HUD_TEXT_COLOR, 0, s_pStageCompleteText);
+        fontDrawStr(s_pFont, s_pStageCompleteBgImage, 19, 15, cSummaryText, HUD_TEXT_COLOR, 0, s_pStageCompleteText);
 
         sprintf(cSummaryText, "%02d", s_ubPlayerDeaths);
-        fontDrawStr(s_pFont, s_pStageCompleteBgImage, 23, 56, cSummaryText, HUD_TEXT_COLOR, 0, s_pStageCompleteText);
+        fontDrawStr(s_pFont, s_pStageCompleteBgImage, 23, 36, cSummaryText, HUD_TEXT_COLOR, 0, s_pStageCompleteText);
 
         sprintf(cSummaryText, "%02d", s_ubPlayerSpecial);
-        fontDrawStr(s_pFont, s_pStageCompleteBgImage, 23, 77, cSummaryText, HUD_TEXT_COLOR, 0, s_pStageCompleteText);
+        fontDrawStr(s_pFont, s_pStageCompleteBgImage, 23, 57, cSummaryText, HUD_TEXT_COLOR, 0, s_pStageCompleteText);
         
-        s_tStageCompleteBgBob.sPos.uwX = TILE_VIEWPORT_XMIN+48;
-        s_tStageCompleteBgBob.sPos.uwY = s_pCamera->uPos.uwY+63;
+        s_tStageCompleteBgBob.sPos.uwX = TEXT_STAGECOMPLETE_OFFX;
+        s_tStageCompleteBgBob.sPos.uwY = s_pCamera->uPos.uwY+TEXT_STAGECOMPLETE_OFFY;
 
         s_ubUpdateScore = TRUE;
         s_ubLevelEnd = TRUE;
@@ -1937,8 +1976,8 @@ static void resetEverything() {
     s_ubCameraCanMove = FALSE;
     s_ubMoveCameraCounter = 0;
     s_ulPlayerScore = 0; 
-    s_ubPlayerLives = PLAYER_LIVES_START;
-    s_ubPlayerSpecial = PLAYER_SPECIAL_START;
+    s_ubPlayerLives = 0;
+    s_ubPlayerSpecial = 0;
     s_uwPlayerKills = 0;
     s_ubPlayerDeaths = 0;
     s_ubUpdateScore = TRUE;

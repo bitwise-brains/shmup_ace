@@ -11,6 +11,7 @@
 .\tools\bitmap_conv.exe .\data\game.plt tiles_stage1.png -i -o .\data\tiles_stage1.bm
 .\tools\bitmap_conv.exe .\data\game.plt tiles_stage2.png -i -o .\data\tiles_stage2.bm
 .\tools\bitmap_conv.exe .\data\game.plt tiles_stage3.png -i -o .\data\tiles_stage3.bm
+.\tools\bitmap_conv.exe .\data\game.plt tiles_boss.png -i -o .\data\tiles_boss.bm
 .\tools\bitmap_conv.exe .\data\game.plt player.png -mc #FF00FF -i -o .\data\player.bm
 .\tools\bitmap_conv.exe .\data\game.plt player_engine.png -mc #FF00FF -i -o .\data\player_engine.bm
 .\tools\bitmap_conv.exe .\data\game.plt enemy_small.png -mc #FF00FF -i -o .\data\enemy_small.bm
@@ -27,6 +28,9 @@
 
 .\tools\bitmap_conv.exe .\data\highscore.plt text_title.png -i -o .\data\text_title.bm
 .\tools\bitmap_conv.exe .\data\highscore.plt text_credits.png -i -o .\data\text_credits.bm
+
+.\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprites.png -i -o .\data\enemy_bullet_sprites.bm
+.\tools\bitmap_conv.exe sprite.plt player_bullet_sprites.png -i -o .\data\player_bullet_sprites.bm
 
 .\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_1.png -i -o .\data\enemy_bullet_sprite_1.bm
 .\tools\bitmap_conv.exe sprite.plt enemy_bullet_sprite_2.png -i -o .\data\enemy_bullet_sprite_2.bm

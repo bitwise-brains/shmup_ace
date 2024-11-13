@@ -54,10 +54,10 @@ void introGsCreate(void) {
     s_pIntroText = fontCreateTextBitMap(288, 128);
     s_tBrainsImage = bitmapCreateFromFile("data/splash_brains.bm", 0);
     s_tAceImage = bitmapCreateFromFile("data/splash_ace.bm", 0);
-    s_tTitlescreenImage = bitmapCreateFromFile("data/titlescreen.bm", 0);
-
+    s_tTitlescreenImage = bitmapCreateFromFile("data/text_title.bm", 0);
+    
     // Generate fade palette lookup
-    paletteLoad("data/titlescreen.plt", s_uwTitlescreenPalette, 32);
+    paletteLoad("data/highscore.plt", s_uwTitlescreenPalette, 32);
     paletteLoad("data/splash_ace.plt", s_uwAcePalette, 32);
     paletteLoad("data/splash_brains.plt", s_uwFadePalette[15], 32);
     for (UBYTE i=0; i<16; i++) {
@@ -119,7 +119,7 @@ void introGsLoop(void) {
 
         switch (s_eIntroStage) {
             case INTRO_BRAINS:
-                blitRect(s_pBuffer->pBack, 113, 58, 96, 142, 0); // Clear
+                blitRect(s_pBuffer->pBack, 113, 58, 96, 142, 0); // Clear BitwiseBrains logo
                 for (UBYTE i=0; i<16; i++) {
                     paletteDim(s_uwAcePalette, s_uwFadePalette[i], 32, i);
                 }                
@@ -127,10 +127,11 @@ void introGsLoop(void) {
                 s_eIntroStage = INTRO_ACE;
                 break;
             case INTRO_ACE:
+                blitRect(s_pBuffer->pBack, 53, 73, 224, 114, 0); // Clear ACE logo
                 for (UBYTE i=0; i<16; i++) {
                     paletteDim(s_uwTitlescreenPalette, s_uwFadePalette[i], 32, i);
-                }             
-                blitCopyAligned(s_tTitlescreenImage, 0, 0, s_pBuffer->pBack, 0, 0, 320, 256);
+                }
+                blitCopy(s_tTitlescreenImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);            
                 s_eIntroStage = INTRO_TITLE;
                 break;
             case INTRO_TITLE:

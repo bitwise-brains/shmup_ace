@@ -2,7 +2,7 @@ import sys
 import json
 import glob
 
-num_waves_in_level = 'UBYTE g_ubWavesInLevel[GAME_STAGES] = {%d};'
+num_waves_in_level = 'UWORD g_uwWavesInLevel[GAME_STAGES] = {%d, %d, %d};'
 waves_in_level = 'tEnemyWave g_tEnemyWaves[] = {\n%s\n};'
 wave_string = '\t{ %d, %d, %d, %d, FALSE },\n'
 compiled_wave_string = ''
@@ -41,5 +41,5 @@ for jsonfilename in jsonfiles:
         compiled_wave_string += (wave_string % (enemy_waves[idx]['enemyType'], idx, enemy_waves[idx]['yOffset'], enemy_waves[idx]['pathType']))
 
     compiled_wave_string = compiled_wave_string[:-2]
-    print(num_waves_in_level % total_waves)
+    print(num_waves_in_level % (total_waves, total_waves, total_waves))
     print(waves_in_level % compiled_wave_string)

@@ -25,7 +25,9 @@
 
 #define GAME_BPP 5
 #define GAME_STATES 5
-#define GAME_STAGES 3
+#define GAME_STAGES 2
+#define PLAYER_LIVES_START 3
+#define PLAYER_SPECIAL_START 2
 
 void introGsCreate(void);
 void introGsLoop(void);
@@ -62,6 +64,9 @@ typedef enum tGameState {
 extern tStateManager *g_pGameStateManager;
 extern tState g_pGameStates[GAME_STATES];
 extern ULONG g_ulPlayerScore;
+extern UBYTE g_ubPlayerLives;
+extern UBYTE g_ubPlayerSpecial;
 extern UBYTE g_ubCurrentStage;
+
 
 #endif // _MAIN_H_

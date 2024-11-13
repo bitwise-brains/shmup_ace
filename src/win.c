@@ -14,7 +14,7 @@ static UBYTE s_ubFadeInComplete = FALSE;
 static UBYTE s_ubWaitTimer = 255;
 static UWORD s_uwFadePalette[16][32] = {0};
 
-static const char s_cWinText[] = "CONGRATULATIONS\n\nYOU HAVE DESTROYED\nTHE BARRIX EMPIRE\n\nTHANK YOU FOR PLAYING";
+static const char s_cWinText[] = "THIS IS A PLACEHOLDER WIN SCREEN. PRESS SPACE TO CONTINUE.";
 
 void winGsCreate(void) {
     s_pView = viewCreate(0,
@@ -32,6 +32,9 @@ void winGsCreate(void) {
         TAG_SIMPLEBUFFER_IS_DBLBUF, 0,
         TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR,
     TAG_DONE);
+
+    spriteManagerCreate(s_pView, 0);
+    systemSetDmaBit(DMAB_SPRITE, 0);
 
     // Load music
     ptplayerCreate(1);
@@ -110,5 +113,6 @@ void winGsDestroy(void) {
     ptplayerModDestroy(s_pWinMusic);
     ptplayerDestroy();
     bitmapDestroy(s_tTitlescreenImage);
+    spriteManagerDestroy();
     viewDestroy(s_pView);   
 }

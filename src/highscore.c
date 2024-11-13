@@ -100,9 +100,9 @@ void highscoreGsCreate(void) {
     s_ubTableIndex = 0;
 
     // Load highscore data.
-	tFile *pFile = fileOpen("data/highscore.dat", "rb");
-	fileRead(pFile, s_tHighScores, sizeof(s_tHighScores));
-    fileClose(pFile);
+	tFile *pReadFile = fileOpen("data/highscore.dat", "rb");
+	fileRead(pReadFile, s_tHighScores, sizeof(s_tHighScores));
+    fileClose(pReadFile);
 
     // Clamp score
     if (g_ulPlayerScore > HIGHSCORE_VALUE_MAX) { g_ulPlayerScore = HIGHSCORE_VALUE_MAX; }
@@ -193,10 +193,6 @@ void highscoreGsLoop(void) {
     // Start game.
     if (s_ubEnterInitials == FALSE && s_ubFadeIn == FALSE) {
         if (keyUse(KEY_SPACE) || joyCheck(JOY1_FIRE)) {
-            if (s_ubSaveHighscore == TRUE) {
-                writeHighscore();
-            }
-
             g_ubCurrentStage = 0; // Reset to first stage.
             ptplayerSetMasterVolume(0);
             ptplayerStop();
@@ -275,9 +271,16 @@ void highscoreGsLoop(void) {
 
 void highscoreGsDestroy(void) {
     g_ulPlayerScore = 0;
+    g_ubPlayerLives = PLAYER_LIVES_START;
+    g_ubPlayerSpecial = PLAYER_SPECIAL_START;
     g_ubCurrentStage = 0;
     
     systemUse();
+    
+    if (s_ubSaveHighscore == TRUE) {
+        writeHighscore();
+    }
+
     fontDestroy(s_pFont);
     bitmapDestroy(s_tTitleImage);
     bitmapDestroy(s_tCreditsImage);
@@ -302,11 +305,9 @@ static void updatePalette(UBYTE ubIndex) {
 }
 
 static void writeHighscore(void) {
-	systemUse();
-	tFile *pFile = fileOpen("data/highscore.dat", "wb");
-	fileWrite(pFile, s_tHighScores, sizeof(s_tHighScores));
-    fileClose(pFile);
-	systemUnuse();
+	tFile *pWriteFile = fileOpen("data/highscore.dat", "wb");
+	fileWrite(pWriteFile, s_tHighScores, sizeof(s_tHighScores));
+    fileClose(pWriteFile);
 }
 
 static void renderText(void) {
