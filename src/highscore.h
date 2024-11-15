@@ -17,12 +17,12 @@
 #define CREDITS_WIDTH 208
 #define CREDITS_HEIGHT 52
 
-#define GREETS_MAX 8
+#define GREETS_MAX 11
 #define GREETS_XPOS 32
-#define GREETS_YPOS 168
+#define GREETS_YPOS 108
 #define GREETS_WIDTH 256
 #define GREETS_HEIGHT 8
-#define GREETS_COLOR 18
+#define GREETS_COLOR 17
 
 #define PULSE_COLOR 19
 #define GRADIENT_LENGTH 7
@@ -34,8 +34,6 @@ typedef struct _tHighScore {
 } tHighScore;
 
 static void updatePalette(UBYTE ubIndex);
-static void writeHighscore(void);
-static void readHighscore(void);
 static void renderText(void);
 
 #endif // _HIGHSCORE_H_

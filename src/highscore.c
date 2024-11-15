@@ -7,7 +7,7 @@ static tSimpleBufferManager *s_pBuffer;
 static tFont *s_pFont;
 static tPtplayerMod *s_pMusic;
 static tBitMap *s_tTitleImage;
-static tBitMap *s_tCreditsImage;
+//static tBitMap *s_tCreditsImage;
 static tTextBitMap *s_pScoreText;
 static tTextBitMap *s_pPressFireText;
 static tTextBitMap *s_pGreetsText[GREETS_MAX];
@@ -21,14 +21,17 @@ static UBYTE s_ubEnterInitials = FALSE;
 static UBYTE s_ubSaveHighscore = FALSE;
 static UBYTE s_ubInitialsYPos = 0;
 static char s_cInitialsInput[4] = {0};
-static char s_cGreets[GREETS_MAX][32] = {{"  AN AMIGAMEJAM 2024 ENTRY  "},
+static char s_cGreets[GREETS_MAX][32] = {{"  ART:  RCK015              "},
+                                         {" CODE:  BITWISE             "},
+                                         {"MUSIC:  H0FFMAN             "},
+                                         {"                            "},                                                                                  
+                                         {"  AN AMIGAMEJAM 2024 ENTRY  "},
                                          {"    GREETS TO ALL IN TTE    "},
                                          {"BIG THANKS TO AGJ ORGANIZERS"},
                                          {"                            "},
                                          {"      ACE LOGO BY THAY      "},
-                                         {"  TITLESCREEN BY PETE LYON  "},
                                          {"AUDIO MIXER BY DUTCHRETROGUY"},
-                                         {"   SPECIAL THANKS TO KAIN   "}};
+                                         {"  SPECIAL THANKS TO KAIN!   "}};
 
 static UBYTE s_ubInitialsIndex = 0;
 static UBYTE s_ubTableIndex = 0;
@@ -86,7 +89,7 @@ void highscoreGsCreate(void) {
     blitCopy(s_tTitleImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);
 
     // Load credits image
-    s_tCreditsImage = bitmapCreateFromFile("data/text_credits.bm", 0);
+    //s_tCreditsImage = bitmapCreateFromFile("data/text_credits.bm", 0);
 
     // Reset values
     s_ubDimLevel = 0;
@@ -142,22 +145,22 @@ void highscoreGsCreate(void) {
     colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
     copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[HIGHSCORE_COLOR], 0xfff);
 
-    // Setup greets text gradient
-    uwGradientYPos = 212;
-    colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
-    while (uwGradientYPos < 276) {
-        UWORD uwYPos = uwGradientYPos;
+    // // Setup greets text gradient
+    // uwGradientYPos = 128;
+    // colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
+    // while (uwGradientYPos < 276) {
+    //     UWORD uwYPos = uwGradientYPos;
         
-        for (UBYTE i=0; i<GRADIENT_LENGTH; i++) {
-            copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[GREETS_COLOR], s_uwGradient[i]);
-            uwYPos++;
-            colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwYPos);
-        }
+    //     for (UBYTE i=0; i<GRADIENT_LENGTH; i++) {
+    //         copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[GREETS_COLOR], s_uwGradient[i]);
+    //         uwYPos++;
+    //         colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwYPos);
+    //     }
 
-        uwGradientYPos += 9;
-    }
-    colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
-    copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[GREETS_COLOR], 0xfff);
+    //     uwGradientYPos += 12;
+    // }
+    // colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
+    // copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[GREETS_COLOR], 0xfff);
 
     renderText();
     systemUnuse();
@@ -184,9 +187,6 @@ void highscoreGsLoop(void) {
     if(keyCheck(KEY_ESCAPE)) {
         ptplayerSetMasterVolume(0);
         ptplayerStop();
-        if (s_ubSaveHighscore == TRUE) {
-            writeHighscore();
-        }        
         gameExit();
     }
 
@@ -241,17 +241,17 @@ void highscoreGsLoop(void) {
             s_ubDisplayCredits = !s_ubDisplayCredits;
 
             if (s_ubDisplayCredits == TRUE) {
-                blitRect(s_pBuffer->pBack, HIGHSCORE_OFFSET_L, (CREDITS_YPOS+CREDITS_HEIGHT), 208, 76, 0); // Clear scores.
-                blitCopy(s_tCreditsImage, 0, 0, s_pBuffer->pBack, CREDITS_XPOS, CREDITS_YPOS, CREDITS_WIDTH, CREDITS_HEIGHT, MINTERM_COOKIE);
+                blitRect(s_pBuffer->pBack, HIGHSCORE_OFFSET_L, CREDITS_YPOS, 208, 128, 0); // Clear scores.
+                //blitCopy(s_tCreditsImage, 0, 0, s_pBuffer->pBack, CREDITS_XPOS, CREDITS_YPOS, CREDITS_WIDTH, CREDITS_HEIGHT, MINTERM_COOKIE);
                 UBYTE ubGreetsOffset = GREETS_YPOS;
                 for (UBYTE i=0; i<GREETS_MAX; i++) {
                     fontDrawTextBitMap(s_pBuffer->pBack, s_pGreetsText[i], GREETS_XPOS+1, ubGreetsOffset+1, 1, 0);
-                    fontDrawTextBitMap(s_pBuffer->pBack, s_pGreetsText[i], GREETS_XPOS, ubGreetsOffset, HIGHSCORE_COLOR+1, FONT_COOKIE);
-                    ubGreetsOffset += (GREETS_HEIGHT+1);
+                    fontDrawTextBitMap(s_pBuffer->pBack, s_pGreetsText[i], GREETS_XPOS, ubGreetsOffset, HIGHSCORE_COLOR, FONT_COOKIE);
+                    ubGreetsOffset += HIGHSCORE_SPACING;
                 }
             } else {
-                blitRect(s_pBuffer->pBack, CREDITS_XPOS, CREDITS_YPOS, CREDITS_WIDTH, CREDITS_HEIGHT, 0); // Clear credits.
-                blitRect(s_pBuffer->pBack, GREETS_XPOS, GREETS_YPOS, GREETS_WIDTH, ((GREETS_HEIGHT+1)*GREETS_MAX), 0); // Clear greets.
+                //blitRect(s_pBuffer->pBack, CREDITS_XPOS, CREDITS_YPOS, CREDITS_WIDTH, CREDITS_HEIGHT, 0); // Clear credits.
+                blitRect(s_pBuffer->pBack, GREETS_XPOS, GREETS_YPOS, GREETS_WIDTH, 128, 0); // Clear greets.
                 renderText();
             }            
         }
@@ -278,12 +278,14 @@ void highscoreGsDestroy(void) {
     systemUse();
     
     if (s_ubSaveHighscore == TRUE) {
-        writeHighscore();
+        tFile *pWriteFile = fileOpen("data/highscore.dat", "wb");
+        fileWrite(pWriteFile, s_tHighScores, sizeof(s_tHighScores));
+        fileClose(pWriteFile);
     }
 
     fontDestroy(s_pFont);
     bitmapDestroy(s_tTitleImage);
-    bitmapDestroy(s_tCreditsImage);
+    //bitmapDestroy(s_tCreditsImage);
     fontDestroyTextBitMap(s_pScoreText);
     fontDestroyTextBitMap(s_pPressFireText);
     for (UBYTE i=0; i<GREETS_MAX; i++) {
@@ -302,12 +304,6 @@ static void updatePalette(UBYTE ubIndex) {
     }
 
     viewUpdateGlobalPalette(s_pView);
-}
-
-static void writeHighscore(void) {
-	tFile *pWriteFile = fileOpen("data/highscore.dat", "wb");
-	fileWrite(pWriteFile, s_tHighScores, sizeof(s_tHighScores));
-    fileClose(pWriteFile);
 }
 
 static void renderText(void) {

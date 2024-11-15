@@ -74,10 +74,10 @@ typedef struct _tSimpleEnemyProjectile {
 } tSimpleEnemyProjectile;
 
 // Enemy projectile types
-tEnemyProjectileType g_tEnemyProjectileTypes[ENEMY_PROJECTILE_TYPES] = {{ 10,  6, 0, 3},
-                                                                        {  5,  6, 2, 3},
-                                                                        {  8,  8, 4, 2},
-                                                                        { 14, 14, 7, 2}};
+tEnemyProjectileType g_tEnemyProjectileTypes[ENEMY_PROJECTILE_TYPES] = {{ 10,  4, 0, 1},
+                                                                        {  5,  5, 2, 1},
+                                                                        {  8,  8, 4, 1},
+                                                                        { 14, 14, 7, 1}};
 
 // Player projectile types
 tPlayerProjectileType g_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {{ 30, 12, 0, 0, -6, 4, 0,  8,  7,  TRUE, FALSE, FALSE, 0 },

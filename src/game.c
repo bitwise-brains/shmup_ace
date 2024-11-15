@@ -89,6 +89,7 @@ static UBYTE s_ubPlayerIsInvincible = FALSE;
 static UBYTE s_ubPlayerInvincibleTimer = 0;
 static UWORD s_uwPlayerKills = 0;
 static UBYTE s_ubPlayerDeaths = 0;
+static UBYTE s_ubPlayerMoveSpeed = 0;
 
 // Enemies
 static tEnemy s_tEnemy[ENEMY_MAX] = {0};
@@ -140,6 +141,7 @@ static tSprite *s_pEnemyProjectileSprite[ENEMY_SPRITE_CHANNELS] = {0};
 static tBob s_tEnemyProjectileBob[ENEMY_BOB_CHANNELS] = {0};
 static UBYTE s_ubEnemyProjectileBobTypes[ENEMY_BOB_CHANNELS] = {0};
 static UBYTE s_ubProjectileBobIndex = 0;
+static UBYTE s_ubEnemyProjectileSpeed = 0;
 
   // fix16
 static tComplexEnemyProjectile s_tComplexEnemyProjectiles[ENEMY_PROJECTILE_MAX] = {0};
@@ -426,6 +428,14 @@ static void initGame() {
             break;
     }
 
+    if (g_ubCurrentStage == 1) {
+        s_ubEnemyProjectileSpeed = 1;
+    }
+
+    if (g_ubCurrentStage > 1) {
+        s_ubEnemyProjectileSpeed = 2;
+    }
+
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 5,  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 25, 8, .bDeltaX = -5, .bDeltaX2 =  5, .bDeltaY = -5, .ubXOffset =  9, .ubXOffset2 = 16, .ubWidth =  7, .ubHeight =  8, .ubDieOnCollision = TRUE, .ubWideSprite = FALSE, .ubSpreadShot = TRUE,  .ubSecondarySpriteIndex = 1 }; // SpreadShot
 }
@@ -499,7 +509,7 @@ static void initViews() {
         for (UWORD x=0; x<MAP_WIDTH_IN_TILES; x++) {
             s_pTileBuffer->pTileData[x][y] = s_uwLevelData[idx];            
             idx++;
-            if (idx == MAP_TILES_COUNT) { idx = 0; }            
+            if (idx == MAP_TILES_COUNT) { idx = 0; }
         }
     }
 
@@ -748,32 +758,11 @@ static void processInput() {
     s_ubPlayerMovedLeft = FALSE;
     s_ubPlayerMovedRight = FALSE;
     s_ubDisplayEngine = TRUE;
-
-    if (keyCheck(KEY_UP) || joyCheck(JOY1_UP)) {
-        s_tPlayerPosition.uwY = s_tPlayerPosition.uwY - PLAYER_MOVE_SPEED;
-        s_ubPlayerMovedOnY = TRUE;
-        if (s_tPlayerPosition.uwY < s_pCamera->uPos.uwY + TILE_VIEWPORT_YMIN) { s_tPlayerPosition.uwY = s_pCamera->uPos.uwY + TILE_VIEWPORT_YMIN; }
-    }
-    if (keyCheck(KEY_DOWN) || joyCheck(JOY1_DOWN)) {
-        s_tPlayerPosition.uwY = s_tPlayerPosition.uwY + (PLAYER_MOVE_SPEED-1);
-        s_ubPlayerMovedOnY = TRUE;
-        s_ubDisplayEngine = FALSE;
-        if (s_tPlayerPosition.uwY > s_pCamera->uPos.uwY + (TILE_VIEWPORT_HEIGHT-PLAYER_SHIP_HEIGHT)) { s_tPlayerPosition.uwY = s_pCamera->uPos.uwY + (TILE_VIEWPORT_HEIGHT-PLAYER_SHIP_HEIGHT); }
-    }
-    if (keyCheck(KEY_LEFT) || joyCheck(JOY1_LEFT)) {
-        s_tPlayerPosition.uwX = s_tPlayerPosition.uwX - PLAYER_MOVE_SPEED;
-        s_ubPlayerMovedLeft = TRUE;
-        if (s_tPlayerPosition.uwX < TILE_VIEWPORT_XMIN) { s_tPlayerPosition.uwX = TILE_VIEWPORT_XMIN; }
-    }
-    if (keyCheck(KEY_RIGHT) || joyCheck(JOY1_RIGHT)) {
-        s_tPlayerPosition.uwX = s_tPlayerPosition.uwX + PLAYER_MOVE_SPEED;
-        s_ubPlayerMovedLeft = FALSE;
-        s_ubPlayerMovedRight = TRUE;
-        if (s_tPlayerPosition.uwX > (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH)) { s_tPlayerPosition.uwX = (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH); }
-    }
+    s_ubPlayerMoveSpeed = PLAYER_FAST_MOVE_SPEED;
 
     // Shoot
     if (keyCheck(KEY_SPACE) || joyCheck(JOY1_FIRE)) {
+        s_ubPlayerMoveSpeed = PLAYER_SLOW_MOVE_SPEED;
         processPlayerShoot();
     }
 
@@ -781,6 +770,31 @@ static void processInput() {
     if (keyCheck(KEY_B) || joyCheck(JOY1_FIRE2)) {
         processPlayerSpecial();
     }
+
+    if (keyCheck(KEY_UP) || joyCheck(JOY1_UP)) {
+        s_tPlayerPosition.uwY = s_tPlayerPosition.uwY - s_ubPlayerMoveSpeed;
+        s_ubPlayerMovedOnY = TRUE;
+        if (s_tPlayerPosition.uwY < s_pCamera->uPos.uwY + TILE_VIEWPORT_YMIN) { s_tPlayerPosition.uwY = s_pCamera->uPos.uwY + TILE_VIEWPORT_YMIN; }
+    }
+    if (keyCheck(KEY_DOWN) || joyCheck(JOY1_DOWN)) {
+        s_tPlayerPosition.uwY = s_tPlayerPosition.uwY + (s_ubPlayerMoveSpeed-1);
+        s_ubPlayerMovedOnY = TRUE;
+        s_ubDisplayEngine = FALSE;
+        if (s_tPlayerPosition.uwY > s_pCamera->uPos.uwY + (TILE_VIEWPORT_HEIGHT-PLAYER_SHIP_HEIGHT)) { s_tPlayerPosition.uwY = s_pCamera->uPos.uwY + (TILE_VIEWPORT_HEIGHT-PLAYER_SHIP_HEIGHT); }
+    }
+    if (keyCheck(KEY_LEFT) || joyCheck(JOY1_LEFT)) {
+        s_tPlayerPosition.uwX = s_tPlayerPosition.uwX - s_ubPlayerMoveSpeed;
+        s_ubPlayerMovedLeft = TRUE;
+        if (s_tPlayerPosition.uwX < TILE_VIEWPORT_XMIN) { s_tPlayerPosition.uwX = TILE_VIEWPORT_XMIN; }
+    }
+    if (keyCheck(KEY_RIGHT) || joyCheck(JOY1_RIGHT)) {
+        s_tPlayerPosition.uwX = s_tPlayerPosition.uwX + s_ubPlayerMoveSpeed;
+        s_ubPlayerMovedLeft = FALSE;
+        s_ubPlayerMovedRight = TRUE;
+        if (s_tPlayerPosition.uwX > (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH)) { s_tPlayerPosition.uwX = (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH); }
+    }
+
+
 }
 
 static void processHud() {
@@ -837,6 +851,7 @@ static void processWaves() {
                     s_tEnemy[enemyIdx].bHealth = g_tEnemyTypes[ubEnemyTypeToSpawn].bHealth;
                     s_tEnemy[enemyIdx].ubOnScreen = FALSE;
                     s_tEnemy[enemyIdx].ubInvincible = TRUE;
+                    s_tEnemy[enemyIdx].ubFlashTimer = 0;
                     s_tEnemy[enemyIdx].ubCanShoot = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCanShoot;
                     s_tEnemy[enemyIdx].ubCooldownTimer = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCooldownTime;
                     s_tEnemy[enemyIdx].ubEnemyType = ubEnemyTypeToSpawn;
@@ -973,6 +988,31 @@ static void processBobs() {
                 bobPush(&s_tBigEnemyBob);
                 ubBigEnemyProcessed = TRUE;
                 continue;
+            }
+
+            if (s_tEnemy[enemyIdx].ubFlashTimer == 5) {
+                UBYTE ubEnemyType = s_tEnemy[enemyIdx].ubEnemyType;
+                UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyType].ubBitmapOffset;
+                UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
+                bobSetFrame(
+                    &s_tEnemy[enemyIdx].sBob,
+                    &s_pEnemyMask->Planes[0][uwOffset],
+                    &s_pEnemyMask->Planes[0][uwOffset]
+                );
+            }
+
+            if (s_tEnemy[enemyIdx].ubFlashTimer > 0) {
+                s_tEnemy[enemyIdx].ubFlashTimer--;
+                if (s_tEnemy[enemyIdx].ubFlashTimer == 0) {
+                    UBYTE ubEnemyType = s_tEnemy[enemyIdx].ubEnemyType;
+                    UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyType].ubBitmapOffset;
+                    UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
+                    bobSetFrame(
+                        &s_tEnemy[enemyIdx].sBob,
+                        &s_pEnemyImage->Planes[0][uwOffset],
+                        &s_pEnemyMask->Planes[0][uwOffset]
+                    );
+                }
             }
 
             bobPush(&s_tEnemy[enemyIdx].sBob);
@@ -1359,7 +1399,7 @@ static void processEnemies() {
                         s_tSimpleEnemyProjectiles[i].uwX = uwEnemyGunX - (g_tEnemyProjectileTypes[ubProjectileType].ubOffset);
                         s_tSimpleEnemyProjectiles[i].uwY = uwEnemyGunY;
                         s_tSimpleEnemyProjectiles[i].bDeltaX = 0;
-                        s_tSimpleEnemyProjectiles[i].bDeltaY = g_tEnemyProjectileTypes[ubProjectileType].bSpeed;
+                        s_tSimpleEnemyProjectiles[i].bDeltaY = g_tEnemyProjectileTypes[ubProjectileType].bSpeed + s_ubEnemyProjectileSpeed;
                         s_tSimpleEnemyProjectiles[i].ubAlive = 255;
                         s_tSimpleEnemyProjectiles[i].ubChannel = 255;
                         s_tSimpleEnemyProjectiles[i].ubType = ubProjectileType;
@@ -1377,8 +1417,8 @@ static void processEnemies() {
                         UBYTE ubAngle = getAngleBetweenPoints(uwEnemyGunX, uwEnemyGunY, uwPlayerCenterX, uwPlayerCenterY);
                         s_tComplexEnemyProjectiles[i].fX = fix16_from_int(uwEnemyGunX);
                         s_tComplexEnemyProjectiles[i].fY = fix16_from_int(uwEnemyGunY);
-                        s_tComplexEnemyProjectiles[i].fDeltaX = ccos(ubAngle) * g_tEnemyProjectileTypes[ubProjectileType].bSpeed;
-                        s_tComplexEnemyProjectiles[i].fDeltaY = csin(ubAngle) * g_tEnemyProjectileTypes[ubProjectileType].bSpeed;
+                        s_tComplexEnemyProjectiles[i].fDeltaX = ccos(ubAngle) * (g_tEnemyProjectileTypes[ubProjectileType].bSpeed + s_ubEnemyProjectileSpeed);
+                        s_tComplexEnemyProjectiles[i].fDeltaY = csin(ubAngle) * (g_tEnemyProjectileTypes[ubProjectileType].bSpeed + s_ubEnemyProjectileSpeed);
                         s_tComplexEnemyProjectiles[i].ubAlive = 255;
                         s_tComplexEnemyProjectiles[i].ubChannel = 255;
                         s_tComplexEnemyProjectiles[i].ubType = ubProjectileType;
@@ -1508,7 +1548,7 @@ static void processPlayerProjectiles() {
             //if (uwY < (uwCameraYMin-ubHeight) || uwX < (uwCameraXMin-ubWidth) || uwX > uwCameraXMax) {
             if (uwY < (uwCameraYMin-ubHeight)) {
                 s_tPlayerProjectiles[projectileIdx].ubAlive = 0;
-                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType);
+                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, 0, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType);
 
                 //movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
                 // if (ubHasSecondary) {
@@ -1554,6 +1594,7 @@ static void processPlayerProjectiles() {
                 // Damage enemy
                 if (s_tEnemy[enemyIdx].ubInvincible == FALSE) {
                     s_tEnemy[enemyIdx].bHealth -= ubDamage;
+                    s_tEnemy[enemyIdx].ubFlashTimer = 5;
                 }
 
                 // Remove projectile?
@@ -1570,7 +1611,7 @@ static void processPlayerProjectiles() {
             #endif
 
             if (s_tPlayerProjectiles[projectileIdx].ubAlive == 0) {
-                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType);
+                movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, 0, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType);
                 //movePlayerProjectile(s_tPlayerProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_A, ubType, FALSE);
                 // if (ubHasSecondary) { 
                 //     movePlayerProjectile(s_tPlayerSecondaryProjectiles[projectileIdx].pCopBlock, -16, -16, ubHeight, PLAYER_SPRITE_CHANNEL_B, ubSecondarySpriteIndex, TRUE); 
@@ -1590,10 +1631,10 @@ static void processPlayerProjectiles() {
             // }
 
             // Move projectile
-            if (bDeltaX != 0) {
-                s_tPlayerProjectiles[projectileIdx].uwX += bDeltaX;
-                //s_tPlayerSecondaryProjectiles[projectileIdx].uwX += bDeltaX2;
-            }
+            // if (bDeltaX != 0) {
+            //     s_tPlayerProjectiles[projectileIdx].uwX += bDeltaX;
+            //     //s_tPlayerSecondaryProjectiles[projectileIdx].uwX += bDeltaX2;
+            // }
             
             s_tPlayerProjectiles[projectileIdx].uwY += bDeltaY;
         }
@@ -1641,7 +1682,7 @@ static void processSimpleEnemyProjectiles() {
         #endif
 
         if (s_tSimpleEnemyProjectiles[projectileIdx].ubAlive == 0) {
-            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, 0, ubEnemyProjectileHeight, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
             s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = 255;
             continue;
         }
@@ -1673,7 +1714,7 @@ static void processSimpleEnemyProjectiles() {
         }
 
         if (s_tSimpleEnemyProjectiles[projectileIdx].ubChannel == 255) {
-            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, 0, ubEnemyProjectileHeight, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
 
             if (s_ubProjectileBobIndex < ENEMY_SPRITE_CHANNELS) {
                 s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwX = s_tSimpleEnemyProjectiles[projectileIdx].uwX;

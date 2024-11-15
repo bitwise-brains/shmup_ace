@@ -1,7 +1,7 @@
 #include <ace/generic/main.h>
 #include "main.h"
 
-UBYTE g_ubCurrentStage = 222222;
+UBYTE g_ubCurrentStage = 0;
 ULONG g_ulPlayerScore = 0;
 UBYTE g_ubPlayerLives = PLAYER_LIVES_START;
 UBYTE g_ubPlayerSpecial = PLAYER_SPECIAL_START;
@@ -19,7 +19,7 @@ void genericCreate(void) {
   keyCreate();
   joyOpen();
   g_pGameStateManager = stateManagerCreate();
-  stateChange(g_pGameStateManager, &g_pGameStates[STATE_SCORE]);
+  stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
 }
 
 void genericProcess(void) {

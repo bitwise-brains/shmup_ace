@@ -4,7 +4,7 @@
   <export target="export/map_stage1.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" name="tiles_packed" tilewidth="16" tileheight="16" tilecount="80" columns="8">
-  <image source="../tiles_packed.png" width="128" height="160"/>
+  <image source="tiles_packed.png" width="128" height="160"/>
  </tileset>
  <tileset firstgid="81" source="enemysheet.tsx"/>
  <layer id="3" name="Nebula" width="12" height="256">

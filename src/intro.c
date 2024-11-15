@@ -21,8 +21,9 @@ static UBYTE s_ubFadeOutComplete = FALSE;
 static UWORD s_uwAcePalette[32] = {0};
 static UWORD s_uwTitlescreenPalette[32] = {0};
 static UWORD s_uwFadePalette[16][32] = {0};
+static UWORD s_uwGradient[] = {0xff3,0xfd3,0xea2,0xd82,0xc61,0xc31,0xb10};
 
-static const char s_cIntroText[] = " ONE HUNDRED AND TWENTY EIGHT\n  YEARS AFTER THEIR INVASION\n  FLEET WAS DESTROYED A LONE\nBATTLESHIP OF THE BARRIX EMPIRE\n  APPEARS IN OUR SOLAR SYSTEM\n  THE RESULT OF AN FTL DRIVE\nMALFUNCTION THAT DELAYED THEIR\n           ARRIVAL\n  HEAVILY DAMAGED BY ORBITAL\nPLATFORMS THE BATTLESHIP RACES\n        TOWARDS EARTH\n IT IS UP TO YOU TO BOARD THE\n EXPERIMENTAL TTE1337 FIGHTER\n AND DEFEAT THE BARRIX EMPIRE\n       ONCE AND FOR ALL";
+static const char s_cIntroText[] = " ONE HUNDRED AND TWENTY EIGHT\n  YEARS AFTER THEIR INVASION\nFLEET WAS DESTROYED A LONE\nBATTLESHIP OF THE BARRIX EMPIRE\n APPEARS IN OUR SOLAR SYSTEM,\n  THE RESULT OF AN FTL DRIVE\nMALFUNCTION THAT DELAYED THEIR\n          ARRIVAL.\n  HEAVILY DAMAGED BY ORBITAL\nPLATFORMS THE BATTLESHIP RACES\n       TOWARDS EARTH,\n IT IS UP TO YOU TO BOARD THE\n EXPERIMENTAL TTE1337 FIGHTER\n AND DEFEAT THE BARRIX EMPIRE\n      ONCE AND FOR ALL!";
 
 void introGsCreate(void) {
     s_pView = viewCreate(0,
@@ -63,6 +64,23 @@ void introGsCreate(void) {
     for (UBYTE i=0; i<16; i++) {
         paletteDim(s_uwFadePalette[15], s_uwFadePalette[i], 32, i);
     }
+
+    // Setup score text gradient
+    UWORD uwGradientYPos = 128;
+    tCopBlock *colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
+    while (uwGradientYPos < 276) {
+        UWORD uwYPos = uwGradientYPos;
+        
+        for (UBYTE i=0; i<7; i++) {
+            copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[31], s_uwGradient[i]);
+            uwYPos++;
+            colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwYPos);
+        }
+
+        uwGradientYPos += 8;
+    }
+    colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
+    copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[31], 0xfff);
 
     // Blit first logo
     blitCopy(s_tBrainsImage, 0, 0, s_pBuffer->pBack, 113, 58, 96, 142, MINTERM_COOKIE);
@@ -135,7 +153,8 @@ void introGsLoop(void) {
                 s_eIntroStage = INTRO_TITLE;
                 break;
             case INTRO_TITLE:
-                fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cIntroText, 19, FONT_SHADOW | FONT_COOKIE, s_pIntroText);
+                fontDrawStr(s_pFont, s_pBuffer->pBack, 29, 109, s_cIntroText, 1, 0, s_pIntroText);
+                fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 108, s_cIntroText, 31, FONT_COOKIE, s_pIntroText);
                 s_eIntroStage = INTRO_TEXT;
                 s_uwWaitTimer = 525;
                 break;

@@ -3,8 +3,7 @@
 #define ENEMY_TYPES 13
 #define ENEMY_BIG_TYPE 12
 #define ENEMY_MAX 8
-#define ENEMY_WAVE_MAX 4
-#define ENEMY_INVINCIBLE_MARGIN 16
+#define ENEMY_INVINCIBLE_MARGIN 8
 
 typedef struct _tEnemy {
     tUwCoordYX tPosition;
@@ -12,6 +11,7 @@ typedef struct _tEnemy {
     BYTE bHealth;
     UBYTE ubOnScreen;
     UBYTE ubInvincible;
+    UBYTE ubFlashTimer;
     UBYTE ubCanShoot;    
     UBYTE ubCooldownTimer;
     UBYTE ubBitmapOffset;
@@ -64,4 +64,4 @@ tEnemyType g_tEnemyTypes[ENEMY_TYPES] = {{ 10, 16, 16,  3, 15, 0, 4, FALSE,   0,
                                          { 20, 16, 16,  3, 15, 7, 4,  TRUE,  50, 1, 0, 1337},
                                          { 30, 16, 16,  3, 15, 8, 4,  TRUE,  40, 1, 2, 1987},
 
-                                         { 40, 32, 32, 16, 16, 0, 2,  TRUE,  50, 1, 0, 2600}};
+                                         { 40, 32, 32, 16, 16, 0, 2,  TRUE,  50, 2, 0, 2600}};

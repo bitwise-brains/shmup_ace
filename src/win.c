@@ -14,7 +14,7 @@ static UBYTE s_ubFadeInComplete = FALSE;
 static UBYTE s_ubWaitTimer = 255;
 static UWORD s_uwFadePalette[16][32] = {0};
 
-static const char s_cWinText[] = "THIS IS A PLACEHOLDER WIN SCREEN. PRESS SPACE TO CONTINUE.";
+static const char s_cWinText[] = "THIS IS A PLACEHOLDER\n\nPRESS SPACE TO CONTINUE.";
 
 void winGsCreate(void) {
     s_pView = viewCreate(0,
@@ -47,16 +47,16 @@ void winGsCreate(void) {
     // Load assets
     s_pFont = fontCreate("data/hudfont.fnt");
     s_pWinText = fontCreateTextBitMap(288, 128);
-    s_tTitlescreenImage = bitmapCreateFromFile("data/titlescreen.bm", 0);
+    s_tTitlescreenImage = bitmapCreateFromFile("data/text_title.bm", 0);
 
     // Generate fade palette lookup
-    paletteLoad("data/titlescreen.plt", s_uwFadePalette[15], 32);
+    paletteLoad("data/highscore.plt", s_uwFadePalette[15], 32);
     for (UBYTE i=0; i<16; i++) {
         paletteDim(s_uwFadePalette[15], s_uwFadePalette[i], 32, i);
     }
 
     // Blit titlescreen
-    blitCopyAligned(s_tTitlescreenImage, 0, 0, s_pBuffer->pBack, 0, 0, 320, 256);
+    blitCopy(s_tTitlescreenImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);
     fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cWinText, 19, FONT_SHADOW | FONT_COOKIE, s_pWinText);
     viewLoad(s_pView);
     systemUnuse();

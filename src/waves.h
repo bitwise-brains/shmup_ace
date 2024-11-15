@@ -1,10 +1,10 @@
 UWORD g_uwWavesInLevel[GAME_STAGES] = {255, 260};
 
 tEnemyWave g_tEnemyWavesForStage1[] = {
-	{ 0, 3824, -32, 12, FALSE },
-	{ 0, 3812, -32, 12, FALSE },
-	{ 0, 3800, -32, 12, FALSE },
-	{ 0, 3788, -32, 12, FALSE },
+	{ 1, 3824, -32, 12, FALSE },
+	{ 1, 3812, -32, 12, FALSE },
+	{ 1, 3800, -32, 12, FALSE },
+	{ 1, 3788, -32, 12, FALSE },
 	{ 0, 3760, -32, 15, FALSE },
 	{ 0, 3748, -32, 15, FALSE },
 	{ 0, 3736, -32, 15, FALSE },
