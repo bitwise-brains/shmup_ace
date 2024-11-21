@@ -1,4 +1,4 @@
-#include "game.h"
+#include "main.h"
 
 #define EXPLOSIONS_MAX 8
 #define EXPLOSION_WIDTH 16

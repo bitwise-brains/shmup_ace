@@ -6,7 +6,7 @@
 #include "explosion.h"
 #include "paths.h"
 #include "waves.h"
-//#include "lsplayer.h"
+#include "boss.h"
 
 // Display
 static tView *s_pView; // View containing all the viewports
@@ -21,19 +21,15 @@ static UBYTE s_ubFadeOut = FALSE;
 static UBYTE s_ubFrameCounter = 0;
 static UBYTE s_ubFlashTimer = 0;
 static UBYTE s_ubFlashOn = FALSE;
-static UBYTE s_ubLevelStart = TRUE;
-static UBYTE s_ubLevelStartTimer = 128;
-static UBYTE s_ubLevelEnd = FALSE;
-static UBYTE s_ubLevelEndReached = FALSE;
-static UBYTE s_ubLevelEndTimer = 255;
 
 // System
 static UBYTE s_ubGamePaused = FALSE;
+static UBYTE s_ubCyclicRngIdx = 0;
 
 // Audio
 static tPtplayerMod *s_pGameMusic;
 static tPtplayerSamplePack *s_pSamplePack;
-static tPtplayerSfx *s_pSfxPlayerShot;
+static tPtplayerSfx *s_pSfxPlayerShot[PLAYER_PROJECTILE_TYPES];
 static tPtplayerSfx *s_pSfxExplosion;
 static tPtplayerSfx *s_pSfxCollectPowerup;
 
@@ -41,7 +37,17 @@ static tPtplayerSfx *s_pSfxCollectPowerup;
 static tBitMap *s_pTiles;
 static UBYTE s_ubCameraCanMove = FALSE;
 static UBYTE s_ubMoveCameraCounter = 0;
-static UWORD s_uwLevelData[3072] = {0};
+static UWORD s_uwCameraStartYPos = 0;
+static UWORD s_uwLevelData[MAP_TILES_COUNT] = {0};
+static UWORD s_uwMapHeightInTiles = 0;
+static UWORD s_uwTilesInLevel = 0;
+static UBYTE s_ubLevelStart = TRUE;
+static UBYTE s_ubLevelStartTimer = 128;
+static UBYTE s_ubLevelEnd = FALSE;
+static UBYTE s_ubLevelEndReached = FALSE;
+static UBYTE s_ubLevelEndTimer = 255;
+static UBYTE s_ubBossReached = FALSE;
+
 // HUD
 static tFont *s_pFont;
 static tTextBitMap *s_pHudScoreText;
@@ -96,7 +102,7 @@ static tEnemy s_tEnemy[ENEMY_MAX] = {0};
 static tBitMap *s_pEnemyImage;
 static tBitMap *s_pEnemyMask;
 static tEnemyWave s_tNextWave = {0};
-static UBYTE s_ubWaveIndex = 0;
+static UWORD s_uwWaveIndex = 0;
 static UBYTE s_ubActiveEnemies = 0;
 
 // Big enemy
@@ -104,6 +110,9 @@ static tBitMap *s_pBigEnemyImage;
 static tBitMap *s_pBigEnemyMask;
 static tBob s_tBigEnemyBob;
 static UBYTE s_ubBigEnemyAlive = FALSE;
+
+// Boss
+
 
 // Explosions
 static tExplosion s_tExplosions[EXPLOSIONS_MAX] = {0};
@@ -127,6 +136,7 @@ static tBob s_tWeaponPowBob;
 static UBYTE s_ubLifePowActive = FALSE;
 static UBYTE s_ubSpecialPowActive = FALSE;
 static UBYTE s_ubWeaponPowActive = FALSE;
+static UBYTE s_ubPowerupBounceTimer = 0;
 
 // Player Projectiles
 static tPlayerProjectile s_tPlayerProjectiles[PLAYER_PROJECTILE_MAX] = {0};
@@ -142,6 +152,9 @@ static tBob s_tEnemyProjectileBob[ENEMY_BOB_CHANNELS] = {0};
 static UBYTE s_ubEnemyProjectileBobTypes[ENEMY_BOB_CHANNELS] = {0};
 static UBYTE s_ubProjectileBobIndex = 0;
 static UBYTE s_ubEnemyProjectileSpeed = 0;
+static UBYTE s_ubEnemyProjectileRange = 0;
+static UBYTE s_ubEnemyProjectileAccuracy = 0;
+static UBYTE s_ubEnemyProjectileSafetyMargin = 0;
 
   // fix16
 static tComplexEnemyProjectile s_tComplexEnemyProjectiles[ENEMY_PROJECTILE_MAX] = {0};
@@ -180,7 +193,7 @@ static UBYTE s_ubShowTextGo = FALSE;
 static UWORD s_uwEngineAnimOffset[] = {0, 0, 50, 50, 100, 100, 150, 150}; // 16x1==10
 static UWORD s_uwSmallExplosionAnimOffset[] = {0, 0, 160, 160, 320, 320, 480, 480, 640, 640, 800, 800, 960, 960, 1120, 1120, 1280, 1280}; // 16x16
 static UWORD s_uwBigExplosionAnimOffset[] = {0, 0, 0, 640, 640, 640, 1280, 1280, 1280, 1920, 1920, 1920, 2560, 2560, 2560, 3200, 3200, 3200, 3840, 3840, 3840, 4480, 4480, 4480}; // 32x32
-static UWORD s_uwEnemyBitmapOffset[] = {0, 160, 320, 480, 640, 800, 960, 1120, 1280};
+static UWORD s_uwEnemyBitmapOffset[] = {0, 160, 320, 480, 640, 800, 960, 1120, 1280, 1440};
 static UWORD s_uwEnemyProjectileBitmapOffset[] = {0, 140, 280, 420};
 
 // Game states.
@@ -195,6 +208,7 @@ void gameGsCreate(void) {
     gameMathInit();
     viewLoad(s_pView);
     tileBufferRedrawAll(s_pTileBuffer);
+    memLogPeak();
     systemUnuse();
 }
 
@@ -265,6 +279,7 @@ void gameGsLoop(void) {
         g_ulPlayerScore = s_ulPlayerScore;
         g_ubPlayerLives = s_ubPlayerLives;
         g_ubPlayerSpecial = s_ubPlayerSpecial;
+        g_ubEquippedProjectileType = s_ubEquippedProjectileType;
         g_ubCurrentStage++;
         //if (g_ubCurrentStage >= GAME_STAGES) { g_ubCurrentStage = 0; }
 
@@ -308,12 +323,13 @@ void gameGsDestroy(void) {
     // Destroy audio
     ptplayerStop();
     audioMixerDestroy();
-    ptplayerSamplePackDestroy(s_pSamplePack);
+    if (s_pSamplePack != 0) {
+        ptplayerSamplePackDestroy(s_pSamplePack);
+    }
     ptplayerModDestroy(s_pGameMusic);
-    // for (UBYTE i=0; i<PLAYER_PROJECTILE_TYPES; i++) {
-    //     ptplayerSfxDestroy(s_pSfxPlayerShot[i]);
-    // }
-    ptplayerSfxDestroy(s_pSfxPlayerShot);
+    for (UBYTE i=0; i<PLAYER_PROJECTILE_TYPES; i++) {
+        ptplayerSfxDestroy(s_pSfxPlayerShot[i]);
+    }
     ptplayerSfxDestroy(s_pSfxExplosion);
     ptplayerSfxDestroy(s_pSfxCollectPowerup);
     ptplayerDestroy();
@@ -326,6 +342,7 @@ void gameGsDestroy(void) {
     fontDestroyTextBitMap(s_pStageCompleteText);
     fontDestroy(s_pFont);
 
+    // Destroy sprites
     spriteManagerDestroy();
     
     for (UBYTE i=1; i<PLAYER_PROJECTILE_TYPES; i++) {
@@ -333,6 +350,7 @@ void gameGsDestroy(void) {
         memFree(s_pPlayerProjectileSprites[i], sizeof(s_pPlayerProjectileSprites[i]));
     }
 
+    // Destroy bobs
     bobManagerDestroy();
 
     // Destroy bitmaps
@@ -371,26 +389,18 @@ void gameGsDestroy(void) {
     bitmapDestroy(s_pStageCompleteBgImage);
     bitmapDestroy(s_pStageCompleteBgMask);
     bitmapDestroy(s_pTiles);
+
+    // Destroy view
     viewDestroy(s_pView);
 }
 
 // Initialize game.
 
 static void initGame() {
-    //resetEverything();
-
-    // LSP stuff
-	// tFile *pBankFile = fileOpen("data/gork.lsbank", "rb");
-	// fileRead(pBankFile, s_ubBank, sizeof(s_ubBank));
-    // fileClose(pBankFile);   
-    // tFile *pMusicFile = fileOpen("data/gork.lsmusic", "rb");
-	// fileRead(pMusicFile, s_ubMusic, sizeof(s_ubMusic));
-    // fileClose(pMusicFile);
-    // lsp_cia_start(&s_ubMusic, &s_ubBank);
-
     // Load enemy path data.
-	tFile *pPathData = fileOpen("data/paths.dat", "rb");
+	tFile *pPathData = pakFileGetFile(g_pPakFile, "paths.dat");
 	fileRead(pPathData, g_ubPathData, sizeof(g_ubPathData));
+    fileClose(pPathData);
 
     s_fViewportXMin = fix16_from_int(TILE_VIEWPORT_XMIN);
     s_fViewportXMax = fix16_from_int(TILE_VIEWPORT_XMAX);
@@ -400,40 +410,91 @@ static void initGame() {
     s_ulPlayerScore = g_ulPlayerScore;
     s_ubPlayerLives = g_ubPlayerLives;
     s_ubPlayerSpecial = g_ubPlayerSpecial;
+    s_ubEquippedProjectileType = g_ubEquippedProjectileType;
+
+    s_uwTilesInLevel = MAP_TILES_COUNT;
+    s_uwCameraStartYPos = CAMERA_START_YPOS;
+    s_uwMapHeightInTiles = MAP_HEIGHT_IN_TILES;
 
     tFile *pLevelData;
-
+    
+    // Setup variables depending on stage.
     switch (g_ubCurrentStage) {
         case (0):
-            pLevelData = fileOpen("data/stage1.dat", "rb");
+            pLevelData = pakFileGetFile(g_pPakFile, "stage1.dat");
             fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
             fileClose(pLevelData);
-            s_tNextWave = g_tEnemyWavesForStage1[s_ubWaveIndex];
+            s_tNextWave = g_tEnemyWavesForStage1[s_uwWaveIndex];
+            s_ubEnemyProjectileRange = 64;
+            s_ubEnemyProjectileSpeed = 0;
+            s_ubEnemyProjectileAccuracy = 16;
+            s_ubEnemyProjectileSafetyMargin = 64;
+            // g_tEnemyTypes[0].ubMoveSpeed = 4;
+            // g_tEnemyTypes[1].ubMoveSpeed = 4;
+            // g_tEnemyTypes[1].ubCooldownTime = 50;
+            // g_tEnemyTypes[2].ubMoveSpeed = 4;
+            // g_tEnemyTypes[2].ubCooldownTime = 50;
+            // g_tEnemyTypes[3].ubMoveSpeed = 2;
+            // g_tEnemyTypes[7].ubMoveSpeed = 2;
+            // g_tEnemyTypes[11].ubMoveSpeed = 2;
             break;
         case (1):
-            pLevelData = fileOpen("data/stage2.dat", "rb");
+            pLevelData = pakFileGetFile(g_pPakFile, "stage2.dat");
             fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
             fileClose(pLevelData);        
-            s_tNextWave = g_tEnemyWavesForStage2[s_ubWaveIndex];
+            s_tNextWave = g_tEnemyWavesForStage2[s_uwWaveIndex];
+            s_ubEnemyProjectileRange = 32;
+            s_ubEnemyProjectileSpeed = 0;
+            s_ubEnemyProjectileAccuracy = 8;
+            s_ubEnemyProjectileSafetyMargin = 48;
+            // g_tEnemyTypes[0].ubMoveSpeed = 4;
+            // g_tEnemyTypes[1].ubMoveSpeed = 4;
+            // g_tEnemyTypes[1].ubCooldownTime = 45;            
+            // g_tEnemyTypes[2].ubMoveSpeed = 4;
+            // g_tEnemyTypes[2].ubCooldownTime = 50;            
+            // g_tEnemyTypes[3].ubMoveSpeed = 2;
+            // g_tEnemyTypes[7].ubMoveSpeed = 4;
+            // g_tEnemyTypes[11].ubMoveSpeed = 2;
             break;
-        // case (2):
-        //     pLevelData = fileOpen("data/stage3.dat", "rb");
-        //     fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
-        //     fileClose(pLevelData);        
-        //     s_tNextWave = g_tEnemyWavesForStage3[s_ubWaveIndex];
-        //     break;            
+        case (2):
+            pLevelData = pakFileGetFile(g_pPakFile, "stage3.dat");
+            fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+            fileClose(pLevelData);        
+            s_tNextWave = g_tEnemyWavesForStage3[s_uwWaveIndex];
+            s_ubEnemyProjectileRange = 16;
+            s_ubEnemyProjectileSpeed = 1;
+            s_ubEnemyProjectileAccuracy = 0;
+            s_ubEnemyProjectileSafetyMargin = 32;
+            // g_tEnemyTypes[0].ubMoveSpeed = 6;
+            // g_tEnemyTypes[1].ubMoveSpeed = 6;
+            // g_tEnemyTypes[1].ubCooldownTime = 40;
+            // g_tEnemyTypes[2].ubMoveSpeed = 6;
+            // g_tEnemyTypes[2].ubCooldownTime = 45;
+            // g_tEnemyTypes[3].ubMoveSpeed = 4;
+            // g_tEnemyTypes[7].ubMoveSpeed = 4;
+            // g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 4;
+            break;
+        case (BOSS_STAGE):
+            // pLevelData = pakFileGetFile(g_pPakFile, "stage4.dat");
+            // fileRead(pLevelData, s_uwLevelData, (sizeof(UWORD) * BOSS_TILES_COUNT));
+            // fileClose(pLevelData);
+            for (UWORD i=0; i<BOSS_TILES_COUNT; i++) {
+                s_uwLevelData[i] = uwBossStageData[i];
+            }
+
+            s_tNextWave = g_tEnemyWavesForStage1[0];
+            s_uwCameraStartYPos = BOSS_START_YPOS;
+            s_uwMapHeightInTiles = BOSS_HEIGHT_IN_TILES;
+            s_uwTilesInLevel = BOSS_TILES_COUNT;
+            break;
         default:
             logWrite("Invalid stage: %d", g_ubCurrentStage);
             s_tNextWave = g_tEnemyWavesForStage1[0];
+            s_ubEnemyProjectileRange = 160;
+            s_ubEnemyProjectileSpeed = 5;
+            s_ubEnemyProjectileAccuracy = 0;
+            s_ubEnemyProjectileSafetyMargin = 0;
             break;
-    }
-
-    if (g_ubCurrentStage == 1) {
-        s_ubEnemyProjectileSpeed = 1;
-    }
-
-    if (g_ubCurrentStage > 1) {
-        s_ubEnemyProjectileSpeed = 2;
     }
 
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 5,  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
@@ -461,7 +522,8 @@ static void initViews() {
     TAG_DONE);
  
     // Load palette
-    paletteLoad("data/game.plt", s_uwFadePalette[15], 1 << GAME_BPP);
+    
+    paletteLoadFromFd(pakFileGetFile(g_pPakFile, "game.plt"), s_uwFadePalette[15], 1 << GAME_BPP);
     for (UBYTE i=0; i<16; i++) {
         paletteDim(s_uwFadePalette[15], s_uwFadePalette[i], 32, i);
     }
@@ -469,16 +531,16 @@ static void initViews() {
     // Load tiles bitmap.
     switch(g_ubCurrentStage) {
         case 0:
-            s_pTiles = bitmapCreateFromFile("data/tiles_stage1.bm", 0);
+            s_pTiles = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "tiles_stage1.bm"), 0);
             break;
         case 1:
-            s_pTiles = bitmapCreateFromFile("data/tiles_stage2.bm", 0);
+            s_pTiles = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "tiles_stage2.bm"), 0);
             break;
         case 2:
-            s_pTiles = bitmapCreateFromFile("data/tiles_stage3.bm", 0);
+            s_pTiles = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "tiles_stage3.bm"), 0);
             break;
         case 3:
-            s_pTiles = bitmapCreateFromFile("data/tiles_boss.bm", 0);
+            s_pTiles = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "tiles_boss.bm"), 0);
             break;
     }
 
@@ -487,7 +549,7 @@ static void initViews() {
         TAG_TILEBUFFER_VPORT, s_pGameViewport,
         TAG_TILEBUFFER_BITMAP_FLAGS, BMF_CLEAR | BMF_INTERLEAVED,
         TAG_TILEBUFFER_BOUND_TILE_X, MAP_WIDTH_IN_TILES,
-        TAG_TILEBUFFER_BOUND_TILE_Y, MAP_HEIGHT_IN_TILES,
+        TAG_TILEBUFFER_BOUND_TILE_Y, s_uwMapHeightInTiles,
         TAG_TILEBUFFER_IS_DBLBUF, 1,
         TAG_TILEBUFFER_TILE_SHIFT, 4,
         TAG_TILEBUFFER_REDRAW_QUEUE_LENGTH, 100,
@@ -505,51 +567,58 @@ static void initViews() {
 
     // Populate tilemap.
     UWORD idx = 0;
-    for (UWORD y=0; y<MAP_HEIGHT_IN_TILES; y++) {
+
+    for (UWORD y=0; y<s_uwMapHeightInTiles; y++) {
         for (UWORD x=0; x<MAP_WIDTH_IN_TILES; x++) {
             s_pTileBuffer->pTileData[x][y] = s_uwLevelData[idx];            
             idx++;
-            if (idx == MAP_TILES_COUNT) { idx = 0; }
+            if (idx == MAP_TILES_COUNT) { idx = 0; }            
         }
     }
 
+    // UWORD uwHudTextOffset = 291;
+    // tCopBlock *colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwHudTextOffset);   
+    // for (UBYTE i=0; i<7; i++) {
+    //     copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[HUD_TEXT_COLOR], s_uwTextGradient[i]);
+    //     colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwHudTextOffset+i);
+    // }
+
     // Setup camera.
     s_pCamera = s_pTileBuffer->pCamera;
-    cameraMoveBy(s_pCamera, TILE_VIEWPORT_XMIN, CAMERA_START_YPOS);
+    cameraMoveBy(s_pCamera, TILE_VIEWPORT_XMIN, s_uwCameraStartYPos);
 }
 
 static void initHud() {
     // Load font
-    s_pFont = fontCreate("data/hudfont.fnt");
+    s_pFont = fontCreateFromFd(pakFileGetFile(g_pPakFile, "hudfont.fnt"));
     s_pHudScoreText = fontCreateTextBitMap(HUD_SCORE_WIDTH, HUD_TEXT_HEIGHT);
     s_pHudLivesText = fontCreateTextBitMap(HUD_TEXT_WIDTH, HUD_TEXT_HEIGHT);
     s_pHudSpecialText = fontCreateTextBitMap(HUD_TEXT_WIDTH, HUD_TEXT_HEIGHT);
     s_pHudPowerText = fontCreateTextBitMap(HUD_TEXT_WIDTH, HUD_TEXT_HEIGHT);
 
     // Load HUD lives icon
-    s_pHudIconsImage = bitmapCreateFromFile("data/hud_icons.bm", 0);
-    s_pHudIconsMask = bitmapCreateFromFile("data/hud_icons_mask.bm", 0);
+    s_pHudIconsImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "hud_icons.bm"), 0);
+    s_pHudIconsMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "hud_icons_mask.bm"), 0);
 
     s_pStageCompleteText = fontCreateTextBitMap(32, 8);
 }
 
 static void initAudio() {
-    s_pSfxPlayerShot = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
-    // s_pSfxPlayerShot[0] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
-    // s_pSfxPlayerShot[1] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
-    // s_pSfxPlayerShot[2] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
-    // s_pSfxPlayerShot[3] = ptplayerSfxCreateFromFile("data/shot0.sfx", 1);
+    s_pSfxPlayerShot[0] = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "shot0.sfx"), 1);
+    s_pSfxPlayerShot[1] = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "shot1.sfx"), 1);
+    s_pSfxPlayerShot[2] = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "shot2.sfx"), 1);
+    s_pSfxPlayerShot[3] = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "shot3.sfx"), 1);
 
-    s_pSfxExplosion = ptplayerSfxCreateFromFile("data/explosion.sfx", 1);
-    s_pSfxCollectPowerup = ptplayerSfxCreateFromFile("data/collect.sfx", 1);
+    s_pSfxExplosion = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "explosion.sfx"), 1);
+    s_pSfxCollectPowerup = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "collect.sfx"), 1);
 
     ptplayerCreate(1);
     ptplayerSetChannelsForPlayer(0b0111);
     ptplayerSetMasterVolume(40);
     audioMixerCreate();
 
-    s_pGameMusic = ptplayerModCreate("data/game.patterns");
-    s_pSamplePack = ptplayerSampleDataCreate("data/game.samplepack");
+    s_pGameMusic = ptplayerModCreateFromFd(pakFileGetFile(g_pPakFile, "ingame.patterns"));
+    s_pSamplePack = ptplayerSampleDataCreateFromFd(pakFileGetFile(g_pPakFile, "ingame.samplepack"));
     if (s_pSamplePack == 0) {
         return;
     }
@@ -562,55 +631,55 @@ static void initBobs() {
     bobManagerCreate(s_pTileBuffer->pScroll->pFront, s_pTileBuffer->pScroll->pBack, s_pTileBuffer->pScroll->uwBmAvailHeight);
 
     // Player ship bob.
-    s_pPlayerImage = bitmapCreateFromFile("data/player.bm", 0);
-    s_pPlayerMask = bitmapCreateFromFile("data/player_mask.bm", 0);
+    s_pPlayerImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player.bm"), 0);
+    s_pPlayerMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_mask.bm"), 0);
     bobInit(&s_tPlayerBob, PLAYER_SHIP_WIDTH, PLAYER_SHIP_HEIGHT, 1, s_pPlayerImage->Planes[0], s_pPlayerMask->Planes[0], 0, 0);
 
     // Engine bob.
-    s_pEngineImage = bitmapCreateFromFile("data/player_engine.bm", 0);
-    s_pEngineMask = bitmapCreateFromFile("data/player_engine_mask.bm", 0);
+    s_pEngineImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_engine.bm"), 0);
+    s_pEngineMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_engine_mask.bm"), 0);
     bobInit(&s_tEngineBob, ENGINE_WIDTH, ENGINE_HEIGHT, 1, s_pEngineImage->Planes[0], s_pEngineMask->Planes[0], 0, 0);
 
     // Enemy bobs
-    s_pEnemyImage = bitmapCreateFromFile("data/enemy_small.bm", 0);
-    s_pEnemyMask = bitmapCreateFromFile("data/enemy_small_mask.bm", 0);
+    s_pEnemyImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_small.bm"), 0);
+    s_pEnemyMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_small_mask.bm"), 0);
 
     // Init enemy structs.
     for (UBYTE i=0; i<ENEMY_MAX; i++) {
         bobInit( &s_tEnemy[i].sBob, 16, 16, 1, s_pEnemyImage->Planes[0], s_pEnemyMask->Planes[0], 0, 0 );
-        s_tEnemy[i].bHealth = 0;
+        s_tEnemy[i].wHealth = 0;
     }
 
     // Big enemy bob
-    s_pBigEnemyImage = bitmapCreateFromFile("data/enemy_big.bm", 0);
-    s_pBigEnemyMask = bitmapCreateFromFile("data/enemy_big_mask.bm", 0);
+    s_pBigEnemyImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_big.bm"), 0);
+    s_pBigEnemyMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_big_mask.bm"), 0);
     bobInit(&s_tBigEnemyBob, 32, 32, 1, s_pBigEnemyImage->Planes[0], s_pBigEnemyMask->Planes[0], 0, 0);
 
     // Small explosion bobs
-    s_pSmallExplosionImage = bitmapCreateFromFile("data/explosion_small.bm", 0);
-    s_pSmallExplosionMask = bitmapCreateFromFile("data/explosion_small_mask.bm", 0);
+    s_pSmallExplosionImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "explosion_small.bm"), 0);
+    s_pSmallExplosionMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "explosion_small_mask.bm"), 0);
 
     for (UBYTE i=0; i<EXPLOSIONS_MAX; i++) {
         bobInit(&s_tExplosions[i].sBob, 16, 16, 1, s_pSmallExplosionImage->Planes[0], s_pSmallExplosionMask->Planes[0], 0, 0);
     }
 
     // Large explosion bob
-    s_pBigExplosionImage = bitmapCreateFromFile("data/explosion_big.bm", 0);
-    s_pBigExplosionMask = bitmapCreateFromFile("data/explosion_big_mask.bm", 0);
+    s_pBigExplosionImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "explosion_big.bm"), 0);
+    s_pBigExplosionMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "explosion_big_mask.bm"), 0);
 
     bobInit(&s_tBigExplosionBob, 32, 32, 1, s_pBigExplosionImage->Planes[0], s_pBigExplosionMask->Planes[0], 0, 0);
     bobInit(&s_tPlayerExplosionBob, 32, 32, 1, s_pBigExplosionImage->Planes[0], s_pBigExplosionMask->Planes[0], 0, 0);
 
     // Enemy projectiles.
-    s_pEnemyProjectileBobsImage = bitmapCreateFromFile("data/enemy_bullet_bobs.bm", 0);
-    s_pEnemyProjectileBobsMask = bitmapCreateFromFile("data/enemy_bullet_bobs_mask.bm", 0);
+    s_pEnemyProjectileBobsImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_bullet_bobs.bm"), 0);
+    s_pEnemyProjectileBobsMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_bullet_bobs_mask.bm"), 0);
 
     for (UBYTE i=0; i<ENEMY_BOB_CHANNELS; i++) {
         bobInit(&s_tEnemyProjectileBob[i], 16, 14, 1, s_pEnemyProjectileBobsImage->Planes[0], s_pEnemyProjectileBobsMask->Planes[0], 0, 0);
     }
 
-    s_pPowerupsImage = bitmapCreateFromFile("data/powerups_square.bm", 0);
-    s_pPowerupsMask = bitmapCreateFromFile("data/powerups_square_mask.bm", 0);
+    s_pPowerupsImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "powerups_square.bm"), 0);
+    s_pPowerupsMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "powerups_square_mask.bm"), 0);
     bobInit(&s_tLifePowBob, 16, 16, 1, s_pPowerupsImage->Planes[0], s_pPowerupsMask->Planes[0], 0, 0); // Extra Life Powerup   
     bobInit(&s_tSpecialPowBob, 16, 16, 1, s_pPowerupsImage->Planes[0], s_pPowerupsMask->Planes[0], 0, 0); // Special Powerup
     bobInit(&s_tWeaponPowBob, 16, 16, 1, s_pPowerupsImage->Planes[0], s_pPowerupsMask->Planes[0], 0, 0); // Weapon Powerup
@@ -620,22 +689,22 @@ static void initBobs() {
     bobSetFrame(&s_tWeaponPowBob, &s_pPowerupsImage->Planes[0][320], &s_pPowerupsMask->Planes[0][320]);
 
     // Game Over text
-    s_pTextGameOverImage = bitmapCreateFromFile("data/text_gameover.bm", 0);
-    s_pTextGameOverMask = bitmapCreateFromFile("data/text_gameover_mask.bm", 0);
+    s_pTextGameOverImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_gameover.bm"), 0);
+    s_pTextGameOverMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_gameover_mask.bm"), 0);
     bobInit(&s_tTextGameOverBob, TEXT_GAMEOVER_WIDTH, TEXT_GAMEOVER_HEIGHT, 0, s_pTextGameOverImage->Planes[0], s_pTextGameOverMask->Planes[0], 0, 0);
 
     // Ready text
-    s_pTextReadyImage = bitmapCreateFromFile("data/text_ready.bm", 0);
-    s_pTextReadyMask = bitmapCreateFromFile("data/text_ready_mask.bm", 0);
+    s_pTextReadyImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_ready.bm"), 0);
+    s_pTextReadyMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_ready_mask.bm"), 0);
     bobInit(&s_tTextReadyBob, TEXT_READY_WIDTH, TEXT_READY_HEIGHT, 1, s_pTextReadyImage->Planes[0], s_pTextReadyMask->Planes[0], 0, 0);
 
     // Go text
-    s_pTextGoImage = bitmapCreateFromFile("data/text_go.bm", 0);
-    s_pTextGoMask = bitmapCreateFromFile("data/text_go_mask.bm", 0);
+    s_pTextGoImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_go.bm"), 0);
+    s_pTextGoMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_go_mask.bm"), 0);
     bobInit(&s_tTextGoBob, TEXT_GO_WIDTH, TEXT_GO_HEIGHT, 1, s_pTextGoImage->Planes[0], s_pTextGoMask->Planes[0], 0, 0);
 
-    s_pStageCompleteBgImage = bitmapCreateFromFile("data/stage_complete_bg.bm", 0);
-    s_pStageCompleteBgMask = bitmapCreateFromFile("data/stage_complete_bg_mask.bm", 0);
+    s_pStageCompleteBgImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "stage_complete_bg.bm"), 0);
+    s_pStageCompleteBgMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "stage_complete_bg_mask.bm"), 0);
     bobInit(&s_tStageCompleteBgBob, TEXT_STAGECOMPLETE_WIDTH, TEXT_STAGECOMPLETE_HEIGHT, 0, s_pStageCompleteBgImage->Planes[0], s_pStageCompleteBgMask->Planes[0], 0, 0);
 
     // Finish bob init.
@@ -648,10 +717,10 @@ static void initSprites() {
     systemSetDmaBit(DMAB_SPRITE, 1);
 
     // Enemy projectile sprites.
-    s_pEnemyProjectileSpriteImage[0] = bitmapCreateFromFile("data/enemy_bullet_sprite_1.bm", 0);
-    s_pEnemyProjectileSpriteImage[1] = bitmapCreateFromFile("data/enemy_bullet_sprite_2.bm", 0);
-    s_pEnemyProjectileSpriteImage[2] = bitmapCreateFromFile("data/enemy_bullet_sprite_3.bm", 0);
-    s_pEnemyProjectileSpriteImage[3] = bitmapCreateFromFile("data/enemy_bullet_sprite_4.bm", 0);
+    s_pEnemyProjectileSpriteImage[0] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_bullet_sprite_1.bm"), 0);
+    s_pEnemyProjectileSpriteImage[1] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_bullet_sprite_2.bm"), 0);
+    s_pEnemyProjectileSpriteImage[2] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_bullet_sprite_3.bm"), 0);
+    s_pEnemyProjectileSpriteImage[3] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "enemy_bullet_sprite_4.bm"), 0);
 
     s_pEnemyProjectileSprite[0] = spriteAdd(0, s_pEnemyProjectileSpriteImage[0]);
     s_pEnemyProjectileSprite[1] = spriteAdd(1, s_pEnemyProjectileSpriteImage[1]);
@@ -671,10 +740,10 @@ static void initSprites() {
     }
 
     // Player projectile sprite.   
-    s_pPlayerProjectileImages[0] = bitmapCreateFromFile("data/player_bullet_sprite_1.bm", 0);
-    s_pPlayerProjectileImages[1] = bitmapCreateFromFile("data/player_bullet_sprite_2.bm", 0);
-    s_pPlayerProjectileImages[2] = bitmapCreateFromFile("data/player_bullet_sprite_3.bm", 0);
-    s_pPlayerProjectileImages[3] = bitmapCreateFromFile("data/player_bullet_sprite_4.bm", 0);
+    s_pPlayerProjectileImages[0] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_bullet_sprite_1.bm"), 0);
+    s_pPlayerProjectileImages[1] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_bullet_sprite_2.bm"), 0);
+    s_pPlayerProjectileImages[2] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_bullet_sprite_3.bm"), 0);
+    s_pPlayerProjectileImages[3] = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "player_bullet_sprite_4.bm"), 0);
     
     s_pPlayerProjectileSprites[0] = spriteAdd(4, s_pPlayerProjectileImages[0]);
     s_pPlayerProjectileSprites[1] = spriteAdd(4, s_pPlayerProjectileImages[1]);
@@ -746,9 +815,13 @@ static void processCamera() {
             s_tPlayerPosition.uwY = uwCameraYMax - PLAYER_SHIP_HEIGHT;
         }
 
-        if (s_pCamera->uPos.uwY == CAMERA_Y_MIN) {
+        if (s_pCamera->uPos.uwY == CAMERA_Y_MIN && g_ubCurrentStage != BOSS_STAGE) {
             s_ubLevelEndReached = TRUE;
-        }        
+        }
+
+        if (s_pCamera->uPos.uwY == CAMERA_Y_MIN && g_ubCurrentStage == BOSS_STAGE) {
+            s_ubBossReached = TRUE;
+        }     
     }
 }
 
@@ -757,18 +830,22 @@ static void processInput() {
     s_ubPlayerMovedOnY = FALSE;
     s_ubPlayerMovedLeft = FALSE;
     s_ubPlayerMovedRight = FALSE;
+    //s_ubPlayerFired = FALSE;
     s_ubDisplayEngine = TRUE;
     s_ubPlayerMoveSpeed = PLAYER_FAST_MOVE_SPEED;
-
+    
     // Shoot
-    if (keyCheck(KEY_SPACE) || joyCheck(JOY1_FIRE)) {
-        s_ubPlayerMoveSpeed = PLAYER_SLOW_MOVE_SPEED;
-        processPlayerShoot();
-    }
+    if (s_ubLevelEndReached == FALSE) {
+        if (keyCheck(KEY_SPACE) || joyCheck(JOY1_FIRE)) {
+            s_ubPlayerMoveSpeed = PLAYER_SLOW_MOVE_SPEED;
+            //s_ubPlayerFired = TRUE;            
+            processPlayerShoot();
+        }
 
-    // Special
-    if (keyCheck(KEY_B) || joyCheck(JOY1_FIRE2)) {
-        processPlayerSpecial();
+        // Special
+        if (keyCheck(KEY_B) || joyCheck(JOY1_FIRE2)) {
+            processPlayerSpecial();
+        }
     }
 
     if (keyCheck(KEY_UP) || joyCheck(JOY1_UP)) {
@@ -794,7 +871,41 @@ static void processInput() {
         if (s_tPlayerPosition.uwX > (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH)) { s_tPlayerPosition.uwX = (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH); }
     }
 
+    if (keyCheck(KEY_0)) {
+        if (s_ubFireDelay == 0) {
+            s_ubEquippedProjectileType++;
+            if (s_ubEquippedProjectileType >= PLAYER_PROJECTILE_TYPES) {
+                s_ubEquippedProjectileType = 0;
+            }
+            s_ubFireDelay = DEBUG_COMMAND_DELAY;
+            s_ubUpdatePower = TRUE;
+        }   
+    }
 
+    if (keyCheck(KEY_1)) {
+        if (s_ubFireDelay == 0) {
+            destroyBossTurret(0);
+            s_ubFireDelay = DEBUG_COMMAND_DELAY;
+        }   
+    }
+    if (keyCheck(KEY_2)) {
+        if (s_ubFireDelay == 0) {
+            destroyBossTurret(1);
+            s_ubFireDelay = DEBUG_COMMAND_DELAY;
+        }   
+    }
+    if (keyCheck(KEY_3)) {
+        if (s_ubFireDelay == 0) {
+            destroyBossTurret(2);
+            s_ubFireDelay = DEBUG_COMMAND_DELAY;
+        }   
+    }
+    if (keyCheck(KEY_4)) {
+        if (s_ubFireDelay == 0) {
+            destroyBossTurret(3);
+            s_ubFireDelay = DEBUG_COMMAND_DELAY;
+        }   
+    }            
 }
 
 static void processHud() {
@@ -822,7 +933,7 @@ static void processHud() {
     // Power
     if (s_ubUpdatePower == TRUE) {
         char cPlayerPower[4];
-        sprintf(cPlayerPower, "%01d", s_ubEquippedProjectileType);
+        sprintf(cPlayerPower, "%01d", s_ubEquippedProjectileType+1);
         fontFillTextBitMap(s_pFont, s_pHudPowerText, cPlayerPower);
         fontDrawTextBitMap(s_pHudBuffer->pBack, s_pHudPowerText, 69, 3, HUD_TEXT_COLOR, 0);
         blitCopyMask(s_pHudIconsImage, 0, 14, s_pHudBuffer->pBack, 58, 3, 8, 7, s_pHudIconsMask->Planes[0]);
@@ -836,68 +947,93 @@ static void processHud() {
         fontFillTextBitMap(s_pFont, s_pHudScoreText, cPlayerScore);
         fontDrawTextBitMap(s_pHudBuffer->pBack, s_pHudScoreText, 94, 3, HUD_TEXT_COLOR, 0);
         s_ubUpdateScore = FALSE;
-    }
+    } 
 }
 
 static void processWaves() {
-    if (s_ubWaveIndex != 255) {
+    if (s_uwWaveIndex != UWORD_MAX) {
         if (s_pCamera->uPos.uwY == s_tNextWave.uwSpawnYPosition) {
             if (s_ubActiveEnemies + 1 <= ENEMY_MAX) {
-                logWrite("Wave[%d] Spawn EnemyType: %d", s_ubWaveIndex, s_tNextWave.ubEnemyType);
+                logWrite("Wave[%d] Spawn EnemyType: %d", s_uwWaveIndex, s_tNextWave.ubEnemyType);
                 for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-                    if (s_tEnemy[enemyIdx].bHealth > 0) { continue; }
+                    if (s_tEnemy[enemyIdx].wHealth > 0) { continue; }
                     UBYTE ubEnemyTypeToSpawn = s_tNextWave.ubEnemyType;
                     UBYTE ubPathType = s_tNextWave.ubPathType;
-                    s_tEnemy[enemyIdx].bHealth = g_tEnemyTypes[ubEnemyTypeToSpawn].bHealth;
+                    s_tEnemy[enemyIdx].wHealth = g_tEnemyTypes[ubEnemyTypeToSpawn].wHealth;
                     s_tEnemy[enemyIdx].ubOnScreen = FALSE;
                     s_tEnemy[enemyIdx].ubInvincible = TRUE;
                     s_tEnemy[enemyIdx].ubFlashTimer = 0;
                     s_tEnemy[enemyIdx].ubCanShoot = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCanShoot;
-                    s_tEnemy[enemyIdx].ubCooldownTimer = g_tEnemyTypes[ubEnemyTypeToSpawn].ubCooldownTime;
+                    s_tEnemy[enemyIdx].ubCooldownTimer = (g_tEnemyTypes[ubEnemyTypeToSpawn].ubCooldownTime + g_bCyclicRng[s_ubCyclicRngIdx]);
                     s_tEnemy[enemyIdx].ubEnemyType = ubEnemyTypeToSpawn;
                     s_tEnemy[enemyIdx].ubPowerupType = g_tEnemyTypes[ubEnemyTypeToSpawn].ubPowerupType;
-                    s_tEnemy[enemyIdx].ubWaveIdx = s_ubWaveIndex;
                     s_tEnemy[enemyIdx].uwScoreValue = g_tEnemyTypes[ubEnemyTypeToSpawn].uwScoreValue;
                     s_tEnemy[enemyIdx].ubMoveSpeed = g_tEnemyTypes[ubEnemyTypeToSpawn].ubMoveSpeed;
                     s_tEnemy[enemyIdx].uwPathArrayOffset = g_uwPathOffset[ubPathType];
                     s_tEnemy[enemyIdx].uwPathLength = g_uwPathLength[ubPathType];
-                    s_tEnemy[enemyIdx].ubPathLoops = s_tNextWave.ubPathLoops;
                     s_tEnemy[enemyIdx].uwPathYOffset = s_tNextWave.uwSpawnYPosition + s_tNextWave.bSpawnOffset;
                     s_tEnemy[enemyIdx].uwPathIdx = 0;
 
-                    UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyTypeToSpawn].ubBitmapOffset;
-                    UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
-                    bobSetFrame(
-                        &s_tEnemy[enemyIdx].sBob,
-                        &s_pEnemyImage->Planes[0][uwOffset],
-                        &s_pEnemyMask->Planes[0][uwOffset]
-                    );
+                    s_ubCyclicRngIdx++;
+                    if (s_ubCyclicRngIdx > RNG_IDX_MAX) {
+                        s_ubCyclicRngIdx = 0;
+                    }
 
-                    logWrite("Wave[%d] Spawned EnemyType:%d => EnemyIdx:%d", s_ubWaveIndex, ubEnemyTypeToSpawn, enemyIdx);
+                    if (ubEnemyTypeToSpawn != ENEMY_BIG_TYPE) {
+                        UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyTypeToSpawn].ubBitmapOffset;
+                        UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
+                        bobSetFrame(
+                            &s_tEnemy[enemyIdx].sBob,
+                            &s_pEnemyImage->Planes[0][uwOffset],
+                            &s_pEnemyMask->Planes[0][uwOffset]
+                        );
+
+                        if (ubEnemyTypeToSpawn == ENEMY_TURRET_TYPE) {
+                            s_tEnemy[enemyIdx].ubInvincible = FALSE;
+                            s_tEnemy[enemyIdx].tPosition.uwX = s_tNextWave.ubPathType;
+                            s_tEnemy[enemyIdx].tPosition.uwY = s_tNextWave.uwSpawnYPosition + s_tNextWave.bSpawnOffset;
+                        }
+                    } else {
+                        bobSetFrame(
+                            &s_tBigEnemyBob,
+                            s_pBigEnemyImage->Planes[0],
+                            s_pBigEnemyMask->Planes[0]
+                        );
+                    }
+
+                    logWrite("Wave[%d] Spawned EnemyType:%d => EnemyIdx:%d", s_uwWaveIndex, ubEnemyTypeToSpawn, enemyIdx);
                     s_ubActiveEnemies++;
                     break;
                 }
             } else {
-                logWrite("Wave[%d] Too many enemies => Active:%d", s_ubWaveIndex, s_ubActiveEnemies);
+                logWrite("Wave[%d] Too many enemies => Active:%d", s_uwWaveIndex, s_ubActiveEnemies);
             }
 
-            s_ubWaveIndex++;
-            if (s_ubWaveIndex >= g_uwWavesInLevel[g_ubCurrentStage]) {
+            s_uwWaveIndex++;
+            if (s_uwWaveIndex >= g_uwWavesInLevel[g_ubCurrentStage]) {
                 logWrite("No more waves left!");
-                s_ubWaveIndex = 255;
+                s_uwWaveIndex = UWORD_MAX;
             }
 
-            switch (g_ubCurrentStage) {
-                case (0):
-                    s_tNextWave = g_tEnemyWavesForStage1[s_ubWaveIndex];
-                    break;
-                case (1):
-                    s_tNextWave = g_tEnemyWavesForStage2[s_ubWaveIndex];
-                    break;
-                default:
-                    logWrite("Invalid stage: %d", g_ubCurrentStage);
-                    s_tNextWave = g_tEnemyWavesForStage1[0];
-                    break;                
+            if (s_uwWaveIndex != UWORD_MAX) {
+                switch (g_ubCurrentStage) {
+                    case (0):
+                        s_tNextWave = g_tEnemyWavesForStage1[s_uwWaveIndex];
+                        break;
+                    case (1):
+                        s_tNextWave = g_tEnemyWavesForStage2[s_uwWaveIndex];
+                        break;
+                    case (2):
+                        s_tNextWave = g_tEnemyWavesForStage3[s_uwWaveIndex];
+                        break;
+                    case (3):
+                        s_tNextWave = g_tEnemyWavesForStage1[0];
+                        break;
+                    default:
+                        logWrite("Invalid stage: %d", g_ubCurrentStage);
+                        s_tNextWave = g_tEnemyWavesForStage1[0];
+                        break;
+                }
             }
         }
     }
@@ -978,13 +1114,33 @@ static void processBobs() {
         UBYTE ubBigEnemyProcessed = FALSE;
 
         for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-            if (s_tEnemy[enemyIdx].bHealth == 0 || s_tEnemy[enemyIdx].ubOnScreen == FALSE) { continue; }
+            if (s_tEnemy[enemyIdx].wHealth <= 0 || s_tEnemy[enemyIdx].ubOnScreen == FALSE) { continue; }
             //UBYTE bufferCheck = tileBufferIsRectFullyOnBuffer(s_pTileBuffer, s_tEnemy[enemyIdx].sBob.sPos.uwX, s_tEnemy[enemyIdx].sBob.sPos.uwY, 16, 16);
             //if (bufferCheck == TRUE) { bobPush(&s_tEnemy[enemyIdx].sBob); }
 
             if (s_tEnemy[enemyIdx].ubEnemyType == ENEMY_BIG_TYPE) {
                 if (ubBigEnemyProcessed == TRUE) { continue; } // Can only have one big enemy on screen at a time.
                 s_tBigEnemyBob.sPos = s_tEnemy[enemyIdx].tPosition;
+
+                if (s_tEnemy[enemyIdx].ubFlashTimer == 5) {
+                    bobSetFrame(
+                        &s_tBigEnemyBob,
+                        s_pBigEnemyMask->Planes[0],
+                        s_pBigEnemyMask->Planes[0]
+                    );
+                }
+
+                if (s_tEnemy[enemyIdx].ubFlashTimer > 0) {
+                    s_tEnemy[enemyIdx].ubFlashTimer--;
+                    if (s_tEnemy[enemyIdx].ubFlashTimer == 0) {
+                        bobSetFrame(
+                            &s_tBigEnemyBob,
+                            s_pBigEnemyImage->Planes[0],
+                            s_pBigEnemyMask->Planes[0]
+                        );
+                    }
+                }
+
                 bobPush(&s_tBigEnemyBob);
                 ubBigEnemyProcessed = TRUE;
                 continue;
@@ -1154,7 +1310,13 @@ static void processTimers() {
 static void processPowerups() {
     // Extra life
     if (s_ubLifePowActive == TRUE) {
-        s_tLifePowBob.sPos.uwY += POWERUP_FALL_SPEED;
+        if (s_ubPowerupBounceTimer > 0) {
+            s_ubPowerupBounceTimer--;
+            s_tLifePowBob.sPos.uwY -= POWERUP_FALL_SPEED+1;
+        } else {
+            s_tLifePowBob.sPos.uwY += POWERUP_FALL_SPEED;
+        }
+        
 
         // Check if offscreen.
         if (s_tLifePowBob.sPos.uwY > s_pCamera->uPos.uwY+TILE_VIEWPORT_HEIGHT) {
@@ -1183,7 +1345,13 @@ static void processPowerups() {
 
     // Special
     if (s_ubSpecialPowActive == TRUE) {
-        s_tSpecialPowBob.sPos.uwY += POWERUP_FALL_SPEED;
+        if (s_ubPowerupBounceTimer > 0) {
+            s_ubPowerupBounceTimer--;
+            s_tSpecialPowBob.sPos.uwY -= POWERUP_FALL_SPEED+1;
+        } else {
+            s_tSpecialPowBob.sPos.uwY += POWERUP_FALL_SPEED;
+        }        
+        
 
         // Check if offscreen.
         if (s_tSpecialPowBob.sPos.uwY > s_pCamera->uPos.uwY+TILE_VIEWPORT_HEIGHT) {
@@ -1212,7 +1380,12 @@ static void processPowerups() {
 
     // Weapon
     if (s_ubWeaponPowActive == TRUE) {
-        s_tWeaponPowBob.sPos.uwY += POWERUP_FALL_SPEED;
+        if (s_ubPowerupBounceTimer > 0) {
+            s_ubPowerupBounceTimer--;
+            s_tWeaponPowBob.sPos.uwY -= POWERUP_FALL_SPEED+1;
+        } else {
+            s_tWeaponPowBob.sPos.uwY += POWERUP_FALL_SPEED;
+        }        
 
         // Check if offscreen.
         if (s_tWeaponPowBob.sPos.uwY > s_pCamera->uPos.uwY+TILE_VIEWPORT_HEIGHT) {
@@ -1241,6 +1414,7 @@ static void processPowerups() {
 }
 
 static void processPlayer() {
+    // Can't touch this.
     if (s_ubPlayerIsInvincible == TRUE) {
         if (s_ubPlayerInvincibleTimer == 0) {
             s_ubPlayerIsInvincible = FALSE;
@@ -1263,6 +1437,7 @@ static void processPlayer() {
         s_ubPlayerInvincibleTimer = PLAYER_INVINCIBLE_TIME;
     }
 
+    // Game over, man!
     if (s_ubPlayerLives == 0) {
         s_ubPlayerAlive = FALSE;
         s_ubCameraCanMove = FALSE;
@@ -1307,28 +1482,26 @@ static void processEnemies() {
     UWORD uwCameraXMax = TILE_VIEWPORT_XMAX;
 
     for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-        if (s_tEnemy[enemyIdx].bHealth == 0) { continue; }
+        if (s_tEnemy[enemyIdx].wHealth <= 0) { continue; }
         
         UBYTE ubEnemyType = s_tEnemy[enemyIdx].ubEnemyType;
 
         // Move
-        s_tEnemy[enemyIdx].uwPathIdx += s_tEnemy[enemyIdx].ubMoveSpeed;
-
-        if (s_tEnemy[enemyIdx].uwPathIdx >= s_tEnemy[enemyIdx].uwPathLength-1) {
-            if (s_tEnemy[enemyIdx].ubPathLoops == TRUE) {
-                s_tEnemy[enemyIdx].uwPathIdx = 0;
-            } else {
-                s_tEnemy[enemyIdx].bHealth = 0;
+        if (ubEnemyType != ENEMY_TURRET_TYPE) {
+            s_tEnemy[enemyIdx].uwPathIdx += s_tEnemy[enemyIdx].ubMoveSpeed;
+            if (s_tEnemy[enemyIdx].uwPathIdx >= s_tEnemy[enemyIdx].uwPathLength-1) {
+                s_tEnemy[enemyIdx].wHealth = 0;
                 s_tEnemy[enemyIdx].ubOnScreen = FALSE;
                 s_ubActiveEnemies--;
                 logWrite("[%d] End of Path => Active: %d", enemyIdx, s_ubActiveEnemies);
                 continue;
             }
+
+            UWORD uwPathIdx = s_tEnemy[enemyIdx].uwPathArrayOffset + s_tEnemy[enemyIdx].uwPathIdx;
+            s_tEnemy[enemyIdx].tPosition.uwX = g_ubPathData[uwPathIdx];
+            s_tEnemy[enemyIdx].tPosition.uwY = g_ubPathData[uwPathIdx+1] + s_tEnemy[enemyIdx].uwPathYOffset;
         }
 
-        UWORD uwPathIdx = s_tEnemy[enemyIdx].uwPathArrayOffset + s_tEnemy[enemyIdx].uwPathIdx;
-        s_tEnemy[enemyIdx].tPosition.uwX = g_ubPathData[uwPathIdx];
-        s_tEnemy[enemyIdx].tPosition.uwY = g_ubPathData[uwPathIdx+1] + s_tEnemy[enemyIdx].uwPathYOffset;
         s_tEnemy[enemyIdx].sBob.sPos = s_tEnemy[enemyIdx].tPosition;
 
         // UBYTE onBufferCheck = tileBufferIsRectFullyOnBuffer(s_pTileBuffer, s_tEnemy[enemyIdx].sBob.sPos.uwX, s_tEnemy[enemyIdx].sBob.sPos.uwY, 16, 16);
@@ -1355,7 +1528,7 @@ static void processEnemies() {
         // Remove if below camera Y bounds.
         if (s_tEnemy[enemyIdx].tPosition.uwY >= uwCameraYMax) {
             s_tEnemy[enemyIdx].ubOnScreen = FALSE;
-            s_tEnemy[enemyIdx].bHealth = 0;
+            s_tEnemy[enemyIdx].wHealth = 0;
             s_ubActiveEnemies--;
             logWrite("[%d] Below camera => Active: %d", enemyIdx, s_ubActiveEnemies);
             continue;
@@ -1365,7 +1538,9 @@ static void processEnemies() {
         s_tEnemy[enemyIdx].ubOnScreen = TRUE;
 
         if (s_tEnemy[enemyIdx].ubInvincible == TRUE) {
-            if (s_tEnemy[enemyIdx].tPosition.uwY > uwCameraYMin+ENEMY_INVINCIBLE_MARGIN) {
+            if (s_tEnemy[enemyIdx].tPosition.uwY >= uwCameraYMin+ENEMY_INVINCIBLE_MARGIN &&
+                s_tEnemy[enemyIdx].tPosition.uwX+g_tEnemyTypes[ubEnemyType].ubWidth >= uwCameraXMin+ENEMY_INVINCIBLE_MARGIN &&
+                s_tEnemy[enemyIdx].tPosition.uwX <= uwCameraXMax-ENEMY_INVINCIBLE_MARGIN) {
                 s_tEnemy[enemyIdx].ubInvincible = FALSE;
             }
             // TODO: Check X?
@@ -1391,7 +1566,19 @@ static void processEnemies() {
             s_tEnemy[enemyIdx].ubCooldownTimer = g_tEnemyTypes[ubEnemyType].ubCooldownTime;
             UBYTE ubProjectileType = g_tEnemyTypes[ubEnemyType].ubProjectileType;
 
+            // Check if too close to player
+            UWORD uwDiffX = ABS(s_tPlayerPosition.uwX - s_tEnemy[enemyIdx].tPosition.uwX);
+            UWORD uwDiffY = ABS(s_tPlayerPosition.uwY - s_tEnemy[enemyIdx].tPosition.uwY);
+            if (uwDiffX <= s_ubEnemyProjectileSafetyMargin && uwDiffY <= s_ubEnemyProjectileSafetyMargin) {
+                break;
+            }
+
             if (ubProjectileType == 0) {
+                // Only fire when near player on X axis.
+                if (uwDiffX > s_ubEnemyProjectileRange) {
+                    break;
+                }
+
                 for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
                     if (s_tSimpleEnemyProjectiles[i].ubAlive == 0) {
                         UWORD uwEnemyGunX = s_tEnemy[enemyIdx].tPosition.uwX + g_tEnemyTypes[ubEnemyType].ubGunOffsetX;
@@ -1399,7 +1586,7 @@ static void processEnemies() {
                         s_tSimpleEnemyProjectiles[i].uwX = uwEnemyGunX - (g_tEnemyProjectileTypes[ubProjectileType].ubOffset);
                         s_tSimpleEnemyProjectiles[i].uwY = uwEnemyGunY;
                         s_tSimpleEnemyProjectiles[i].bDeltaX = 0;
-                        s_tSimpleEnemyProjectiles[i].bDeltaY = g_tEnemyProjectileTypes[ubProjectileType].bSpeed + s_ubEnemyProjectileSpeed;
+                        s_tSimpleEnemyProjectiles[i].bDeltaY = (g_tEnemyProjectileTypes[ubProjectileType].bSpeed + s_ubEnemyProjectileSpeed);
                         s_tSimpleEnemyProjectiles[i].ubAlive = 255;
                         s_tSimpleEnemyProjectiles[i].ubChannel = 255;
                         s_tSimpleEnemyProjectiles[i].ubType = ubProjectileType;
@@ -1413,6 +1600,12 @@ static void processEnemies() {
                         UWORD uwEnemyGunY = s_tEnemy[enemyIdx].tPosition.uwY + g_tEnemyTypes[ubEnemyType].ubGunOffsetY;
                         UWORD uwPlayerCenterX = s_tPlayerPosition.uwX + PLAYER_CENTER_OFFSET_X;
                         UWORD uwPlayerCenterY = s_tPlayerPosition.uwY + PLAYER_CENTER_OFFSET_Y;
+
+                        if (s_ubFrameCounter == 0) {
+                            uwPlayerCenterX += s_ubEnemyProjectileAccuracy;
+                        } else {
+                            uwPlayerCenterX -= s_ubEnemyProjectileAccuracy;
+                        }
 
                         UBYTE ubAngle = getAngleBetweenPoints(uwEnemyGunX, uwEnemyGunY, uwPlayerCenterX, uwPlayerCenterY);
                         s_tComplexEnemyProjectiles[i].fX = fix16_from_int(uwEnemyGunX);
@@ -1445,7 +1638,9 @@ static void processPlayerDie() {
     s_ubPlayerAlive = FALSE;
     if (s_ubPlayerLives != 0) { s_ubPlayerLives--; }
     s_ubUpdateLives = TRUE;
-    s_ubEquippedProjectileType = 0;    
+    if (s_ubEquippedProjectileType > 0) {
+        s_ubEquippedProjectileType--;
+    }
     s_ubUpdatePower = TRUE;
 
     for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
@@ -1453,15 +1648,11 @@ static void processPlayerDie() {
         if (s_tComplexEnemyProjectiles[i].ubAlive > 0) { s_tComplexEnemyProjectiles[i].ubAlive = 1; }
     }
 
+    createPowerupAtPosition(s_tPlayerPosition, 3);
     s_ubPlayerDeaths++;
 }
 
 static void processPlayerShoot() {
-
-    // if (s_ubPlayerAlive == FALSE && s_ubShowTextGameOverTimer == 0) {
-    //     resetEverything();
-    // }
-
     if (s_ubFireDelay == 0 && s_ubPlayerAlive == TRUE) {
         for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {
             if (s_tPlayerProjectiles[i].ubAlive == 0) {
@@ -1478,7 +1669,7 @@ static void processPlayerShoot() {
                 // }
 
                 if (s_ubAudioDelay == 0) {
-                    audioMixerPlaySfx(s_pSfxPlayerShot, CHANNEL_FOR_PLAYER, 8, 0);
+                    audioMixerPlaySfx(s_pSfxPlayerShot[s_ubEquippedProjectileType], CHANNEL_FOR_PLAYER, 8, 0);
                     s_ubAudioDelay = PLAYER_AUDIO_DELAY;
                 }
 
@@ -1500,12 +1691,13 @@ static void processPlayerSpecial() {
             s_ubPlayerInvincibleTimer = PLAYER_INVINCIBLE_TIME;
 
             for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-                if (s_tEnemy[enemyIdx].bHealth > 0 && s_tEnemy[enemyIdx].ubOnScreen == TRUE) {
+                if (s_tEnemy[enemyIdx].wHealth > 0 && s_tEnemy[enemyIdx].ubOnScreen == TRUE) {
                     if (s_tEnemy[enemyIdx].ubInvincible == TRUE) { continue; }
-                    s_tEnemy[enemyIdx].bHealth -= PLAYER_SPECIAL_DAMAGE;
+                    s_tEnemy[enemyIdx].wHealth -= PLAYER_SPECIAL_DAMAGE;
+                    s_tEnemy[enemyIdx].ubFlashTimer = 5;
 
                     // Enemy is dead.
-                    if (s_tEnemy[enemyIdx].bHealth <= 0) {
+                    if (s_tEnemy[enemyIdx].wHealth <= 0) {
                         destroyEnemy(enemyIdx);
                         logWrite("[%d] Killed by Special at (%d,%d) => Active: %d", enemyIdx, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, s_ubActiveEnemies);
                     }
@@ -1526,7 +1718,7 @@ static void processPlayerProjectiles() {
             UWORD uwX = s_tPlayerProjectiles[projectileIdx].uwX;
             UWORD uwY = s_tPlayerProjectiles[projectileIdx].uwY;
             UBYTE ubType = s_tPlayerProjectiles[projectileIdx].ubType;
-            BYTE bDeltaX = g_tPlayerProjectileTypes[ubType].bDeltaX;
+            //BYTE bDeltaX = g_tPlayerProjectileTypes[ubType].bDeltaX;
             BYTE bDeltaY = g_tPlayerProjectileTypes[ubType].bDeltaY;
             UBYTE ubWidth = g_tPlayerProjectileTypes[ubType].ubWidth;
             UBYTE ubHeight = g_tPlayerProjectileTypes[ubType].ubHeight;
@@ -1561,7 +1753,7 @@ static void processPlayerProjectiles() {
             // Check collisions
             #ifndef COLLISIONS_DISABLED
             for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-                if (s_tEnemy[enemyIdx].bHealth <= 0) { continue; }
+                if (s_tEnemy[enemyIdx].wHealth <= 0) { continue; }
 
                 // Get EnemyType
                 UBYTE ubEnemyType = s_tEnemy[enemyIdx].ubEnemyType;
@@ -1579,7 +1771,7 @@ static void processPlayerProjectiles() {
                 if (s_tEnemy[enemyIdx].tPosition.uwX > uwX+ubWidth) { continue; }
 
                 // Check if projectile is above enemy
-                //if ((uwY+(ubHeight+bDeltaY)) > s_tEnemy[enemyIdx].tPosition.uwY) { continue; }
+                if (uwY+ubHeight > s_tEnemy[enemyIdx].tPosition.uwY) { continue; }
 
                 // Test collision
                 UBYTE ubCollision = checkCollision(uwX, uwY-bDeltaY, ubWidth, ubHeight, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, g_tEnemyTypes[ubEnemyType].ubWidth, g_tEnemyTypes[ubEnemyType].ubHeight);
@@ -1593,7 +1785,7 @@ static void processPlayerProjectiles() {
 
                 // Damage enemy
                 if (s_tEnemy[enemyIdx].ubInvincible == FALSE) {
-                    s_tEnemy[enemyIdx].bHealth -= ubDamage;
+                    s_tEnemy[enemyIdx].wHealth -= ubDamage;
                     s_tEnemy[enemyIdx].ubFlashTimer = 5;
                 }
 
@@ -1603,7 +1795,7 @@ static void processPlayerProjectiles() {
                 }
 
                 // Enemy is dead.
-                if (s_tEnemy[enemyIdx].bHealth <= 0) {
+                if (s_tEnemy[enemyIdx].wHealth <= 0) {
                     destroyEnemy(enemyIdx);
                     logWrite("[%d] Killed by Player at (%d,%d) => Active: %d", enemyIdx, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, s_ubActiveEnemies);
                 }
@@ -1671,6 +1863,13 @@ static void processSimpleEnemyProjectiles() {
             s_tSimpleEnemyProjectiles[projectileIdx].ubAlive = 0;
         }
 
+        // Remove before collision detection.
+        if (s_tSimpleEnemyProjectiles[projectileIdx].ubAlive == 0) {
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, 0, -15, ubEnemyProjectileHeight+1, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
+            s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = 255;
+            continue;
+        }
+
         #ifndef COLLISIONS_DISABLED
         // Check collision with player.
         UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX+PLAYER_HITBOX_OFFSET_X, s_tPlayerPosition.uwY+PLAYER_HITBOX_OFFSET_Y, PLAYER_HITBOX_WIDTH, PLAYER_HITBOX_HEIGHT, 
@@ -1681,12 +1880,14 @@ static void processSimpleEnemyProjectiles() {
         }
         #endif
 
+        // Remove after collision detection.
         if (s_tSimpleEnemyProjectiles[projectileIdx].ubAlive == 0) {
-            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, 0, ubEnemyProjectileHeight, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, 0, -15, ubEnemyProjectileHeight+1, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
             s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = 255;
             continue;
         }
 
+        // Find an available sprite channel to use.
         s_tSimpleEnemyProjectiles[projectileIdx].ubChannel = 255;
         UWORD uwSpriteYMin = s_tSimpleEnemyProjectiles[projectileIdx].uwY;
         UWORD uwSpriteYMax = s_tSimpleEnemyProjectiles[projectileIdx].uwY + ubEnemyProjectileHeight;
@@ -1713,8 +1914,9 @@ static void processSimpleEnemyProjectiles() {
             }
         }
 
+        // Couldn't find a sprite channel. Check if a bob can be used.
         if (s_tSimpleEnemyProjectiles[projectileIdx].ubChannel == 255) {
-            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, -16, 0, ubEnemyProjectileHeight, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
+            moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, 0, -15, ubEnemyProjectileHeight+1, 0, s_tSimpleEnemyProjectiles[projectileIdx].ubType);
 
             if (s_ubProjectileBobIndex < ENEMY_SPRITE_CHANNELS) {
                 s_tEnemyProjectileBob[s_ubProjectileBobIndex].sPos.uwX = s_tSimpleEnemyProjectiles[projectileIdx].uwX;
@@ -1728,8 +1930,9 @@ static void processSimpleEnemyProjectiles() {
             }
         }
 
+        // Move projectile.
         moveEnemyProjectile(s_tSimpleEnemyProjectiles[projectileIdx].pCopBlock, 
-                            ((s_tSimpleEnemyProjectiles[projectileIdx].uwX-TILE_VIEWPORT_XMIN)), 
+                            (s_tSimpleEnemyProjectiles[projectileIdx].uwX - TILE_VIEWPORT_XMIN), 
                             (s_tSimpleEnemyProjectiles[projectileIdx].uwY - s_pCamera->uPos.uwY), 
                             ubEnemyProjectileHeight, 
                             s_tSimpleEnemyProjectiles[projectileIdx].ubChannel, 
@@ -1752,7 +1955,7 @@ static void processComplexEnemyProjectiles() {
             UBYTE ubEnemyProjectileType = s_tComplexEnemyProjectiles[projectileIdx].ubType;
             UBYTE ubEnemyProjectileHeight = g_tEnemyProjectileTypes[ubEnemyProjectileType].ubHeight;
             UBYTE ubChannel = s_tComplexEnemyProjectiles[projectileIdx].ubChannel;
-            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, ubChannel, ubEnemyProjectileType);            
+            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -15, 0, ubEnemyProjectileHeight, ubChannel, ubEnemyProjectileType);            
         }
         
         if (s_tComplexEnemyProjectiles[projectileIdx].ubAlive == 0) { continue; }
@@ -1780,7 +1983,7 @@ static void processComplexEnemyProjectiles() {
         }
 
         if (s_tComplexEnemyProjectiles[projectileIdx].ubAlive == 0) {
-            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, 0, ubEnemyProjectileType);
+            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -15, 0, ubEnemyProjectileHeight, 0, ubEnemyProjectileType);
             s_tComplexEnemyProjectiles[projectileIdx].ubChannel = 255;
             continue;
         }
@@ -1792,7 +1995,7 @@ static void processComplexEnemyProjectiles() {
         if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) { 
             s_tComplexEnemyProjectiles[projectileIdx].ubAlive = 0;
             s_tComplexEnemyProjectiles[projectileIdx].ubChannel = 255;
-            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -16, -16, ubEnemyProjectileHeight, 0, ubEnemyProjectileType);
+            moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, -15, 0, ubEnemyProjectileHeight, 0, ubEnemyProjectileType);
             processPlayerDie();
             continue;
         }
@@ -1841,7 +2044,7 @@ static void processComplexEnemyProjectiles() {
         }
 
         moveEnemyProjectile(s_tComplexEnemyProjectiles[projectileIdx].pCopBlock, 
-                            ((fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fX) - TILE_VIEWPORT_XMIN)), 
+                            (fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fX) - TILE_VIEWPORT_XMIN), 
                             (fix16_to_int(s_tComplexEnemyProjectiles[projectileIdx].fY) - s_pCamera->uPos.uwY), 
                             ubEnemyProjectileHeight, 
                             s_tComplexEnemyProjectiles[projectileIdx].ubChannel, 
@@ -1928,7 +2131,7 @@ static void moveEnemyProjectile(tCopBlock *pBlock, WORD wX, WORD wY, UWORD uwHei
 
 static void destroyEnemy(UBYTE ubEnemyIdx) {
     UBYTE ubEnemyType = s_tEnemy[ubEnemyIdx].ubEnemyType;
-    s_tEnemy[ubEnemyIdx].bHealth = 0;
+    s_tEnemy[ubEnemyIdx].wHealth = 0;
 
     if (ubEnemyType != ENEMY_BIG_TYPE) {
         createExplosionAtPosition(s_tEnemy[ubEnemyIdx].tPosition);
@@ -1946,10 +2149,70 @@ static void destroyEnemy(UBYTE ubEnemyIdx) {
         createPowerupAtPosition(s_tEnemy[ubEnemyIdx].tPosition, s_tEnemy[ubEnemyIdx].ubPowerupType);
     }
     
+
     s_ulPlayerScore += s_tEnemy[ubEnemyIdx].uwScoreValue;
     s_ubUpdateScore = TRUE;
     s_ubActiveEnemies--;
     s_uwPlayerKills++;
+}
+
+static void destroyBossTurret(UBYTE ubTurret) {
+    tUwCoordYX tExplosionPosition;
+
+    switch (ubTurret) {
+        // Turret 1
+        case(0):
+            for (UBYTE i=0; i<5; i++) {
+                UBYTE ubTileNum = ubDamageTilesForTurret1[i];
+                UBYTE ubTileY = ubTilePosForBossTurret1[i*2];
+                UBYTE ubTileX = ubTilePosForBossTurret1[(i*2)+1];
+                logWrite("[1] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
+                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
+            }
+            tExplosionPosition.uwX = 23;
+            tExplosionPosition.uwY = 114;
+            createExplosionAtPosition(tExplosionPosition);
+            break;
+
+        // Turret 2
+        case(1):
+            for (UBYTE i=0; i<4; i++) {
+                UBYTE ubTileNum = ubDamageTilesForTurret2[i];
+                UBYTE ubTileY = ubTilePosForBossTurret2[i*2];
+                UBYTE ubTileX = ubTilePosForBossTurret2[(i*2)+1];
+                logWrite("[2] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
+                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
+            }
+            tExplosionPosition.uwX = 40;
+            tExplosionPosition.uwY = 72;            
+            break;
+
+        // Turret 3
+        case(2):
+            for (UBYTE i=0; i<4; i++) {
+                UBYTE ubTileNum = ubDamageTilesForTurret3[i];
+                UBYTE ubTileY = ubTilePosForBossTurret3[i*2];
+                UBYTE ubTileX = ubTilePosForBossTurret3[(i*2)+1];
+                logWrite("[3] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
+                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
+            }
+            tExplosionPosition.uwX = 104;
+            tExplosionPosition.uwY = 72;            
+            break;
+
+        // Turret 4
+        case(3):
+            for (UBYTE i=0; i<5; i++) {
+                UBYTE ubTileNum = ubDamageTilesForTurret4[i];
+                UBYTE ubTileY = ubTilePosForBossTurret4[i*2];
+                UBYTE ubTileX = ubTilePosForBossTurret4[(i*2)+1];
+                logWrite("[4] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
+                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
+            }
+            tExplosionPosition.uwX = 137;
+            tExplosionPosition.uwY = 82;            
+            break;
+    }
 }
 
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType) {
@@ -1959,16 +2222,19 @@ static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType) {
         case POWERUP_EXTRALIFE: {
             s_tLifePowBob.sPos = tPosition;
             s_ubLifePowActive = TRUE;
+            s_ubPowerupBounceTimer = POWERUP_BOUNCE_TIME;
             break;
         }
         case POWERUP_SPECIAL: {
             s_tSpecialPowBob.sPos = tPosition;
             s_ubSpecialPowActive = TRUE;
+            s_ubPowerupBounceTimer = POWERUP_BOUNCE_TIME;
             break;
         }
         case POWERUP_WEAPON: {
             s_tWeaponPowBob.sPos = tPosition;
             s_ubWeaponPowActive = TRUE;
+            s_ubPowerupBounceTimer = POWERUP_BOUNCE_TIME;
             break;
         }                
     }
@@ -2040,7 +2306,7 @@ static void resetEverything() {
     s_ubDisplayEngine = TRUE;
     s_ubPlayerIsInvincible = FALSE;
     s_ubPlayerInvincibleTimer = 0;
-    s_ubWaveIndex = 0;
+    s_uwWaveIndex = 0;
     s_ubActiveEnemies = 0;
     s_ubBigEnemyAlive = FALSE;
     s_ubActiveExplosions = 0;
@@ -2053,9 +2319,11 @@ static void resetEverything() {
     s_ubShowTextGameOverTimer = 255;
     s_ubShowTextReady = FALSE;
     s_ubShowTextGo = FALSE;
+    s_ubCyclicRngIdx = 0;
+    s_ubBossReached = FALSE;
 
     for (UBYTE i=0; i<ENEMY_MAX; i++) {
-        s_tEnemy[i].bHealth = 0;
+        s_tEnemy[i].wHealth = 0;
     }
 
     for (UBYTE i=0; i<PLAYER_PROJECTILE_MAX; i++) {

@@ -6,8 +6,6 @@ void intermissionGsCreate(void) {
 
 void intermissionGsLoop(void) {
     if (g_ubCurrentStage >= GAME_STAGES) {
-        logWrite("LOADING BOSS STAGE");
-        //stateChange(g_pGameStateManager, &g_pGameStates[STATE_BOSS]);
         stateChange(g_pGameStateManager, &g_pGameStates[STATE_WIN]);
         return;
     }

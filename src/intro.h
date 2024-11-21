@@ -3,6 +3,8 @@
 
 #include "main.h"
 
+#define INTRO_WAIT_TIME 100
+
 typedef enum _tIntroStage {
     INTRO_BRAINS,
     INTRO_ACE,

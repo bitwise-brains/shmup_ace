@@ -4,17 +4,17 @@ static tView *s_pView;
 static tVPort *s_pViewport;
 static tSimpleBufferManager *s_pBuffer;
 
-static tBitMap *s_tTitlescreenImage;
+static tBitMap *s_pTitlescreenImage;
 static tTextBitMap *s_pWinText;
 static tFont *s_pFont;
 static tPtplayerMod *s_pWinMusic;
 
 static UBYTE s_ubDimLevel = 0;
 static UBYTE s_ubFadeInComplete = FALSE;
-static UBYTE s_ubWaitTimer = 255;
+static UBYTE s_ubWaitTimer = 50;
 static UWORD s_uwFadePalette[16][32] = {0};
 
-static const char s_cWinText[] = "THIS IS A PLACEHOLDER\n\nPRESS SPACE TO CONTINUE.";
+static const char s_cWinText[] = "END OF DEMO\n\nPRESS SPACE TO CONTINUE.";
 
 void winGsCreate(void) {
     s_pView = viewCreate(0,
@@ -40,23 +40,24 @@ void winGsCreate(void) {
     ptplayerCreate(1);
     ptplayerSetChannelsForPlayer(0b1111);
     ptplayerSetMasterVolume(56);
-    s_pWinMusic = ptplayerModCreate("data/intro.mod");
+    
+    s_pWinMusic = ptplayerModCreateFromFd(pakFileGetFile(g_pPakFile, "intro.mod"));
     ptplayerLoadMod(s_pWinMusic, 0, 0);
     ptplayerEnableMusic(1);
 
     // Load assets
-    s_pFont = fontCreate("data/hudfont.fnt");
+    s_pFont = fontCreateFromFd(pakFileGetFile(g_pPakFile, "hudfont.fnt"));
     s_pWinText = fontCreateTextBitMap(288, 128);
-    s_tTitlescreenImage = bitmapCreateFromFile("data/text_title.bm", 0);
+    s_pTitlescreenImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "text_title.bm"), 0);
 
     // Generate fade palette lookup
-    paletteLoad("data/highscore.plt", s_uwFadePalette[15], 32);
+    paletteLoadFromFd(pakFileGetFile(g_pPakFile, "game.plt"), s_uwFadePalette[15], 32);
     for (UBYTE i=0; i<16; i++) {
         paletteDim(s_uwFadePalette[15], s_uwFadePalette[i], 32, i);
     }
 
     // Blit titlescreen
-    blitCopy(s_tTitlescreenImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);
+    blitCopy(s_pTitlescreenImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);
     fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cWinText, 19, FONT_SHADOW | FONT_COOKIE, s_pWinText);
     viewLoad(s_pView);
     systemUnuse();
@@ -112,7 +113,7 @@ void winGsDestroy(void) {
     fontDestroy(s_pFont);
     ptplayerModDestroy(s_pWinMusic);
     ptplayerDestroy();
-    bitmapDestroy(s_tTitlescreenImage);
+    bitmapDestroy(s_pTitlescreenImage);
     spriteManagerDestroy();
     viewDestroy(s_pView);   
 }

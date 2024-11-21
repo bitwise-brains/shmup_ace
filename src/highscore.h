@@ -24,7 +24,7 @@
 #define GREETS_HEIGHT 8
 #define GREETS_COLOR 17
 
-#define PULSE_COLOR 19
+#define PULSE_COLOR 31
 #define GRADIENT_LENGTH 7
 #define PULSE_LENGTH 29
 

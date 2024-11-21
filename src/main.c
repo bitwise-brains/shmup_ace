@@ -1,11 +1,13 @@
 #include <ace/generic/main.h>
 #include "main.h"
 
-UBYTE g_ubCurrentStage = 0;
+UBYTE g_ubCurrentStage = 3;
 ULONG g_ulPlayerScore = 0;
+UBYTE g_ubEquippedProjectileType = 0;
 UBYTE g_ubPlayerLives = PLAYER_LIVES_START;
 UBYTE g_ubPlayerSpecial = PLAYER_SPECIAL_START;
 
+tPakFile *g_pPakFile;
 tStateManager *g_pGameStateManager = 0;
 tState g_pGameStates[GAME_STATES] = {
   [STATE_INTRO] = {.cbCreate = introGsCreate, .cbLoop = introGsLoop, .cbDestroy = introGsDestroy},
@@ -18,6 +20,7 @@ tState g_pGameStates[GAME_STATES] = {
 void genericCreate(void) {
   keyCreate();
   joyOpen();
+  g_pPakFile = pakFileOpen("data.tte");
   g_pGameStateManager = stateManagerCreate();
   stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
 }
@@ -30,6 +33,7 @@ void genericProcess(void) {
 
 void genericDestroy(void) {
   stateManagerDestroy(g_pGameStateManager);
+  pakFileClose(g_pPakFile);
   keyDestroy();
   joyClose();
 }

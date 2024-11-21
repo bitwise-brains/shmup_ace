@@ -1,4 +1,4 @@
-#include "game.h"
+#include "main.h"
 
 #define PLAYER_PROJECTILE_MAX 5
 #define PLAYER_PROJECTILE_TYPES 4
@@ -74,13 +74,13 @@ typedef struct _tSimpleEnemyProjectile {
 } tSimpleEnemyProjectile;
 
 // Enemy projectile types
-tEnemyProjectileType g_tEnemyProjectileTypes[ENEMY_PROJECTILE_TYPES] = {{ 10,  4, 0, 1},
-                                                                        {  5,  5, 2, 1},
-                                                                        {  8,  8, 4, 1},
-                                                                        { 14, 14, 7, 1}};
+tEnemyProjectileType g_tEnemyProjectileTypes[ENEMY_PROJECTILE_TYPES] = {{ .ubWidth = 10, .ubHeight =  5, .ubOffset = 0, .bSpeed = 2},
+                                                                        { .ubWidth =  5, .ubHeight =  5, .ubOffset = 2, .bSpeed = 2},
+                                                                        { .ubWidth =  8, .ubHeight =  8, .ubOffset = 4, .bSpeed = 1},
+                                                                        { .ubWidth = 14, .ubHeight = 14, .ubOffset = 7, .bSpeed = 1}};
 
 // Player projectile types
-tPlayerProjectileType g_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {{ 30, 12, 0, 0, -6, 4, 0,  8,  7,  TRUE, FALSE, FALSE, 0 },
-                                                                           { 25, 10, 0, 0, -6, 4, 0,  8, 10,  TRUE, FALSE, FALSE, 0 },
-                                                                           { 20,  8, 0, 0, -7, 3, 0, 10, 12, FALSE, FALSE, FALSE, 0 },
-                                                                           { 15,  6, 0, 0, -8, 2, 0, 12, 16,  TRUE, FALSE, FALSE, 0 }};
+tPlayerProjectileType g_tPlayerProjectileTypes[PLAYER_PROJECTILE_TYPES] = {{ .ubDamage = 30, .ubDelay = 12, .bDeltaX = 0, .bDeltaX2 = 0, .bDeltaY = -6, .ubXOffset = 4, .ubXOffset2 = 0, .ubWidth =  8, .ubHeight =  7, .ubDieOnCollision =  TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 },
+                                                                           { .ubDamage = 20, .ubDelay = 10, .bDeltaX = 0, .bDeltaX2 = 0, .bDeltaY = -6, .ubXOffset = 4, .ubXOffset2 = 0, .ubWidth =  8, .ubHeight = 10, .ubDieOnCollision =  TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 },
+                                                                           { .ubDamage = 10, .ubDelay =  8, .bDeltaX = 0, .bDeltaX2 = 0, .bDeltaY = -7, .ubXOffset = 3, .ubXOffset2 = 0, .ubWidth = 10, .ubHeight = 12, .ubDieOnCollision = FALSE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 },
+                                                                           { .ubDamage = 12, .ubDelay =  6, .bDeltaX = 0, .bDeltaX2 = 0, .bDeltaY = -8, .ubXOffset = 2, .ubXOffset2 = 0, .ubWidth = 12, .ubHeight = 16, .ubDieOnCollision =  TRUE, .ubWideSprite = FALSE, .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }};

@@ -1,4 +1,4 @@
-#include "game.h"
+#include "main.h"
 
 #define PLAYER_LIVES_MAX 5
 #define PLAYER_SPECIAL_MAX 4

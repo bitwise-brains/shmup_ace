@@ -1,14 +1,15 @@
-#include "game.h"
+#include "main.h"
 
-#define ENEMY_TYPES 13
+#define ENEMY_TYPES 14
 #define ENEMY_BIG_TYPE 12
+#define ENEMY_TURRET_TYPE 13
 #define ENEMY_MAX 8
-#define ENEMY_INVINCIBLE_MARGIN 8
+#define ENEMY_INVINCIBLE_MARGIN 4
 
 typedef struct _tEnemy {
     tUwCoordYX tPosition;
     tBob sBob;
-    BYTE bHealth;
+    WORD wHealth;
     UBYTE ubOnScreen;
     UBYTE ubInvincible;
     UBYTE ubFlashTimer;
@@ -17,9 +18,7 @@ typedef struct _tEnemy {
     UBYTE ubBitmapOffset;
     UBYTE ubEnemyType;
     UBYTE ubPowerupType;
-    UBYTE ubWaveIdx;
     UBYTE ubMoveSpeed; // MUST BE MULTIPLE OF 2
-    UBYTE ubPathLoops;
     UWORD uwPathArrayOffset;
     UWORD uwPathIdx;
     UWORD uwPathLength;
@@ -28,7 +27,7 @@ typedef struct _tEnemy {
 } tEnemy;
 
 typedef struct _tEnemyType {
-    BYTE bHealth;
+    WORD wHealth;
     UBYTE ubWidth, ubHeight;
     UBYTE ubGunOffsetX, ubGunOffsetY;
     UBYTE ubBitmapOffset;
@@ -45,23 +44,29 @@ typedef struct _tEnemyWave {
     UWORD uwSpawnYPosition;
     BYTE bSpawnOffset;
     UBYTE ubPathType;
-    UBYTE ubPathLoops;
 } tEnemyWave;
 
 // Enemy types.
-tEnemyType g_tEnemyTypes[ENEMY_TYPES] = {{ 10, 16, 16,  3, 15, 0, 4, FALSE,   0, 0, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 1, 4,  TRUE,  60, 0, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 1, 4,  TRUE,  50, 1, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 2, 4,  TRUE,  40, 1, 3, 1987},
+tEnemyType g_tEnemyTypes[ENEMY_TYPES] = {// Type 1
+                                         { 10, 16, 16,  3, 15, 0, 4, FALSE,   0, 0, 0, 1337},  // No shot
+                                         { 20, 16, 16,  3, 15, 1, 4,  TRUE,  60, 0, 0, 1337},  // Simple shot
+                                         { 20, 16, 16,  3, 15, 1, 4,  TRUE,  70, 1, 0, 1337},  // Aimed shot
+                                         { 20, 16, 16,  3, 15, 2, 4,  TRUE,  60, 1, 3, 1987},  // Aimed shot & Drops powerup
 
-                                         { 10, 16, 16,  3, 15, 3, 4, FALSE,   0, 0, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 4, 4,  TRUE,  60, 0, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 4, 4,  TRUE,  50, 1, 0, 1337},
-                                         { 30, 16, 16,  3, 15, 5, 4,  TRUE,  40, 1, 1, 1987},
+                                         // Type 2
+                                         { 10, 16, 16,  3, 15, 3, 4, FALSE,   0, 0, 0, 1337},  // No shot
+                                         { 20, 16, 16,  3, 15, 4, 4,  TRUE,  60, 0, 0, 1337},  // Simple shot
+                                         { 30, 16, 16,  3, 15, 4, 4,  TRUE,  70, 1, 0, 1337},  // Aimed shot
+                                         { 30, 16, 16,  3, 15, 5, 4,  TRUE,  60, 1, 1, 1987},  // Aimed shot & Drops 1up
 
-                                         { 10, 16, 16,  3, 15, 6, 4, FALSE,   0, 0, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 7, 4,  TRUE,  60, 0, 0, 1337},
-                                         { 20, 16, 16,  3, 15, 7, 4,  TRUE,  50, 1, 0, 1337},
-                                         { 30, 16, 16,  3, 15, 8, 4,  TRUE,  40, 1, 2, 1987},
+                                         // Type 3
+                                         { 20, 16, 16,  3, 15, 6, 2, FALSE,   0, 0, 0, 1337},  // No shot
+                                         { 30, 16, 16,  3, 15, 7, 2,  TRUE,  70, 0, 0, 1337},  // Simple shot
+                                         { 30, 16, 16,  3, 15, 7, 2,  TRUE,  80, 1, 0, 1337},  // Aimed shot
+                                         { 40, 16, 16,  3, 15, 8, 2,  TRUE,  70, 1, 2, 1987},  // Aimed shot & Drops Special
 
-                                         { 40, 32, 32, 16, 16, 0, 2,  TRUE,  50, 2, 0, 2600}};
+                                         // Tank
+                                         {150, 32, 32, 16, 16, 0, 2,  TRUE,  80, 2, 0, 2600},  // Aimed shot
+                                         
+                                         // Turret
+                                         { 64, 16, 16,  8,  8, 9, 0,  TRUE,  70, 1, 0, 6502}}; // Aimed shot

@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="2022.06.25" orientation="orthogonal" renderorder="right-down" width="12" height="64" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#000011" nextlayerid="15" nextobjectid="1">
+<map version="1.9" tiledversion="2022.06.25" orientation="orthogonal" renderorder="right-down" width="12" height="67" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#000011" nextlayerid="16" nextobjectid="10">
  <tileset firstgid="1" name="tiles_packed" tilewidth="16" tileheight="16" tilecount="80" columns="8">
-  <image source="../tiles_packed.png" width="128" height="160"/>
+  <image source="tiles_packed.png" width="128" height="160"/>
  </tileset>
- <tileset firstgid="81" name="tiles_boss" tilewidth="16" tileheight="16" tilecount="100" columns="10">
-  <image source="../tiles_boss.png" width="160" height="160"/>
+ <tileset firstgid="81" name="tiles_boss" tilewidth="16" tileheight="16" tilecount="120" columns="10">
+  <image source="tiles_boss.png" width="160" height="192"/>
  </tileset>
- <layer id="3" name="Nebula" width="12" height="64">
+ <tileset firstgid="201" name="tiles_boss" tilewidth="16" tileheight="16" tilecount="120" columns="10">
+  <image source="tiles_boss.png" width="160" height="192"/>
+ </tileset>
+ <tileset firstgid="321" source="enemysheet.tsx"/>
+ <layer id="3" name="Nebula" width="12" height="67">
   <data encoding="csv">
+0,241,242,0,0,0,0,0,0,0,0,0,
+0,251,252,0,0,0,0,0,0,0,0,0,
+0,261,262,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -74,8 +81,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="1" name="Stars" width="12" height="64">
+ <layer id="1" name="Stars" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -142,8 +152,11 @@
 0,0,0,0,0,0,0,0,12,0,0,0
 </data>
  </layer>
- <layer id="2" name="Asteroids" width="12" height="64">
+ <layer id="2" name="Asteroids" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -210,8 +223,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="14" name="Walls Below" width="12" height="64">
+ <layer id="14" name="Walls Below" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -278,8 +294,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="4" name="Scaffolding Simple" width="12" height="64">
+ <layer id="4" name="Scaffolding Simple" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -346,8 +365,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="5" name="Scaffolding Detailed" width="12" height="64">
+ <layer id="5" name="Scaffolding Detailed" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -414,8 +436,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="11" name="Debris" width="12" height="64">
+ <layer id="11" name="Debris" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -482,8 +507,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="9" name="Pipes Under" width="12" height="64">
+ <layer id="9" name="Pipes Under" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -550,8 +578,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="8" name="Floor" width="12" height="64">
+ <layer id="8" name="Floor" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -618,17 +649,20 @@
 0,55,17,55,55,55,55,55,46,47,47,0
 </data>
  </layer>
- <layer id="6" name="Walls" width="12" height="64">
+ <layer id="6" name="Walls" width="12" height="67">
   <data encoding="csv">
-0,81,82,83,84,85,86,87,88,89,90,0,
-0,91,92,93,94,95,96,97,98,99,100,0,
-0,101,102,103,104,105,106,107,108,109,110,0,
-0,111,112,113,114,115,116,117,118,119,120,0,
-0,121,122,123,124,125,126,127,128,129,130,0,
-0,131,132,133,134,135,136,137,138,139,140,0,
-0,141,142,143,144,145,146,147,148,149,150,0,
-0,151,152,153,154,155,156,157,158,159,160,0,
-0,161,162,163,164,165,166,167,168,169,170,0,
+0,0,0,243,244,0,0,247,248,249,250,0,
+0,0,0,253,254,0,0,257,258,259,260,0,
+0,0,0,0,0,0,0,0,0,269,270,0,
+0,201,202,203,204,205,206,207,208,209,210,0,
+0,211,212,213,214,215,216,217,218,219,220,0,
+0,221,222,223,224,225,226,227,228,229,230,0,
+0,231,232,233,234,235,236,237,238,239,240,0,
+0,241,242,243,244,245,246,247,248,249,250,0,
+0,251,252,253,254,255,256,257,258,259,260,0,
+0,261,262,263,264,265,266,267,268,269,270,0,
+0,271,272,273,274,275,276,277,278,279,280,0,
+0,281,282,283,284,285,286,287,288,289,290,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -686,8 +720,11 @@
 0,0,0,0,0,71,72,70,71,71,71,0
 </data>
  </layer>
- <layer id="7" name="Edges" width="12" height="64">
+ <layer id="7" name="Edges" width="12" height="67">
   <data encoding="csv">
+0,291,292,293,294,295,296,297,298,299,300,0,
+0,301,302,303,304,305,306,307,308,309,310,0,
+0,311,312,313,314,315,316,317,318,319,320,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -754,8 +791,11 @@
 0,0,0,0,0,36,64,0,46,47,47,0
 </data>
  </layer>
- <layer id="12" name="Grime" width="12" height="64">
+ <layer id="12" name="Grime" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -822,8 +862,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="10" name="Pipes Over" width="12" height="64">
+ <layer id="10" name="Pipes Over" width="12" height="67">
   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -890,4 +933,62 @@
 0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="15" name="Waves">
+  <object id="1" name="Enemy13" gid="332" x="88" y="866" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="2" name="Enemy13" gid="332" x="128" y="640" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="3" name="Enemy13" gid="332" x="48" y="560" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="4" name="Enemy13" gid="332" x="128" y="496" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="5" name="Enemy13" gid="332" x="48" y="416" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="7" name="Enemy3" gid="323" x="176" y="768" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="3"/>
+    <property name="PathType" type="int" value="21"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="8" name="Enemy3" gid="323" x="0" y="704" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="3"/>
+    <property name="PathType" type="int" value="21"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="9" name="Enemy3" gid="323" x="0" y="368" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="3"/>
+    <property name="PathType" type="int" value="21"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

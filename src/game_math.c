@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "main.h"
 #include "game_math.h"
 #include <ace/generic/screen.h>
 #include <ace/managers/system.h>
@@ -61,9 +62,10 @@ UWORD fastMagnitude(UWORD uwDx, UWORD uwDy) {
 void gameMathInit(void) {
 #if defined(GAME_MATH_PRECALCULATED)
 	systemUse();
-	tFile *pFile = fileOpen("data/game_math.dat", "rb");
+	tFile *pFile = pakFileGetFile(g_pPakFile, "math.dat");
 	fileRead(pFile, s_pAtan2, sizeof(s_pAtan2));
 	fileRead(pFile, g_pSin, sizeof(g_pSin));
+	fileClose(pFile);
 	systemUnuse();
 #else
 	for(UWORD uwY = 0; uwY < SCREEN_PAL_HEIGHT / GAME_MATH_ATAN2_SCALE; ++uwY) {

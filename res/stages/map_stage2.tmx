@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="2022.06.25" orientation="orthogonal" renderorder="right-down" width="12" height="256" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#000011" nextlayerid="16" nextobjectid="664">
+<map version="1.9" tiledversion="2022.06.25" orientation="orthogonal" renderorder="right-down" width="12" height="256" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#000011" nextlayerid="16" nextobjectid="682">
  <editorsettings>
   <export target="export/map_stage2.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" name="tiles_packed" tilewidth="16" tileheight="16" tilecount="80" columns="8">
-  <image source="../tiles_packed.png" width="128" height="160"/>
+  <image source="tiles_packed.png" width="128" height="160"/>
  </tileset>
  <tileset firstgid="81" source="enemysheet.tsx"/>
  <layer id="3" name="Nebula" width="12" height="256">
@@ -3388,62 +3388,6 @@
 </data>
  </layer>
  <objectgroup id="15" name="Waves">
-  <object id="274" name="Enemy0" gid="81" x="0" y="4048" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="275" name="Enemy1" gid="82" x="16" y="4048" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="276" name="Enemy3" gid="83" x="48" y="4048" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="3"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="277" name="Enemy4" gid="84" x="0" y="4064" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="278" name="Enemy5" gid="85" x="16" y="4064" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="5"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="279" name="Enemy7" gid="86" x="48" y="4064" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="7"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="280" name="Enemy8" gid="87" x="0" y="4080" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="8"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="281" name="Enemy9" gid="88" x="16" y="4080" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="9"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
   <object id="282" name="Enemy11" gid="89" x="0" y="3192" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="11"/>
@@ -3451,171 +3395,122 @@
     <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="283" name="Enemy12" gid="90" x="0" y="1104" width="32" height="32">
+  <object id="283" name="Enemy12" gid="90" x="0" y="1072" width="32" height="32">
    <properties>
     <property name="EnemyType" type="int" value="12"/>
     <property name="PathType" type="int" value="13"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="299" name="Enemy2" gid="82" x="32" y="4048" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="2"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="300" name="Enemy6" gid="85" x="32" y="4064" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="6"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="301" name="Enemy10" gid="88" x="32" y="4080" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="10"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="362" name="Enemy0" gid="81" x="176" y="3432" width="16" height="16">
+  <object id="362" name="Enemy0" gid="81" x="176" y="3423" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="19"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="363" name="Enemy0" gid="81" x="176" y="3424" width="16" height="16">
+  <object id="363" name="Enemy0" gid="81" x="176" y="3415" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="19"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="364" name="Enemy1" gid="82" x="176" y="3416" width="16" height="16">
+  <object id="364" name="Enemy1" gid="82" x="176" y="3407" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="19"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="365" name="Enemy1" gid="82" x="176" y="3440" width="16" height="16">
+  <object id="365" name="Enemy1" gid="82" x="176" y="3431" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="19"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="366" name="Enemy0" gid="81" x="0" y="3393" width="16" height="16">
+  <object id="366" name="Enemy0" gid="81" x="0" y="3352" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="4"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="367" name="Enemy0" gid="81" x="0" y="3385" width="16" height="16">
+  <object id="367" name="Enemy0" gid="81" x="0" y="3344" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="4"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="368" name="Enemy1" gid="82" x="0" y="3377" width="16" height="16">
+  <object id="368" name="Enemy1" gid="82" x="0" y="3336" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="4"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="369" name="Enemy1" gid="82" x="0" y="3401" width="16" height="16">
+  <object id="369" name="Enemy1" gid="82" x="0" y="3360" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="4"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="370" name="Enemy1" gid="82" x="176" y="3304" width="16" height="16">
+  <object id="370" name="Enemy1" gid="82" x="176" y="3272" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="371" name="Enemy1" gid="82" x="176" y="3328" width="16" height="16">
+  <object id="371" name="Enemy1" gid="82" x="176" y="3296" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="372" name="Enemy1" gid="82" x="176" y="3320" width="16" height="16">
+  <object id="372" name="Enemy1" gid="82" x="176" y="3288" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="373" name="Enemy1" gid="82" x="176" y="3312" width="16" height="16">
+  <object id="373" name="Enemy1" gid="82" x="176" y="3280" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="374" name="Enemy1" gid="82" x="0" y="3281" width="16" height="16">
+  <object id="374" name="Enemy1" gid="82" x="0" y="3240" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="375" name="Enemy1" gid="82" x="0" y="3289" width="16" height="16">
+  <object id="375" name="Enemy1" gid="82" x="0" y="3248" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="376" name="Enemy1" gid="82" x="0" y="3273" width="16" height="16">
+  <object id="376" name="Enemy1" gid="82" x="0" y="3232" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="377" name="Enemy1" gid="82" x="0" y="3265" width="16" height="16">
+  <object id="377" name="Enemy1" gid="82" x="0" y="3224" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="378" name="Enemy1" gid="82" x="176" y="3208" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="379" name="Enemy1" gid="82" x="176" y="3232" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="380" name="Enemy1" gid="82" x="176" y="3224" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="381" name="Enemy1" gid="82" x="176" y="3216" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
@@ -3626,28 +3521,7 @@
     <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
-  <object id="384" name="Enemy4" gid="84" x="0" y="3329" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="20"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="385" name="Enemy4" gid="84" x="176" y="3272" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="21"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="386" name="Enemy4" gid="84" x="0" y="3233" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="20"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="387" name="Enemy4" gid="84" x="0" y="3433" width="16" height="16">
+  <object id="384" name="Enemy4" gid="84" x="0" y="3488" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="4"/>
     <property name="PathType" type="int" value="20"/>
@@ -3843,11 +3717,11 @@
     <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
-  <object id="416" name="Enemy7" gid="86" x="176" y="2472" width="16" height="16">
+  <object id="416" name="Enemy7" gid="86" x="0" y="2632" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="7"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
+    <property name="PathType" type="int" value="6"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
   <object id="417" name="Enemy1" gid="82" x="0" y="2424" width="16" height="16">
@@ -4410,13 +4284,6 @@
     <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="535" name="Enemy4" gid="84" x="176" y="1288" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="17"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
   <object id="536" name="Enemy4" gid="84" x="176" y="1336" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="4"/>
@@ -4494,210 +4361,133 @@
     <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
-  <object id="547" name="Enemy0" gid="81" x="0" y="3808" width="16" height="16">
+  <object id="547" name="Enemy0" gid="81" x="0" y="3792" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="2"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="548" name="Enemy0" gid="81" x="0" y="3792" width="16" height="16">
+  <object id="548" name="Enemy0" gid="81" x="0" y="3774" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="2"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="549" name="Enemy0" gid="81" x="0" y="3760" width="16" height="16">
+  <object id="549" name="Enemy0" gid="81" x="0" y="3734" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="550" name="Enemy0" gid="81" x="0" y="3776" width="16" height="16">
+  <object id="550" name="Enemy0" gid="81" x="0" y="3754" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="551" name="Enemy0" gid="81" x="176" y="3807" width="16" height="16">
+  <object id="551" name="Enemy0" gid="81" x="176" y="3790" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="3"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="552" name="Enemy0" gid="81" x="176" y="3791" width="16" height="16">
+  <object id="552" name="Enemy0" gid="81" x="176" y="3770" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="3"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="553" name="Enemy0" gid="81" x="176" y="3775" width="16" height="16">
+  <object id="553" name="Enemy0" gid="81" x="176" y="3750" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="7"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="554" name="Enemy0" gid="81" x="176" y="3759" width="16" height="16">
+  <object id="554" name="Enemy0" gid="81" x="176" y="3730" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="7"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="555" name="Enemy0" gid="81" x="0" y="3745" width="16" height="16">
+  <object id="555" name="Enemy0" gid="81" x="0" y="3713" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="556" name="Enemy0" gid="81" x="0" y="3729" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="557" name="Enemy0" gid="81" x="0" y="3697" width="16" height="16">
+  <object id="557" name="Enemy0" gid="81" x="0" y="3681" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="2"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="558" name="Enemy0" gid="81" x="0" y="3713" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="2"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="559" name="Enemy0" gid="81" x="176" y="3744" width="16" height="16">
+  <object id="559" name="Enemy0" gid="81" x="176" y="3712" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="7"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="560" name="Enemy0" gid="81" x="176" y="3728" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="561" name="Enemy0" gid="81" x="176" y="3712" width="16" height="16">
+  <object id="562" name="Enemy0" gid="81" x="176" y="3680" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="3"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="562" name="Enemy0" gid="81" x="176" y="3696" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="3"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="563" name="Enemy2" gid="82" x="0" y="3632" width="16" height="16">
+  <object id="563" name="Enemy2" gid="82" x="0" y="3648" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="2"/>
     <property name="PathType" type="int" value="8"/>
-    <property name="YOffset" type="int" value="32"/>
-   </properties>
-  </object>
-  <object id="564" name="Enemy2" gid="82" x="176" y="3630" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="2"/>
-    <property name="PathType" type="int" value="9"/>
-    <property name="YOffset" type="int" value="32"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
   <object id="565" name="Enemy2" gid="82" x="0" y="3585" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="2"/>
     <property name="PathType" type="int" value="8"/>
-    <property name="YOffset" type="int" value="32"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="566" name="Enemy2" gid="82" x="176" y="3582" width="16" height="16">
+  <object id="566" name="Enemy2" gid="82" x="176" y="3568" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="2"/>
     <property name="PathType" type="int" value="9"/>
-    <property name="YOffset" type="int" value="32"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="567" name="Enemy2" gid="82" x="0" y="3537" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="2"/>
-    <property name="PathType" type="int" value="8"/>
-    <property name="YOffset" type="int" value="32"/>
-   </properties>
-  </object>
-  <object id="568" name="Enemy2" gid="82" x="176" y="3535" width="16" height="16">
+  <object id="568" name="Enemy2" gid="82" x="176" y="3510" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="2"/>
     <property name="PathType" type="int" value="9"/>
-    <property name="YOffset" type="int" value="32"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="569" name="Enemy4" gid="84" x="176" y="3514" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="5"/>
-    <property name="PathType" type="int" value="15"/>
-    <property name="YOffset" type="int" value="32"/>
-   </properties>
-  </object>
-  <object id="570" name="Enemy4" gid="84" x="0" y="3512" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="5"/>
-    <property name="PathType" type="int" value="12"/>
-    <property name="YOffset" type="int" value="32"/>
-   </properties>
-  </object>
-  <object id="571" name="Enemy4" gid="84" x="0" y="3560" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="5"/>
-    <property name="PathType" type="int" value="11"/>
-    <property name="YOffset" type="int" value="32"/>
-   </properties>
-  </object>
-  <object id="572" name="Enemy4" gid="84" x="0" y="3608" width="16" height="16">
+  <object id="572" name="Enemy4" gid="84" x="0" y="3617" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="5"/>
     <property name="PathType" type="int" value="10"/>
-    <property name="YOffset" type="int" value="32"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="573" name="Enemy4" gid="84" x="176" y="3562" width="16" height="16">
+  <object id="573" name="Enemy4" gid="84" x="176" y="3538" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="5"/>
     <property name="PathType" type="int" value="16"/>
-    <property name="YOffset" type="int" value="32"/>
-   </properties>
-  </object>
-  <object id="574" name="Enemy4" gid="84" x="176" y="3610" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="5"/>
-    <property name="PathType" type="int" value="17"/>
-    <property name="YOffset" type="int" value="32"/>
+    <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
   <object id="575" name="Enemy1" gid="82" x="0" y="2992" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="576" name="Enemy1" gid="82" x="0" y="2976" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
@@ -4711,21 +4501,7 @@
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="578" name="Enemy1" gid="82" x="0" y="2896" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
   <object id="579" name="Enemy1" gid="82" x="176" y="2993" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="580" name="Enemy1" gid="82" x="176" y="2977" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="7"/>
@@ -4739,28 +4515,7 @@
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="582" name="Enemy1" gid="82" x="176" y="2897" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="583" name="Enemy1" gid="82" x="0" y="3152" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
   <object id="584" name="Enemy1" gid="82" x="0" y="3136" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="585" name="Enemy1" gid="82" x="0" y="3072" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
@@ -4774,21 +4529,7 @@
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="587" name="Enemy1" gid="82" x="176" y="3153" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
   <object id="588" name="Enemy1" gid="82" x="176" y="3137" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="589" name="Enemy1" gid="82" x="176" y="3073" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="7"/>
@@ -4809,52 +4550,10 @@
     <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
-  <object id="592" name="Enemy4" gid="84" x="0" y="2952" width="16" height="16">
+  <object id="594" name="Enemy4" gid="84" x="0" y="3095" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="4"/>
     <property name="PathType" type="int" value="8"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="593" name="Enemy4" gid="84" x="0" y="3030" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="8"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="594" name="Enemy4" gid="84" x="0" y="3110" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="8"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="595" name="Enemy4" gid="84" x="176" y="3032" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="9"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="596" name="Enemy4" gid="84" x="176" y="3112" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="9"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="597" name="Enemy4" gid="84" x="0" y="3448" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="20"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="598" name="Enemy4" gid="84" x="0" y="3464" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="20"/>
     <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
@@ -4863,13 +4562,6 @@
     <property name="EnemyType" type="int" value="3"/>
     <property name="PathType" type="int" value="21"/>
     <property name="YOffset" type="int" value="-48"/>
-   </properties>
-  </object>
-  <object id="600" name="Enemy4" gid="84" x="176" y="2874" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="4"/>
-    <property name="PathType" type="int" value="9"/>
-    <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
   <object id="601" name="Enemy4" gid="84" x="0" y="2872" width="16" height="16">
@@ -4900,38 +4592,10 @@
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="605" name="Enemy0" gid="81" x="0" y="1056" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="4"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="606" name="Enemy2" gid="81" x="0" y="1040" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="2"/>
-    <property name="PathType" type="int" value="4"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="607" name="Enemy0" gid="81" x="0" y="1024" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="4"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
   <object id="608" name="Enemy1" gid="81" x="0" y="991" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="609" name="Enemy2" gid="81" x="0" y="1007" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="2"/>
-    <property name="PathType" type="int" value="4"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
@@ -4956,13 +4620,6 @@
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="613" name="Enemy2" gid="81" x="0" y="878" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="2"/>
-    <property name="PathType" type="int" value="2"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
   <object id="614" name="Enemy0" gid="81" x="176" y="783" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
@@ -4973,13 +4630,6 @@
   <object id="615" name="Enemy0" gid="81" x="176" y="751" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="5"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="616" name="Enemy1" gid="81" x="176" y="767" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
@@ -5002,13 +4652,6 @@
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="620" name="Enemy1" gid="81" x="176" y="799" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
@@ -5054,23 +4697,16 @@
     <property name="YOffset" type="int" value="16"/>
    </properties>
   </object>
-  <object id="627" name="Enemy0" gid="81" x="0" y="543" width="16" height="16">
+  <object id="627" name="Enemy0" gid="81" x="0" y="552" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="628" name="Enemy0" gid="81" x="0" y="511" width="16" height="16">
+  <object id="628" name="Enemy0" gid="81" x="0" y="520" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="6"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="629" name="Enemy1" gid="81" x="0" y="527" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
@@ -5093,13 +4729,6 @@
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="4"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="633" name="Enemy1" gid="81" x="0" y="559" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="6"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
@@ -5138,23 +4767,16 @@
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="639" name="Enemy0" gid="81" x="176" y="351" width="16" height="16">
+  <object id="639" name="Enemy0" gid="81" x="176" y="360" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
-  <object id="640" name="Enemy0" gid="81" x="176" y="319" width="16" height="16">
+  <object id="640" name="Enemy0" gid="81" x="176" y="328" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="0"/>
-    <property name="PathType" type="int" value="5"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="641" name="Enemy1" gid="81" x="176" y="335" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
     <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
@@ -5177,13 +4799,6 @@
    <properties>
     <property name="EnemyType" type="int" value="0"/>
     <property name="PathType" type="int" value="7"/>
-    <property name="YOffset" type="int" value="-16"/>
-   </properties>
-  </object>
-  <object id="645" name="Enemy1" gid="81" x="176" y="367" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="1"/>
-    <property name="PathType" type="int" value="5"/>
     <property name="YOffset" type="int" value="-16"/>
    </properties>
   </object>
@@ -5304,6 +4919,69 @@
     <property name="EnemyType" type="int" value="2"/>
     <property name="PathType" type="int" value="0"/>
     <property name="YOffset" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="664" name="Enemy13" gid="92" x="88" y="3156" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="665" name="Enemy13" gid="92" x="88" y="3028" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="666" name="Enemy13" gid="92" x="88" y="2900" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="668" name="Enemy13" gid="92" x="48" y="1290" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="670" name="Enemy13" gid="92" x="128" y="1194" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="677" name="Enemy13" gid="92" x="72" y="450" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="678" name="Enemy13" gid="92" x="40" y="1727" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="679" name="Enemy13" gid="92" x="136" y="1726" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
+   </properties>
+  </object>
+  <object id="681" name="Enemy13" gid="92" x="88" y="1570" width="16" height="16">
+   <properties>
+    <property name="EnemyType" type="int" value="13"/>
+    <property name="PathType" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
  </objectgroup>

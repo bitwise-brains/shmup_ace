@@ -3482,230 +3482,6 @@
          "objects":[
                 {
                  "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":274,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":4048
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":275,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":16,
-                 "y":4048
-                }, 
-                {
-                 "class":"",
-                 "gid":83,
-                 "height":16,
-                 "id":276,
-                 "name":"Enemy3",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":48,
-                 "y":4048
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":277,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":4064
-                }, 
-                {
-                 "class":"",
-                 "gid":85,
-                 "height":16,
-                 "id":278,
-                 "name":"Enemy5",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":16,
-                 "y":4064
-                }, 
-                {
-                 "class":"",
-                 "gid":86,
-                 "height":16,
-                 "id":279,
-                 "name":"Enemy7",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":48,
-                 "y":4064
-                }, 
-                {
-                 "class":"",
-                 "gid":87,
-                 "height":16,
-                 "id":280,
-                 "name":"Enemy8",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":4080
-                }, 
-                {
-                 "class":"",
-                 "gid":88,
-                 "height":16,
-                 "id":281,
-                 "name":"Enemy9",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":9
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":16,
-                 "y":4080
-                }, 
-                {
-                 "class":"",
                  "gid":89,
                  "height":16,
                  "id":282,
@@ -3758,92 +3534,7 @@
                  "visible":true,
                  "width":32,
                  "x":0,
-                 "y":1104
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":299,
-                 "name":"Enemy2",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":4048
-                }, 
-                {
-                 "class":"",
-                 "gid":85,
-                 "height":16,
-                 "id":300,
-                 "name":"Enemy6",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":4064
-                },
-            
-                {
-                 "class":"",
-                 "gid":88,
-                 "height":16,
-                 "id":301,
-                 "name":"Enemy10",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":10
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":4080
+                 "y":1072
                 }, 
                 {
                  "class":"",
@@ -3871,7 +3562,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3432
+                 "y":3423
                 }, 
                 {
                  "class":"",
@@ -3899,7 +3590,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3424
+                 "y":3415
                 }, 
                 {
                  "class":"",
@@ -3927,7 +3618,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3416
+                 "y":3407
                 }, 
                 {
                  "class":"",
@@ -3955,7 +3646,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3440
+                 "y":3431
                 }, 
                 {
                  "class":"",
@@ -3983,7 +3674,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3393
+                 "y":3352
                 }, 
                 {
                  "class":"",
@@ -4011,7 +3702,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3385
+                 "y":3344
                 }, 
                 {
                  "class":"",
@@ -4039,7 +3730,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3377
+                 "y":3336
                 }, 
                 {
                  "class":"",
@@ -4067,7 +3758,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3401
+                 "y":3360
                 }, 
                 {
                  "class":"",
@@ -4095,7 +3786,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3304
+                 "y":3272
                 }, 
                 {
                  "class":"",
@@ -4123,8 +3814,9 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3328
-                }, 
+                 "y":3296
+                },
+            
                 {
                  "class":"",
                  "gid":82,
@@ -4151,9 +3843,8 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3320
-                },
-            
+                 "y":3288
+                }, 
                 {
                  "class":"",
                  "gid":82,
@@ -4180,7 +3871,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3312
+                 "y":3280
                 }, 
                 {
                  "class":"",
@@ -4208,7 +3899,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3281
+                 "y":3240
                 }, 
                 {
                  "class":"",
@@ -4236,7 +3927,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3289
+                 "y":3248
                 }, 
                 {
                  "class":"",
@@ -4264,7 +3955,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3273
+                 "y":3232
                 }, 
                 {
                  "class":"",
@@ -4292,119 +3983,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3265
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":378,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3208
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":379,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3232
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":380,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
                  "y":3224
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":381,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3216
                 }, 
                 {
                  "class":"",
@@ -4460,92 +4039,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3329
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":385,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":21
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3272
-                },
-            
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":386,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":20
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3233
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":387,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":20
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3433
+                 "y":3488
                 }, 
                 {
                  "class":"",
@@ -4658,7 +4152,8 @@
                  "width":16,
                  "x":0,
                  "y":2777
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -4826,8 +4321,7 @@
                  "width":16,
                  "x":0,
                  "y":2697
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -4995,7 +4489,8 @@
                  "width":16,
                  "x":0,
                  "y":2608
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":82,
@@ -5163,8 +4658,7 @@
                  "width":16,
                  "x":176,
                  "y":2490
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":84,
@@ -5320,19 +4814,20 @@
                         {
                          "name":"PathType",
                          "type":"int",
-                         "value":7
+                         "value":6
                         }, 
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":-32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":16,
-                 "x":176,
-                 "y":2472
-                }, 
+                 "x":0,
+                 "y":2632
+                },
+            
                 {
                  "class":"",
                  "gid":82,
@@ -5500,8 +4995,7 @@
                  "width":16,
                  "x":176,
                  "y":2368
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":82,
@@ -5669,7 +5163,8 @@
                  "width":16,
                  "x":0,
                  "y":2280
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":82,
@@ -5837,8 +5332,7 @@
                  "width":16,
                  "x":0,
                  "y":2160
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -6006,7 +5500,8 @@
                  "width":16,
                  "x":176,
                  "y":2064
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -6174,8 +5669,7 @@
                  "width":16,
                  "x":176,
                  "y":1968
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -6343,7 +5837,8 @@
                  "width":16,
                  "x":0,
                  "y":1840
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -6511,8 +6006,7 @@
                  "width":16,
                  "x":176,
                  "y":1807
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -6680,7 +6174,8 @@
                  "width":16,
                  "x":176,
                  "y":1776
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -6848,8 +6343,7 @@
                  "width":16,
                  "x":0,
                  "y":1616
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -7017,7 +6511,8 @@
                  "width":16,
                  "x":176,
                  "y":1456
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -7185,8 +6680,7 @@
                  "width":16,
                  "x":176,
                  "y":1425
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -7354,7 +6848,8 @@
                  "width":16,
                  "x":0,
                  "y":1416
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -7522,8 +7017,7 @@
                  "width":16,
                  "x":0,
                  "y":1281
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":81,
@@ -7579,34 +7073,6 @@
                  "width":16,
                  "x":0,
                  "y":1264
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":535,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":17
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":1288
                 }, 
                 {
                  "class":"",
@@ -7719,7 +7185,8 @@
                  "width":16,
                  "x":176,
                  "y":1216
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -7859,8 +7326,7 @@
                  "width":16,
                  "x":176,
                  "y":1137
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":84,
@@ -7943,7 +7409,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3808
+                 "y":3792
                 }, 
                 {
                  "class":"",
@@ -7971,7 +7437,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3792
+                 "y":3774
                 }, 
                 {
                  "class":"",
@@ -7999,7 +7465,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3760
+                 "y":3734
                 }, 
                 {
                  "class":"",
@@ -8027,7 +7493,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3776
+                 "y":3754
                 }, 
                 {
                  "class":"",
@@ -8055,8 +7521,9 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3807
-                }, 
+                 "y":3790
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -8083,7 +7550,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3791
+                 "y":3770
                 }, 
                 {
                  "class":"",
@@ -8111,7 +7578,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3775
+                 "y":3750
                 }, 
                 {
                  "class":"",
@@ -8139,7 +7606,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3759
+                 "y":3730
                 }, 
                 {
                  "class":"",
@@ -8167,37 +7634,8 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3745
+                 "y":3713
                 }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":556,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3729
-                },
-            
                 {
                  "class":"",
                  "gid":81,
@@ -8224,35 +7662,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3697
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":558,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3713
+                 "y":3681
                 }, 
                 {
                  "class":"",
@@ -8270,62 +7680,6 @@
                          "name":"PathType",
                          "type":"int",
                          "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3744
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":560,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3728
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":561,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":3
                         }, 
                         {
                          "name":"YOffset",
@@ -8364,7 +7718,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3696
+                 "y":3680
                 }, 
                 {
                  "class":"",
@@ -8386,41 +7740,13 @@
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3632
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":564,
-                 "name":"Enemy2",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":9
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3630
+                 "y":3648
                 }, 
                 {
                  "class":"",
@@ -8442,7 +7768,7 @@
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
@@ -8470,41 +7796,13 @@
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3582
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":567,
-                 "name":"Enemy2",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3537
+                 "y":3568
                 }, 
                 {
                  "class":"",
@@ -8526,98 +7824,13 @@
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3535
-                },
-            
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":569,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":15
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3514
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":570,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":12
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3512
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":571,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":11
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3560
+                 "y":3510
                 }, 
                 {
                  "class":"",
@@ -8639,14 +7852,15 @@
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3608
-                }, 
+                 "y":3617
+                },
+            
                 {
                  "class":"",
                  "gid":84,
@@ -8667,41 +7881,13 @@
                         {
                          "name":"YOffset",
                          "type":"int",
-                         "value":32
+                         "value":16
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":3562
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":574,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":17
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3610
+                 "y":3538
                 }, 
                 {
                  "class":"",
@@ -8735,34 +7921,6 @@
                  "class":"",
                  "gid":82,
                  "height":16,
-                 "id":576,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":2976
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
                  "id":577,
                  "name":"Enemy1",
                  "properties":[
@@ -8786,34 +7944,6 @@
                  "width":16,
                  "x":0,
                  "y":2912
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":578,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":2896
                 }, 
                 {
                  "class":"",
@@ -8847,35 +7977,6 @@
                  "class":"",
                  "gid":82,
                  "height":16,
-                 "id":580,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":2977
-                },
-            
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
                  "id":581,
                  "name":"Enemy1",
                  "properties":[
@@ -8899,62 +8000,6 @@
                  "width":16,
                  "x":176,
                  "y":2913
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":582,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":2897
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":583,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3152
                 }, 
                 {
                  "class":"",
@@ -8988,34 +8033,6 @@
                  "class":"",
                  "gid":82,
                  "height":16,
-                 "id":585,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3072
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
                  "id":586,
                  "name":"Enemy1",
                  "properties":[
@@ -9044,34 +8061,6 @@
                  "class":"",
                  "gid":82,
                  "height":16,
-                 "id":587,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3153
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
                  "id":588,
                  "name":"Enemy1",
                  "properties":[
@@ -9095,34 +8084,6 @@
                  "width":16,
                  "x":176,
                  "y":3137
-                }, 
-                {
-                 "class":"",
-                 "gid":82,
-                 "height":16,
-                 "id":589,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-32
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3073
                 }, 
                 {
                  "class":"",
@@ -9184,63 +8145,6 @@
                  "class":"",
                  "gid":84,
                  "height":16,
-                 "id":592,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":2952
-                },
-            
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":593,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3030
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
                  "id":594,
                  "name":"Enemy4",
                  "properties":[
@@ -9263,119 +8167,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":3110
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":595,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":9
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3032
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":596,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":9
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":3112
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":597,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":20
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3448
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":598,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":20
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":3464
+                 "y":3095
                 }, 
                 {
                  "class":"",
@@ -9404,35 +8196,8 @@
                  "width":16,
                  "x":176,
                  "y":2728
-                }, 
-                {
-                 "class":"",
-                 "gid":84,
-                 "height":16,
-                 "id":600,
-                 "name":"Enemy4",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":9
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":2874
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":84,
@@ -9544,91 +8309,6 @@
                  "width":16,
                  "x":0,
                  "y":959
-                },
-            
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":605,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":1056
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":606,
-                 "name":"Enemy2",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":1040
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":607,
-                 "name":"Enemy0",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":1024
                 }, 
                 {
                  "class":"",
@@ -9657,34 +8337,6 @@
                  "width":16,
                  "x":0,
                  "y":991
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":609,
-                 "name":"Enemy2",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":1007
                 }, 
                 {
                  "class":"",
@@ -9774,34 +8426,6 @@
                  "class":"",
                  "gid":81,
                  "height":16,
-                 "id":613,
-                 "name":"Enemy2",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":878
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
                  "id":614,
                  "name":"Enemy0",
                  "properties":[
@@ -9858,35 +8482,6 @@
                  "class":"",
                  "gid":81,
                  "height":16,
-                 "id":616,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":767
-                },
-            
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
                  "id":617,
                  "name":"Enemy0",
                  "properties":[
@@ -9938,7 +8533,8 @@
                  "width":16,
                  "x":176,
                  "y":848
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -9966,34 +8562,6 @@
                  "width":16,
                  "x":176,
                  "y":832
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":620,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":799
                 }, 
                 {
                  "class":"",
@@ -10189,7 +8757,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":543
+                 "y":552
                 }, 
                 {
                  "class":"",
@@ -10217,36 +8785,7 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":511
-                },
-            
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":629,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":527
+                 "y":520
                 }, 
                 {
                  "class":"",
@@ -10331,35 +8870,8 @@
                  "width":16,
                  "x":0,
                  "y":592
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":633,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":559
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -10526,7 +9038,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":351
+                 "y":360
                 }, 
                 {
                  "class":"",
@@ -10554,36 +9066,7 @@
                  "visible":true,
                  "width":16,
                  "x":176,
-                 "y":319
-                },
-            
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
-                 "id":641,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":335
+                 "y":328
                 }, 
                 {
                  "class":"",
@@ -10673,34 +9156,6 @@
                  "class":"",
                  "gid":81,
                  "height":16,
-                 "id":645,
-                 "name":"Enemy1",
-                 "properties":[
-                        {
-                         "name":"EnemyType",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"PathType",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"YOffset",
-                         "type":"int",
-                         "value":-16
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":367
-                }, 
-                {
-                 "class":"",
-                 "gid":81,
-                 "height":16,
                  "id":646,
                  "name":"Enemy2",
                  "properties":[
@@ -10752,7 +9207,8 @@
                  "width":16,
                  "x":176,
                  "y":303
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -10892,8 +9348,7 @@
                  "width":16,
                  "x":176,
                  "y":472
-                },
-            
+                }, 
                 {
                  "class":"",
                  "gid":85,
@@ -11089,7 +9544,8 @@
                  "width":16,
                  "x":176,
                  "y":208
-                }, 
+                },
+            
                 {
                  "class":"",
                  "gid":81,
@@ -11173,6 +9629,258 @@
                  "width":16,
                  "x":0,
                  "y":128
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":664,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":88,
+                 "y":3156
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":665,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":88,
+                 "y":3028
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":666,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":88,
+                 "y":2900
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":668,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":48,
+                 "y":1290
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":670,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":128,
+                 "y":1194
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":677,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":72,
+                 "y":450
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":678,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":40,
+                 "y":1727
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":679,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":136,
+                 "y":1726
+                }, 
+                {
+                 "class":"",
+                 "gid":92,
+                 "height":16,
+                 "id":681,
+                 "name":"Enemy13",
+                 "properties":[
+                        {
+                         "name":"EnemyType",
+                         "type":"int",
+                         "value":13
+                        }, 
+                        {
+                         "name":"PathType",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"YOffset",
+                         "type":"int",
+                         "value":-32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":16,
+                 "x":88,
+                 "y":1570
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -11181,7 +9889,7 @@
          "y":0
         }],
  "nextlayerid":16,
- "nextobjectid":664,
+ "nextobjectid":682,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"2022.06.25",
@@ -11190,7 +9898,7 @@
         {
          "columns":8,
          "firstgid":1,
-         "image":"..\/..\/tiles_packed.png",
+         "image":"..\/tiles_packed.png",
          "imageheight":160,
          "imagewidth":128,
          "margin":0,

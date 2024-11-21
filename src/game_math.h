@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef SLIPGATES_GAME_MATH_H
-#define SLIPGATES_GAME_MATH_H
+#ifndef GAME_MATH_H
+#define GAME_MATH_H
 
 #include <ace/types.h>
 #include <fixmath/fix16.h>
