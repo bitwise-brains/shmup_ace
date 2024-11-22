@@ -227,6 +227,9 @@ void introGsDestroy(void) {
     bitmapDestroy(s_pBrainsImage);
     bitmapDestroy(s_pAceImage);
     bitmapDestroy(s_pTitlescreenImage);
+    bitmapDestroy(s_pPowerupsImage);
+    bitmapDestroy(s_pPowerupsMask);
+    fontDestroyTextBitMap(s_pIntroText);
     fontDestroy(s_pFont);
     ptplayerModDestroy(s_pIntroMusic);
     ptplayerDestroy();
