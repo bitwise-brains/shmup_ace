@@ -5166,14 +5166,7 @@
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="609" name="Enemy13" gid="92" x="88" y="2088" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="13"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
-  <object id="610" name="Enemy13" gid="92" x="88" y="1992" width="16" height="16">
+  <object id="609" name="Enemy13" gid="92" x="88" y="1994" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="13"/>
     <property name="PathType" type="int" value="0"/>
@@ -5187,32 +5180,18 @@
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="612" name="Enemy13" gid="92" x="88" y="1898" width="16" height="16">
+  <object id="612" name="Enemy13" gid="92" x="112" y="1692" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="13"/>
     <property name="PathType" type="int" value="0"/>
     <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
-  <object id="613" name="Enemy13" gid="92" x="152" y="970" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="13"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
-  <object id="614" name="Enemy13" gid="92" x="72" y="464" width="16" height="16">
-   <properties>
-    <property name="EnemyType" type="int" value="13"/>
-    <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
-   </properties>
-  </object>
   <object id="615" name="Enemy13" gid="92" x="88" y="3462" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="13"/>
     <property name="PathType" type="int" value="0"/>
-    <property name="YOffset" type="int" value="0"/>
+    <property name="YOffset" type="int" value="-32"/>
    </properties>
   </object>
  </objectgroup>

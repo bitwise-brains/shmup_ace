@@ -457,14 +457,15 @@ static void initGame() {
                 s_ubEnemyProjectileSpeed = 0;
                 s_ubEnemyProjectileAccuracy = 16;
                 s_ubEnemyProjectileSafetyMargin = 64;
-                // g_tEnemyTypes[0].ubMoveSpeed = 4;
-                // g_tEnemyTypes[1].ubMoveSpeed = 4;
+                g_tEnemyTypes[0].ubMoveSpeed = 4;
+                g_tEnemyTypes[1].ubMoveSpeed = 4;
+                g_tEnemyTypes[2].ubMoveSpeed = 4;
+                g_tEnemyTypes[3].ubMoveSpeed = 2;
+                g_tEnemyTypes[7].ubMoveSpeed = 2;
+                g_tEnemyTypes[11].ubMoveSpeed = 2;
+                g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 2;
                 // g_tEnemyTypes[1].ubCooldownTime = 50;
-                // g_tEnemyTypes[2].ubMoveSpeed = 4;
                 // g_tEnemyTypes[2].ubCooldownTime = 50;
-                // g_tEnemyTypes[3].ubMoveSpeed = 2;
-                // g_tEnemyTypes[7].ubMoveSpeed = 2;
-                // g_tEnemyTypes[11].ubMoveSpeed = 2;
                 break;
             }
 
@@ -478,14 +479,13 @@ static void initGame() {
                 s_ubEnemyProjectileSpeed = 0;
                 s_ubEnemyProjectileAccuracy = 8;
                 s_ubEnemyProjectileSafetyMargin = 48;
-                // g_tEnemyTypes[0].ubMoveSpeed = 4;
-                // g_tEnemyTypes[1].ubMoveSpeed = 4;
-                // g_tEnemyTypes[1].ubCooldownTime = 45;            
-                // g_tEnemyTypes[2].ubMoveSpeed = 4;
-                // g_tEnemyTypes[2].ubCooldownTime = 50;            
-                // g_tEnemyTypes[3].ubMoveSpeed = 2;
-                // g_tEnemyTypes[7].ubMoveSpeed = 4;
-                // g_tEnemyTypes[11].ubMoveSpeed = 2;
+                g_tEnemyTypes[0].ubMoveSpeed = 4;
+                g_tEnemyTypes[1].ubMoveSpeed = 4;
+                g_tEnemyTypes[2].ubMoveSpeed = 4;
+                g_tEnemyTypes[3].ubMoveSpeed = 2;
+                g_tEnemyTypes[7].ubMoveSpeed = 4;
+                g_tEnemyTypes[11].ubMoveSpeed = 2;
+                g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 2;
                 break;
             }
 
@@ -499,14 +499,12 @@ static void initGame() {
                 s_ubEnemyProjectileSpeed = 1;
                 s_ubEnemyProjectileAccuracy = 0;
                 s_ubEnemyProjectileSafetyMargin = 32;
-                // g_tEnemyTypes[0].ubMoveSpeed = 6;
-                // g_tEnemyTypes[1].ubMoveSpeed = 6;
-                // g_tEnemyTypes[1].ubCooldownTime = 40;
-                // g_tEnemyTypes[2].ubMoveSpeed = 6;
-                // g_tEnemyTypes[2].ubCooldownTime = 45;
-                // g_tEnemyTypes[3].ubMoveSpeed = 4;
-                // g_tEnemyTypes[7].ubMoveSpeed = 4;
-                // g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 4;
+                g_tEnemyTypes[0].ubMoveSpeed = 6;
+                g_tEnemyTypes[1].ubMoveSpeed = 6;
+                g_tEnemyTypes[2].ubMoveSpeed = 6;
+                g_tEnemyTypes[3].ubMoveSpeed = 4;
+                g_tEnemyTypes[7].ubMoveSpeed = 4;
+                g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 4;
                 break;
             }
 
@@ -1560,9 +1558,19 @@ static void processPlayer() {
     // Player has reached end of level, add up bonus/penalty and render text to bitmap.
     if (s_ubLevelEndReached == TRUE && s_ubLevelEnd == FALSE) {
         // Score bonuses and penalty
-        ULONG ulKillBonus = s_uwPlayerKills * BONUS_KILLS_MULTIPLIER;
-        ULONG ulSpecialBonus = s_ubPlayerSpecial * BONUS_SPECIAL_MULTIPLIER;
-        ULONG ulDeathPenalty = s_ubPlayerDeaths * BONUS_DEATHS_MULTIPLIER;
+        ULONG ulKillBonus = 0;
+        ULONG ulSpecialBonus = 0;
+        ULONG ulDeathPenalty = 0;
+
+        if (g_ubLoopIteration == 0) {
+            ulKillBonus = s_uwPlayerKills * BONUS_KILLS_MULTIPLIER;
+            ulSpecialBonus = s_ubPlayerSpecial * BONUS_SPECIAL_MULTIPLIER;
+            ulDeathPenalty = s_ubPlayerDeaths * BONUS_DEATHS_MULTIPLIER;
+        } else {
+            ulKillBonus = (s_uwPlayerKills * BONUS_KILLS_MULTIPLIER) * (g_ubLoopIteration+1);
+            ulSpecialBonus = (s_ubPlayerSpecial * BONUS_SPECIAL_MULTIPLIER) * (g_ubLoopIteration+1);
+            ulDeathPenalty = (s_ubPlayerDeaths * BONUS_DEATHS_MULTIPLIER) * (g_ubLoopIteration+1);
+        }        
 
         s_ulPlayerScore += ulKillBonus;
         s_ulPlayerScore += ulSpecialBonus;
@@ -2434,8 +2442,12 @@ static void destroyEnemy(UBYTE ubEnemyIdx) {
         createPowerupAtPosition(s_tEnemy[ubEnemyIdx].tPosition, s_tEnemy[ubEnemyIdx].ubPowerupType);
     }
     
-
-    s_ulPlayerScore += s_tEnemy[ubEnemyIdx].uwScoreValue;
+    if (g_ubLoopIteration == 0) {
+        s_ulPlayerScore += s_tEnemy[ubEnemyIdx].uwScoreValue;
+    } else {
+        s_ulPlayerScore += (s_tEnemy[ubEnemyIdx].uwScoreValue * (g_ubLoopIteration+1));
+    }
+    
     s_ubUpdateScore = TRUE;
     s_ubActiveEnemies--;
     s_uwPlayerKills++;
@@ -2451,6 +2463,8 @@ static void destroyBossTurret(UBYTE ubTurret) {
 
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType) {
     if (s_ubLifePowActive == TRUE || s_ubSpecialPowActive == TRUE || s_ubWeaponPowActive == TRUE) { return; } // Only one active powerups at a time.
+
+    if (g_ubLoopIteration > 0 && ubPowerupType == POWERUP_EXTRALIFE) { return; } // No extra lives on loops.
 
     switch (ubPowerupType) {
         case POWERUP_EXTRALIFE: {
