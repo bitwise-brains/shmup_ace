@@ -1,7 +1,8 @@
 #include <ace/generic/main.h>
 #include "main.h"
 
-UBYTE g_ubCurrentStage = 3;
+UBYTE g_ubLoopIteration = 0;
+UBYTE g_ubCurrentStage = 0;
 ULONG g_ulPlayerScore = 0;
 UBYTE g_ubEquippedProjectileType = 0;
 UBYTE g_ubPlayerLives = PLAYER_LIVES_START;
@@ -22,7 +23,7 @@ void genericCreate(void) {
   joyOpen();
   g_pPakFile = pakFileOpen("data.tte");
   g_pGameStateManager = stateManagerCreate();
-  stateChange(g_pGameStateManager, &g_pGameStates[STATE_GAME]);
+  stateChange(g_pGameStateManager, &g_pGameStates[STATE_INTRO]);
 }
 
 void genericProcess(void) {

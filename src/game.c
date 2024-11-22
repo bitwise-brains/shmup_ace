@@ -32,6 +32,7 @@ static tPtplayerSamplePack *s_pSamplePack;
 static tPtplayerSfx *s_pSfxPlayerShot[PLAYER_PROJECTILE_TYPES];
 static tPtplayerSfx *s_pSfxExplosion;
 static tPtplayerSfx *s_pSfxCollectPowerup;
+static tPtplayerSfx *s_pSfxBossShot;
 
 // Level
 static tBitMap *s_pTiles;
@@ -112,7 +113,21 @@ static tBob s_tBigEnemyBob;
 static UBYTE s_ubBigEnemyAlive = FALSE;
 
 // Boss
-
+static tBossTurret s_tBossTurrets[4] = {0};
+static tBitMap *s_pBossDamageImage;
+static tBitMap *s_pBossDamageMask;
+static tBitMap *s_pBossShotImage;
+static tBitMap *s_pBossShotMask;
+static tBitMap *s_pBossHitFlashImage;
+static tBitMap *s_pBossHitFlashMask;
+static tBob s_tBossShotBob;
+static UBYTE s_ubBossShotAlive = FALSE;
+static UBYTE s_ubBossShotVisible = FALSE;
+static UWORD s_uwBossShotTimer = 0;
+static UBYTE s_ubBossFirstShot = TRUE;
+static UBYTE s_ubBossTurretsAlive = 4;
+static UBYTE s_ubBossDefeated = FALSE;
+static UBYTE s_ubBossExplosionIdx = 0;
 
 // Explosions
 static tExplosion s_tExplosions[EXPLOSIONS_MAX] = {0};
@@ -302,6 +317,9 @@ void gameGsLoop(void) {
     processPlayer();
     processPlayerProjectiles();
     processEnemies();
+    if (g_ubCurrentStage == BOSS_STAGE) {
+        processBoss();
+    }
     processSimpleEnemyProjectiles();
     processComplexEnemyProjectiles();
     processPowerups();
@@ -390,6 +408,15 @@ void gameGsDestroy(void) {
     bitmapDestroy(s_pStageCompleteBgMask);
     bitmapDestroy(s_pTiles);
 
+    if (g_ubCurrentStage == BOSS_STAGE) {
+        bitmapDestroy(s_pBossDamageImage);
+        bitmapDestroy(s_pBossDamageMask);
+        bitmapDestroy(s_pBossShotImage);
+        bitmapDestroy(s_pBossShotMask);
+        bitmapDestroy(s_pBossHitFlashImage);
+        bitmapDestroy(s_pBossHitFlashMask);
+    }
+    
     // Destroy view
     viewDestroy(s_pView);
 }
@@ -420,81 +447,162 @@ static void initGame() {
     
     // Setup variables depending on stage.
     switch (g_ubCurrentStage) {
-        case (0):
-            pLevelData = pakFileGetFile(g_pPakFile, "stage1.dat");
-            fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
-            fileClose(pLevelData);
-            s_tNextWave = g_tEnemyWavesForStage1[s_uwWaveIndex];
-            s_ubEnemyProjectileRange = 64;
-            s_ubEnemyProjectileSpeed = 0;
-            s_ubEnemyProjectileAccuracy = 16;
-            s_ubEnemyProjectileSafetyMargin = 64;
-            // g_tEnemyTypes[0].ubMoveSpeed = 4;
-            // g_tEnemyTypes[1].ubMoveSpeed = 4;
-            // g_tEnemyTypes[1].ubCooldownTime = 50;
-            // g_tEnemyTypes[2].ubMoveSpeed = 4;
-            // g_tEnemyTypes[2].ubCooldownTime = 50;
-            // g_tEnemyTypes[3].ubMoveSpeed = 2;
-            // g_tEnemyTypes[7].ubMoveSpeed = 2;
-            // g_tEnemyTypes[11].ubMoveSpeed = 2;
-            break;
-        case (1):
-            pLevelData = pakFileGetFile(g_pPakFile, "stage2.dat");
-            fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
-            fileClose(pLevelData);        
-            s_tNextWave = g_tEnemyWavesForStage2[s_uwWaveIndex];
-            s_ubEnemyProjectileRange = 32;
-            s_ubEnemyProjectileSpeed = 0;
-            s_ubEnemyProjectileAccuracy = 8;
-            s_ubEnemyProjectileSafetyMargin = 48;
-            // g_tEnemyTypes[0].ubMoveSpeed = 4;
-            // g_tEnemyTypes[1].ubMoveSpeed = 4;
-            // g_tEnemyTypes[1].ubCooldownTime = 45;            
-            // g_tEnemyTypes[2].ubMoveSpeed = 4;
-            // g_tEnemyTypes[2].ubCooldownTime = 50;            
-            // g_tEnemyTypes[3].ubMoveSpeed = 2;
-            // g_tEnemyTypes[7].ubMoveSpeed = 4;
-            // g_tEnemyTypes[11].ubMoveSpeed = 2;
-            break;
-        case (2):
-            pLevelData = pakFileGetFile(g_pPakFile, "stage3.dat");
-            fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
-            fileClose(pLevelData);        
-            s_tNextWave = g_tEnemyWavesForStage3[s_uwWaveIndex];
-            s_ubEnemyProjectileRange = 16;
-            s_ubEnemyProjectileSpeed = 1;
-            s_ubEnemyProjectileAccuracy = 0;
-            s_ubEnemyProjectileSafetyMargin = 32;
-            // g_tEnemyTypes[0].ubMoveSpeed = 6;
-            // g_tEnemyTypes[1].ubMoveSpeed = 6;
-            // g_tEnemyTypes[1].ubCooldownTime = 40;
-            // g_tEnemyTypes[2].ubMoveSpeed = 6;
-            // g_tEnemyTypes[2].ubCooldownTime = 45;
-            // g_tEnemyTypes[3].ubMoveSpeed = 4;
-            // g_tEnemyTypes[7].ubMoveSpeed = 4;
-            // g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 4;
-            break;
-        case (BOSS_STAGE):
-            // pLevelData = pakFileGetFile(g_pPakFile, "stage4.dat");
-            // fileRead(pLevelData, s_uwLevelData, (sizeof(UWORD) * BOSS_TILES_COUNT));
-            // fileClose(pLevelData);
-            for (UWORD i=0; i<BOSS_TILES_COUNT; i++) {
-                s_uwLevelData[i] = uwBossStageData[i];
+        case (FIRST_STAGE):
+            {
+                pLevelData = pakFileGetFile(g_pPakFile, "stage1.dat");
+                fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+                fileClose(pLevelData);
+                s_tNextWave = g_tEnemyWavesForStage1[s_uwWaveIndex];
+                s_ubEnemyProjectileRange = 64;
+                s_ubEnemyProjectileSpeed = 0;
+                s_ubEnemyProjectileAccuracy = 16;
+                s_ubEnemyProjectileSafetyMargin = 64;
+                // g_tEnemyTypes[0].ubMoveSpeed = 4;
+                // g_tEnemyTypes[1].ubMoveSpeed = 4;
+                // g_tEnemyTypes[1].ubCooldownTime = 50;
+                // g_tEnemyTypes[2].ubMoveSpeed = 4;
+                // g_tEnemyTypes[2].ubCooldownTime = 50;
+                // g_tEnemyTypes[3].ubMoveSpeed = 2;
+                // g_tEnemyTypes[7].ubMoveSpeed = 2;
+                // g_tEnemyTypes[11].ubMoveSpeed = 2;
+                break;
             }
 
-            s_tNextWave = g_tEnemyWavesForStage1[0];
-            s_uwCameraStartYPos = BOSS_START_YPOS;
-            s_uwMapHeightInTiles = BOSS_HEIGHT_IN_TILES;
-            s_uwTilesInLevel = BOSS_TILES_COUNT;
-            break;
+        case (SECOND_STAGE):
+            {
+                pLevelData = pakFileGetFile(g_pPakFile, "stage2.dat");
+                fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+                fileClose(pLevelData);        
+                s_tNextWave = g_tEnemyWavesForStage2[s_uwWaveIndex];
+                s_ubEnemyProjectileRange = 32;
+                s_ubEnemyProjectileSpeed = 0;
+                s_ubEnemyProjectileAccuracy = 8;
+                s_ubEnemyProjectileSafetyMargin = 48;
+                // g_tEnemyTypes[0].ubMoveSpeed = 4;
+                // g_tEnemyTypes[1].ubMoveSpeed = 4;
+                // g_tEnemyTypes[1].ubCooldownTime = 45;            
+                // g_tEnemyTypes[2].ubMoveSpeed = 4;
+                // g_tEnemyTypes[2].ubCooldownTime = 50;            
+                // g_tEnemyTypes[3].ubMoveSpeed = 2;
+                // g_tEnemyTypes[7].ubMoveSpeed = 4;
+                // g_tEnemyTypes[11].ubMoveSpeed = 2;
+                break;
+            }
+
+        case (THIRD_STAGE):
+            {
+                pLevelData = pakFileGetFile(g_pPakFile, "stage3.dat");
+                fileRead(pLevelData, s_uwLevelData, sizeof(s_uwLevelData));
+                fileClose(pLevelData);        
+                s_tNextWave = g_tEnemyWavesForStage3[s_uwWaveIndex];
+                s_ubEnemyProjectileRange = 16;
+                s_ubEnemyProjectileSpeed = 1;
+                s_ubEnemyProjectileAccuracy = 0;
+                s_ubEnemyProjectileSafetyMargin = 32;
+                // g_tEnemyTypes[0].ubMoveSpeed = 6;
+                // g_tEnemyTypes[1].ubMoveSpeed = 6;
+                // g_tEnemyTypes[1].ubCooldownTime = 40;
+                // g_tEnemyTypes[2].ubMoveSpeed = 6;
+                // g_tEnemyTypes[2].ubCooldownTime = 45;
+                // g_tEnemyTypes[3].ubMoveSpeed = 4;
+                // g_tEnemyTypes[7].ubMoveSpeed = 4;
+                // g_tEnemyTypes[ENEMY_BIG_TYPE].ubMoveSpeed = 4;
+                break;
+            }
+
+        case (BOSS_STAGE):
+            {
+                pLevelData = pakFileGetFile(g_pPakFile, "stage4.dat");
+                fileRead(pLevelData, s_uwLevelData, (sizeof(UWORD) * BOSS_TILES_COUNT));
+                fileClose(pLevelData);
+
+                s_tNextWave = g_tEnemyWavesForStage4[s_uwWaveIndex];
+                s_uwCameraStartYPos = BOSS_START_YPOS;
+                s_uwMapHeightInTiles = BOSS_HEIGHT_IN_TILES;
+                s_uwTilesInLevel = BOSS_TILES_COUNT;
+
+                // Setup BossTurret1
+                s_tBossTurrets[0].uwBitmapOffset = 0;
+                s_tBossTurrets[0].ubHeight = 30;
+                s_tBossTurrets[0].ubFlashTimer = 0;
+                s_tBossTurrets[0].wHealth = BOSS_TURRET_HEALTH;
+                s_tBossTurrets[0].ubAlive = TRUE;
+                s_tBossTurrets[0].tBitmapPos.uwX = 16;
+                s_tBossTurrets[0].tBitmapPos.uwY = 102;
+                s_tBossTurrets[0].tFlashPos.uwX = 27;
+                s_tBossTurrets[0].tFlashPos.uwY = 120;
+                s_tBossTurrets[0].tHitboxPos.uwX = 26;
+                s_tBossTurrets[0].tHitboxPos.uwY = 117;
+                s_tBossTurrets[0].tExplosionPosition.uwX = 23;
+                s_tBossTurrets[0].tExplosionPosition.uwY = 114;
+                s_tBossTurrets[0].ubCooldownTimer = BOSS_COOLDOWN_TIME + g_bCyclicRng[s_ubCyclicRngIdx];
+                s_ubCyclicRngIdx++;
+
+                // Setup BossTurret2
+                s_tBossTurrets[1].uwBitmapOffset = 30;
+                s_tBossTurrets[1].ubHeight = 24;
+                s_tBossTurrets[1].ubFlashTimer = 0;
+                s_tBossTurrets[1].wHealth = BOSS_TURRET_HEALTH;
+                s_tBossTurrets[1].ubAlive = TRUE;
+                s_tBossTurrets[1].tBitmapPos.uwX = 48;
+                s_tBossTurrets[1].tBitmapPos.uwY = 97;
+                s_tBossTurrets[1].tFlashPos.uwX = 59;
+                s_tBossTurrets[1].tFlashPos.uwY = 109;
+                s_tBossTurrets[1].tHitboxPos.uwX = 58;
+                s_tBossTurrets[1].tHitboxPos.uwY = 106;
+                s_tBossTurrets[1].tExplosionPosition.uwX = 56;
+                s_tBossTurrets[1].tExplosionPosition.uwY = 104;
+                s_tBossTurrets[1].ubCooldownTimer = BOSS_COOLDOWN_TIME + g_bCyclicRng[s_ubCyclicRngIdx];
+                s_ubCyclicRngIdx++;
+
+                // Setup BossTurret3
+                s_tBossTurrets[2].uwBitmapOffset = 54;
+                s_tBossTurrets[2].ubHeight = 24;
+                s_tBossTurrets[2].ubFlashTimer = 0;
+                s_tBossTurrets[2].wHealth = BOSS_TURRET_HEALTH;
+                s_tBossTurrets[2].ubAlive = TRUE;
+                s_tBossTurrets[2].tBitmapPos.uwX = 112;
+                s_tBossTurrets[2].tBitmapPos.uwY = 97;
+                s_tBossTurrets[2].tFlashPos.uwX = 123;
+                s_tBossTurrets[2].tFlashPos.uwY = 109;
+                s_tBossTurrets[2].tHitboxPos.uwX = 122;
+                s_tBossTurrets[2].tHitboxPos.uwY = 106;
+                s_tBossTurrets[2].tExplosionPosition.uwX = 120;
+                s_tBossTurrets[2].tExplosionPosition.uwY = 104;
+                s_tBossTurrets[2].ubCooldownTimer = BOSS_COOLDOWN_TIME + g_bCyclicRng[s_ubCyclicRngIdx];
+                s_ubCyclicRngIdx++;
+
+                // Setup BossTurret4
+                s_tBossTurrets[3].uwBitmapOffset = 78;
+                s_tBossTurrets[3].ubHeight = 29;
+                s_tBossTurrets[3].ubFlashTimer = 0;
+                s_tBossTurrets[3].wHealth = BOSS_TURRET_HEALTH;
+                s_tBossTurrets[3].ubAlive = TRUE;
+                s_tBossTurrets[3].tBitmapPos.uwX = 144;
+                s_tBossTurrets[3].tBitmapPos.uwY = 103;
+                s_tBossTurrets[3].tFlashPos.uwX = 155;
+                s_tBossTurrets[3].tFlashPos.uwY = 120;
+                s_tBossTurrets[3].tHitboxPos.uwX = 154;
+                s_tBossTurrets[3].tHitboxPos.uwY = 117;
+                s_tBossTurrets[3].tExplosionPosition.uwX = 153;
+                s_tBossTurrets[3].tExplosionPosition.uwY = 114;
+                s_tBossTurrets[3].ubCooldownTimer = BOSS_COOLDOWN_TIME + g_bCyclicRng[s_ubCyclicRngIdx];
+                s_ubCyclicRngIdx++;
+
+                break;
+            }
+
         default:
-            logWrite("Invalid stage: %d", g_ubCurrentStage);
-            s_tNextWave = g_tEnemyWavesForStage1[0];
-            s_ubEnemyProjectileRange = 160;
-            s_ubEnemyProjectileSpeed = 5;
-            s_ubEnemyProjectileAccuracy = 0;
-            s_ubEnemyProjectileSafetyMargin = 0;
-            break;
+            {
+                logWrite("Invalid stage: %d", g_ubCurrentStage);
+                s_tNextWave = g_tEnemyWavesForStage1[0];
+                s_ubEnemyProjectileRange = 160;
+                s_ubEnemyProjectileSpeed = 5;
+                s_ubEnemyProjectileAccuracy = 0;
+                s_ubEnemyProjectileSafetyMargin = 0;
+                break;
+            }
+
     }
 
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 5,  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
@@ -612,9 +720,13 @@ static void initAudio() {
     s_pSfxExplosion = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "explosion.sfx"), 1);
     s_pSfxCollectPowerup = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "collect.sfx"), 1);
 
+    if (g_ubCurrentStage == BOSS_STAGE) {
+        s_pSfxBossShot = ptplayerSfxCreateFromFd(pakFileGetFile(g_pPakFile, "boss_shot.sfx"), 1);
+    }
+
     ptplayerCreate(1);
     ptplayerSetChannelsForPlayer(0b0111);
-    ptplayerSetMasterVolume(40);
+    ptplayerSetMasterVolume(28);
     audioMixerCreate();
 
     s_pGameMusic = ptplayerModCreateFromFd(pakFileGetFile(g_pPakFile, "ingame.patterns"));
@@ -706,6 +818,20 @@ static void initBobs() {
     s_pStageCompleteBgImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "stage_complete_bg.bm"), 0);
     s_pStageCompleteBgMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "stage_complete_bg_mask.bm"), 0);
     bobInit(&s_tStageCompleteBgBob, TEXT_STAGECOMPLETE_WIDTH, TEXT_STAGECOMPLETE_HEIGHT, 0, s_pStageCompleteBgImage->Planes[0], s_pStageCompleteBgMask->Planes[0], 0, 0);
+
+    if (g_ubCurrentStage == BOSS_STAGE) {
+        s_pBossDamageImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "boss_damage.bm"), 0);
+        s_pBossDamageMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "boss_damage_mask.bm"), 0);
+        s_pBossShotImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "boss_shot.bm"), 0);
+        s_pBossShotMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "boss_shot_mask.bm"), 0);
+        s_pBossHitFlashImage = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "boss_hitflash.bm"), 0);
+        s_pBossHitFlashMask = bitmapCreateFromFd(pakFileGetFile(g_pPakFile, "boss_hitflash_mask.bm"), 0);
+
+        bobInit(&s_tBossShotBob, 16, 32, 1, s_pBossShotImage->Planes[0], s_pBossShotMask->Planes[0], 0, 0);
+        for (UBYTE i=0; i<4; i++) {
+            bobInit(&s_tBossTurrets[i].sFlashBob, 16, 9, 1, s_pBossHitFlashImage->Planes[0], s_pBossHitFlashMask->Planes[0], s_tBossTurrets[i].tFlashPos.uwX, s_tBossTurrets[i].tFlashPos.uwY);
+        }
+    }
 
     // Finish bob init.
     bobReallocateBgBuffers();
@@ -830,7 +956,6 @@ static void processInput() {
     s_ubPlayerMovedOnY = FALSE;
     s_ubPlayerMovedLeft = FALSE;
     s_ubPlayerMovedRight = FALSE;
-    //s_ubPlayerFired = FALSE;
     s_ubDisplayEngine = TRUE;
     s_ubPlayerMoveSpeed = PLAYER_FAST_MOVE_SPEED;
     
@@ -870,42 +995,6 @@ static void processInput() {
         s_ubPlayerMovedRight = TRUE;
         if (s_tPlayerPosition.uwX > (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH)) { s_tPlayerPosition.uwX = (TILE_VIEWPORT_XMAX-PLAYER_SHIP_WIDTH); }
     }
-
-    if (keyCheck(KEY_0)) {
-        if (s_ubFireDelay == 0) {
-            s_ubEquippedProjectileType++;
-            if (s_ubEquippedProjectileType >= PLAYER_PROJECTILE_TYPES) {
-                s_ubEquippedProjectileType = 0;
-            }
-            s_ubFireDelay = DEBUG_COMMAND_DELAY;
-            s_ubUpdatePower = TRUE;
-        }   
-    }
-
-    if (keyCheck(KEY_1)) {
-        if (s_ubFireDelay == 0) {
-            destroyBossTurret(0);
-            s_ubFireDelay = DEBUG_COMMAND_DELAY;
-        }   
-    }
-    if (keyCheck(KEY_2)) {
-        if (s_ubFireDelay == 0) {
-            destroyBossTurret(1);
-            s_ubFireDelay = DEBUG_COMMAND_DELAY;
-        }   
-    }
-    if (keyCheck(KEY_3)) {
-        if (s_ubFireDelay == 0) {
-            destroyBossTurret(2);
-            s_ubFireDelay = DEBUG_COMMAND_DELAY;
-        }   
-    }
-    if (keyCheck(KEY_4)) {
-        if (s_ubFireDelay == 0) {
-            destroyBossTurret(3);
-            s_ubFireDelay = DEBUG_COMMAND_DELAY;
-        }   
-    }            
 }
 
 static void processHud() {
@@ -1017,17 +1106,17 @@ static void processWaves() {
 
             if (s_uwWaveIndex != UWORD_MAX) {
                 switch (g_ubCurrentStage) {
-                    case (0):
+                    case (FIRST_STAGE):
                         s_tNextWave = g_tEnemyWavesForStage1[s_uwWaveIndex];
                         break;
-                    case (1):
+                    case (SECOND_STAGE):
                         s_tNextWave = g_tEnemyWavesForStage2[s_uwWaveIndex];
                         break;
-                    case (2):
+                    case (THIRD_STAGE):
                         s_tNextWave = g_tEnemyWavesForStage3[s_uwWaveIndex];
                         break;
-                    case (3):
-                        s_tNextWave = g_tEnemyWavesForStage1[0];
+                    case (BOSS_STAGE):
+                        s_tNextWave = g_tEnemyWavesForStage4[s_uwWaveIndex];
                         break;
                     default:
                         logWrite("Invalid stage: %d", g_ubCurrentStage);
@@ -1042,6 +1131,15 @@ static void processWaves() {
 static void processBobs() {
     systemSetDmaBit(DMAB_BLITHOG, 1);
     bobBegin(s_pTileBuffer->pScroll->pBack);
+
+    // Boss turrets
+    if (s_ubBossReached == TRUE) {
+        for (UBYTE turretIdx=0; turretIdx<4; turretIdx++) {
+            if (s_tBossTurrets[turretIdx].ubAlive == FALSE) {
+                blitCopyMask(s_pBossDamageImage, 0, s_tBossTurrets[turretIdx].uwBitmapOffset, s_pTileBuffer->pScroll->pBack, s_tBossTurrets[turretIdx].tBitmapPos.uwX, s_tBossTurrets[turretIdx].tBitmapPos.uwY, 32, s_tBossTurrets[turretIdx].ubHeight, s_pBossDamageMask->Planes[0]);
+            }
+        }
+    }
 
     // Player ship
     if (s_ubPlayerAlive == TRUE) {
@@ -1218,7 +1316,22 @@ static void processBobs() {
             bobPush(&s_tEnemyProjectileBob[projectileIdx]);
         }
     }
-    
+
+    // Boss shot
+    if (s_ubBossShotVisible == TRUE) {
+        bobPush(&s_tBossShotBob);
+    }
+
+    // Boss turrets hit flash.
+    if (s_ubBossReached == TRUE) {
+        for (UBYTE turretIdx=0; turretIdx<4; turretIdx++) {
+            if (s_tBossTurrets[turretIdx].ubFlashTimer > 0) {
+                s_tBossTurrets[turretIdx].ubFlashTimer--;
+                bobPush(&s_tBossTurrets[turretIdx].sFlashBob);
+            }
+        }
+    }
+
     // Game Over text
     if (s_ubShowTextGameOver == TRUE) {
         s_tTextGameOverBob.sPos.uwX = TEXT_GAMEOVER_OFFX; 
@@ -1558,9 +1671,7 @@ static void processEnemies() {
         #endif
 
         // Fire projectile.
-        if (s_tEnemy[enemyIdx].ubCanShoot == FALSE || s_ubPlayerAlive == FALSE) { continue; }
-
-        s_tEnemy[enemyIdx].ubCooldownTimer--;
+        if (s_tEnemy[enemyIdx].ubCanShoot == FALSE || s_ubPlayerAlive == FALSE) { continue; }       
 
         if (s_tEnemy[enemyIdx].ubCooldownTimer == 0) {
             s_tEnemy[enemyIdx].ubCooldownTimer = g_tEnemyTypes[ubEnemyType].ubCooldownTime;
@@ -1615,6 +1726,162 @@ static void processEnemies() {
                         s_tComplexEnemyProjectiles[i].ubAlive = 255;
                         s_tComplexEnemyProjectiles[i].ubChannel = 255;
                         s_tComplexEnemyProjectiles[i].ubType = ubProjectileType;
+
+                        if (s_tComplexEnemyProjectiles[i].fDeltaX == 0 && s_tComplexEnemyProjectiles[i].fDeltaY == 0) {
+                            s_tComplexEnemyProjectiles[i].ubAlive = 0;
+                        }
+                        
+                        break;
+                    }
+                }
+            }
+        }
+
+        s_tEnemy[enemyIdx].ubCooldownTimer--;
+    }
+}
+
+static void processBoss() {
+    if (s_ubLevelEndReached == TRUE) { return; }
+
+    // Keep player from going over boss.
+    if (s_tPlayerPosition.uwY < 170) {
+        s_tPlayerPosition.uwY = 170;
+    }    
+
+    // All turrets defeated
+    if (s_ubBossTurretsAlive == 0 && s_ubBossDefeated == FALSE) {
+        s_ubBossDefeated = TRUE;
+        s_uwBossShotTimer = 0;
+    }
+
+    // Boss defeated. Play explosions and set end of level.
+    if (s_ubBossDefeated == TRUE && s_ubLevelEndReached == FALSE) {
+        s_ubLevelEndTimer--;
+        if (s_ubLevelEndTimer == 0) {
+            s_ubLevelEndReached = TRUE;
+            s_ubLevelEndTimer = 255;
+        }
+        
+        if (s_uwBossShotTimer == 0) {
+            s_uwBossShotTimer = 15;
+            //s_uwBossShotTimer = 32 + g_bCyclicRng[s_ubCyclicRngIdx];            
+            // s_ubCyclicRngIdx++;
+            // if (s_ubCyclicRngIdx >= RNG_IDX_MAX) {
+            //     s_ubCyclicRngIdx = 0;
+            // }
+
+            tUwCoordYX tExplosionPosition = { .uwX = g_uwSmallExplosionPositions[s_ubBossExplosionIdx], .uwY = g_uwSmallExplosionPositions[s_ubBossExplosionIdx+1] };
+            createExplosionAtPosition(tExplosionPosition);
+            if (s_ubBossExplosionIdx == 6) {
+                s_tBigExplosionBob.sPos.uwX = 80;
+                s_tBigExplosionBob.sPos.uwY = 138;
+                s_ubBigExplosionActive = TRUE;
+                s_ubBigExplosionFrame = 0;                
+            }
+            s_ubBossExplosionIdx += 2;
+            if (s_ubBossExplosionIdx >= BOSS_EXPLOSION_POSITIONS) { s_ubBossExplosionIdx = 0; }
+        }
+    }
+
+    // Count down shot timer.
+    if (s_uwBossShotTimer > 0) {
+        s_uwBossShotTimer--;
+    }
+
+    // Play sound effect before firing.
+    if (s_uwBossShotTimer == 20 && s_ubBossDefeated == FALSE) {
+        audioMixerPlaySfx(s_pSfxBossShot, 0, 8, 0);
+    }
+
+    // Process boss shot.
+    if (s_ubBossShotAlive == TRUE) {
+        s_ubBossShotVisible = TRUE;
+        UWORD uwCameraYMin = s_pCamera->uPos.uwY;
+        UWORD uwCameraYMax = s_pCamera->uPos.uwY+TILE_VIEWPORT_HEIGHT;        
+        s_tBossShotBob.sPos.uwY += 4;
+
+        if ((s_tBossShotBob.sPos.uwY+31) < uwCameraYMin)
+        {
+            s_ubBossShotVisible = FALSE;
+        }
+
+        if (s_tBossShotBob.sPos.uwY >= uwCameraYMax) {
+            s_ubBossShotVisible = FALSE;
+        }
+
+        if (s_tBossShotBob.sPos.uwY >= BOSS_SHOT_Y_CUTOFF) {
+            s_ubBossShotVisible = FALSE;
+            s_ubBossShotAlive = FALSE;
+        }
+    }
+
+    #ifndef COLLISIONS_DISABLED
+    // Collision detection with player.
+    if (s_ubBossShotVisible == TRUE) {
+        UBYTE ubCollision = checkCollision(s_tPlayerPosition.uwX+PLAYER_HITBOX_OFFSET_X, s_tPlayerPosition.uwY+PLAYER_HITBOX_OFFSET_Y, PLAYER_HITBOX_WIDTH, PLAYER_HITBOX_HEIGHT, 
+                                           s_tBossShotBob.sPos.uwX, s_tBossShotBob.sPos.uwY, 16, 32);
+        if (ubCollision == TRUE && s_ubPlayerAlive == TRUE) { 
+            processPlayerDie();
+        }
+    }
+    #endif
+
+    // Fire the cannon.
+    if (s_uwBossShotTimer == 0 && s_ubBossShotAlive == FALSE && s_ubBossDefeated == FALSE) {
+        if (s_ubBossFirstShot == FALSE) {
+            s_tBossShotBob.sPos.uwX = 88;
+            s_tBossShotBob.sPos.uwY = 147;
+            s_ubBossShotAlive = TRUE;
+            s_uwBossShotTimer = BOSS_SHOT_TIME;
+        } else {
+            s_uwBossShotTimer = BOSS_SHOT_TIME;
+            s_ubBossFirstShot = FALSE;
+        }
+
+    }
+
+    // Process boss turrets.
+    if (s_ubBossReached == TRUE && s_ubPlayerAlive == TRUE) {
+        for (UBYTE turretIdx=0; turretIdx<4; turretIdx++) {
+            if (s_tBossTurrets[turretIdx].wHealth <= 0 && s_tBossTurrets[turretIdx].ubAlive == TRUE) { destroyBossTurret(turretIdx); }
+            if (s_tBossTurrets[turretIdx].wHealth <= 0) { continue; }
+
+            s_tBossTurrets[turretIdx].ubCooldownTimer--;
+
+            if (s_tBossTurrets[turretIdx].ubCooldownTimer == 0) {
+                s_tBossTurrets[turretIdx].ubCooldownTimer = BOSS_COOLDOWN_TIME + g_bCyclicRng[s_ubCyclicRngIdx];
+                s_ubCyclicRngIdx++;
+                if (s_ubCyclicRngIdx >= RNG_IDX_MAX) { s_ubCyclicRngIdx = 0; }
+
+                // Adjust cooldown timer and bullet speed based on how many boss turrets are still alive.
+                UBYTE ubSpeed = 3;                
+                switch (s_ubBossTurretsAlive) {
+                    case 1:
+                        if (s_tBossTurrets[turretIdx].ubCooldownTimer > 25) { s_tBossTurrets[turretIdx].ubCooldownTimer = 25; ubSpeed = 4;}
+                        break; 
+                    case 2:
+                        if (s_tBossTurrets[turretIdx].ubCooldownTimer > 30) { s_tBossTurrets[turretIdx].ubCooldownTimer = 30; }
+                        break;
+                    case 3:
+                        if (s_tBossTurrets[turretIdx].ubCooldownTimer > 40) { s_tBossTurrets[turretIdx].ubCooldownTimer = 40; }
+                        break;
+                }
+
+                for (UBYTE i=0; i<ENEMY_PROJECTILE_MAX; i++) {
+                    if (s_tComplexEnemyProjectiles[i].ubAlive == 0) {
+                        UWORD uwEnemyGunX = s_tBossTurrets[turretIdx].tFlashPos.uwX + 3;
+                        UWORD uwEnemyGunY = s_tBossTurrets[turretIdx].tFlashPos.uwY + 3;
+                        UWORD uwPlayerCenterX = s_tPlayerPosition.uwX + PLAYER_CENTER_OFFSET_X;
+                        UWORD uwPlayerCenterY = s_tPlayerPosition.uwY + PLAYER_CENTER_OFFSET_Y;
+                        UBYTE ubAngle = getAngleBetweenPoints(uwEnemyGunX, uwEnemyGunY, uwPlayerCenterX, uwPlayerCenterY);
+                        s_tComplexEnemyProjectiles[i].fX = fix16_from_int(uwEnemyGunX);
+                        s_tComplexEnemyProjectiles[i].fY = fix16_from_int(uwEnemyGunY);
+                        s_tComplexEnemyProjectiles[i].fDeltaX = ccos(ubAngle) * ubSpeed;
+                        s_tComplexEnemyProjectiles[i].fDeltaY = csin(ubAngle) * ubSpeed;
+                        s_tComplexEnemyProjectiles[i].ubAlive = 255;
+                        s_tComplexEnemyProjectiles[i].ubChannel = 255;
+                        s_tComplexEnemyProjectiles[i].ubType = 1;
 
                         if (s_tComplexEnemyProjectiles[i].fDeltaX == 0 && s_tComplexEnemyProjectiles[i].fDeltaY == 0) {
                             s_tComplexEnemyProjectiles[i].ubAlive = 0;
@@ -1798,6 +2065,24 @@ static void processPlayerProjectiles() {
                 if (s_tEnemy[enemyIdx].wHealth <= 0) {
                     destroyEnemy(enemyIdx);
                     logWrite("[%d] Killed by Player at (%d,%d) => Active: %d", enemyIdx, s_tEnemy[enemyIdx].tPosition.uwX, s_tEnemy[enemyIdx].tPosition.uwY, s_ubActiveEnemies);
+                }
+            }
+
+            if (s_ubBossReached == TRUE) {
+                for (UBYTE turretIdx=0; turretIdx<4; turretIdx++) {
+                    if (s_tBossTurrets[turretIdx].ubAlive == FALSE) { continue; }
+
+                    UBYTE ubCollision = checkCollision(uwX, uwY-bDeltaY, ubWidth, ubHeight, s_tBossTurrets[turretIdx].tHitboxPos.uwX, s_tBossTurrets[turretIdx].tHitboxPos.uwY, BOSS_HITBOX_WIDTH, BOSS_HITBOX_HEIGHT);
+                    if (ubCollision == FALSE) { continue; }
+
+                    // Damage turret
+                    s_tBossTurrets[turretIdx].wHealth -= ubDamage;
+                    s_tBossTurrets[turretIdx].ubFlashTimer = 5;
+
+                    // Remove projectile?
+                    if (ubDieOnCollision == TRUE) {
+                        s_tPlayerProjectiles[projectileIdx].ubAlive = 0;
+                    }                    
                 }
             }
             #endif
@@ -2157,62 +2442,11 @@ static void destroyEnemy(UBYTE ubEnemyIdx) {
 }
 
 static void destroyBossTurret(UBYTE ubTurret) {
-    tUwCoordYX tExplosionPosition;
-
-    switch (ubTurret) {
-        // Turret 1
-        case(0):
-            for (UBYTE i=0; i<5; i++) {
-                UBYTE ubTileNum = ubDamageTilesForTurret1[i];
-                UBYTE ubTileY = ubTilePosForBossTurret1[i*2];
-                UBYTE ubTileX = ubTilePosForBossTurret1[(i*2)+1];
-                logWrite("[1] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
-                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
-            }
-            tExplosionPosition.uwX = 23;
-            tExplosionPosition.uwY = 114;
-            createExplosionAtPosition(tExplosionPosition);
-            break;
-
-        // Turret 2
-        case(1):
-            for (UBYTE i=0; i<4; i++) {
-                UBYTE ubTileNum = ubDamageTilesForTurret2[i];
-                UBYTE ubTileY = ubTilePosForBossTurret2[i*2];
-                UBYTE ubTileX = ubTilePosForBossTurret2[(i*2)+1];
-                logWrite("[2] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
-                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
-            }
-            tExplosionPosition.uwX = 40;
-            tExplosionPosition.uwY = 72;            
-            break;
-
-        // Turret 3
-        case(2):
-            for (UBYTE i=0; i<4; i++) {
-                UBYTE ubTileNum = ubDamageTilesForTurret3[i];
-                UBYTE ubTileY = ubTilePosForBossTurret3[i*2];
-                UBYTE ubTileX = ubTilePosForBossTurret3[(i*2)+1];
-                logWrite("[3] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
-                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
-            }
-            tExplosionPosition.uwX = 104;
-            tExplosionPosition.uwY = 72;            
-            break;
-
-        // Turret 4
-        case(3):
-            for (UBYTE i=0; i<5; i++) {
-                UBYTE ubTileNum = ubDamageTilesForTurret4[i];
-                UBYTE ubTileY = ubTilePosForBossTurret4[i*2];
-                UBYTE ubTileX = ubTilePosForBossTurret4[(i*2)+1];
-                logWrite("[4] (%d, %d) => %d", ubTileX, ubTileY, ubTileNum);
-                tileBufferSetTile(s_pTileBuffer, ubTileX, ubTileY, ubTileNum);
-            }
-            tExplosionPosition.uwX = 137;
-            tExplosionPosition.uwY = 82;            
-            break;
-    }
+    createExplosionAtPosition(s_tBossTurrets[ubTurret].tExplosionPosition);
+    s_ulPlayerScore += BOSS_TURRET_SCORE;
+    s_ubUpdateScore = TRUE;
+    s_tBossTurrets[ubTurret].ubAlive = FALSE;
+    s_ubBossTurretsAlive--;
 }
 
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType) {
@@ -2321,6 +2555,12 @@ static void resetEverything() {
     s_ubShowTextGo = FALSE;
     s_ubCyclicRngIdx = 0;
     s_ubBossReached = FALSE;
+    s_ubBossFirstShot = TRUE;
+    s_ubBossShotAlive = FALSE;
+    s_uwBossShotTimer = BOSS_SHOT_TIME;
+    s_ubBossTurretsAlive = 4;
+    s_ubBossDefeated = FALSE;
+    s_ubBossExplosionIdx = 0;
 
     for (UBYTE i=0; i<ENEMY_MAX; i++) {
         s_tEnemy[i].wHealth = 0;

@@ -3626,13 +3626,6 @@
     <property name="YOffset" type="int" value="0"/>
    </properties>
   </object>
-  <object id="326" name="Enemy12" gid="90" x="160" y="3248" width="32" height="32">
-   <properties>
-    <property name="EnemyType" type="int" value="12"/>
-    <property name="PathType" type="int" value="5"/>
-    <property name="YOffset" type="int" value="-32"/>
-   </properties>
-  </object>
   <object id="328" name="Enemy8" gid="81" x="0" y="3200" width="16" height="16">
    <properties>
     <property name="EnemyType" type="int" value="8"/>

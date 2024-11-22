@@ -250,6 +250,7 @@ void highscoreGsLoop(void) {
 
 void highscoreGsDestroy(void) {
     // Reset global variables
+    g_ubLoopIteration = 0;
     g_ubCurrentStage = 0;
     g_ulPlayerScore = 0;
     g_ubEquippedProjectileType = 0;

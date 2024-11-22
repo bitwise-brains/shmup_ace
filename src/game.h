@@ -18,8 +18,7 @@
 #define MAP_HEIGHT_IN_TILES 256
 #define BOSS_HEIGHT_IN_TILES 66
 #define BOSS_TILES_COUNT 792
-//#define BOSS_START_YPOS 1024
-#define BOSS_START_YPOS 48
+#define BOSS_START_YPOS 1024
 #define MAP_TILES_COUNT 3072
 #define CAMERA_START_YPOS 3852
 #define CAMERA_Y_MIN 32
@@ -89,6 +88,7 @@ static void processPowerups();
 static void processWaves();
 static void processPlayer();
 static void processEnemies();
+static void processBoss();
 static void processPlayerProjectiles();
 static void processSimpleEnemyProjectiles();
 static void processComplexEnemyProjectiles();

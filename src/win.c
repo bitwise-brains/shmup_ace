@@ -58,7 +58,7 @@ void winGsCreate(void) {
 
     // Blit titlescreen
     blitCopy(s_pTitlescreenImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);
-    fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cWinText, 19, FONT_SHADOW | FONT_COOKIE, s_pWinText);
+    fontDrawStr(s_pFont, s_pBuffer->pBack, 28, 128, s_cWinText, 27, FONT_SHADOW | FONT_COOKIE, s_pWinText);
     viewLoad(s_pView);
     systemUnuse();
 }

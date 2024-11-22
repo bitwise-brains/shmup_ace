@@ -43,6 +43,7 @@
 .\tools\audio_conv.exe .\sfx\shot1.wav -d 2 -o .\data\shot1.sfx
 .\tools\audio_conv.exe .\sfx\shot2.wav -d 2 -o .\data\shot2.sfx
 .\tools\audio_conv.exe .\sfx\shot3.wav -d 2 -o .\data\shot3.sfx
+.\tools\audio_conv.exe .\sfx\boss_shot.wav -d 2 -o .\data\boss_shot.sfx
 .\tools\audio_conv.exe .\sfx\explosion.wav -d 2 -o .\data\explosion.sfx
 
 .\tools\pak_tool.exe .\data ..\build\data.tte

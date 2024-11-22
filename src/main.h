@@ -28,6 +28,9 @@
 #define GAME_BPP 5
 #define GAME_STATES 5
 #define GAME_STAGES 4
+#define FIRST_STAGE 0
+#define SECOND_STAGE 1
+#define THIRD_STAGE 2
 #define BOSS_STAGE 3
 #define PLAYER_LIVES_START 3
 #define PLAYER_SPECIAL_START 2
@@ -68,6 +71,6 @@ extern UBYTE g_ubPlayerLives;
 extern UBYTE g_ubPlayerSpecial;
 extern UBYTE g_ubEquippedProjectileType;
 extern UBYTE g_ubCurrentStage;
-
+extern UBYTE g_ubLoopIteration;
 
 #endif // _MAIN_H_
