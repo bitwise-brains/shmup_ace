@@ -23,7 +23,7 @@ void genericCreate(void) {
   joyOpen();
   g_pPakFile = pakFileOpen("data.tte");
   g_pGameStateManager = stateManagerCreate();
-  stateChange(g_pGameStateManager, &g_pGameStates[STATE_INTRO]);
+  stateChange(g_pGameStateManager, &g_pGameStates[STATE_WIN]);
 }
 
 void genericProcess(void) {

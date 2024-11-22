@@ -238,9 +238,10 @@ void highscoreGsLoop(void) {
 
     s_ubPulseIdx++;
     if (s_ubPulseIdx >= PULSE_LENGTH) { s_ubPulseIdx = 0; }
-    s_pViewport->pPalette[PULSE_COLOR] = s_uwPulse[s_ubPulseIdx];
+    g_pCustom->color[PULSE_COLOR] = s_uwPulse[s_ubPulseIdx];
+    //s_pViewport->pPalette[PULSE_COLOR] = s_uwPulse[s_ubPulseIdx];
+    //viewUpdateGlobalPalette(s_pView);
 
-    viewUpdateGlobalPalette(s_pView);
     viewProcessManagers(s_pView);
     copProcessBlocks();
     systemIdleBegin();

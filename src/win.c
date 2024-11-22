@@ -16,6 +16,7 @@ static UBYTE s_ubWaitTimer = 50;
 static UWORD s_uwFadePalette[16][32] = {0};
 
 static const char s_cWinText[] = "\n      CONGRATULATIONS!\n\n    YOU HAVE DEFEATED THE\n        BARRIX EMPIRE\n\n\n            SCORE\n\n\n\n\n        FIRE1 TO LOOP\n\n        FIRE2 TO END\n";
+//static const char s_cWinText[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\n0123456789!:,.";
 static UWORD s_uwGradient[] = {0xff3,0xfd3,0xea2,0xd82,0xc61,0xc31,0xb10,0xff3};
 
 void winGsCreate(void) {
