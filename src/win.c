@@ -76,7 +76,8 @@ void winGsCreate(void) {
         uwGradientYPos += 8;
     }
     colorCopBlock = copBlockCreate(s_pView->pCopList, 1, 0, uwGradientYPos);
-    copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[31], 0xfff);
+    //copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[31], 0xfff);
+    copMove(s_pView->pCopList, colorCopBlock, &g_pCustom->color[31], s_pViewport->pPalette[31]);
 
     // Blit titlescreen
     blitCopy(s_pTitlescreenImage, 0, 0, s_pBuffer->pBack, 48, 16, 224, 80, MINTERM_COOKIE);

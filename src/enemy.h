@@ -66,7 +66,7 @@ tEnemyType g_tEnemyTypes[ENEMY_TYPES] = {// Type 1
                                          { 40, 16, 16,  3, 15, 8, 2,  TRUE,  80, 1, 2, 1987},  // Aimed shot & Drops Special
 
                                          // Tank
-                                         {150, 32, 32, 16, 16, 0, 2,  TRUE,  80, 2, 0, 2600},  // Aimed shot
+                                         {200, 32, 32, 16, 16, 0, 2,  TRUE,  80, 2, 0, 2600},  // Aimed shot
                                          
                                          // Turret
                                          { 64, 16, 16,  8,  8, 9, 0,  TRUE,  70, 1, 0, 6502}}; // Aimed shot

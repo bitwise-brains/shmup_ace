@@ -496,7 +496,7 @@ static void initGame() {
                 fileClose(pLevelData);        
                 s_tNextWave = g_tEnemyWavesForStage3[s_uwWaveIndex];
                 s_ubEnemyProjectileRange = 16;
-                s_ubEnemyProjectileSpeed = 1;
+                s_ubEnemyProjectileSpeed = 2;
                 s_ubEnemyProjectileAccuracy = 0;
                 s_ubEnemyProjectileSafetyMargin = 32;
                 g_tEnemyTypes[0].ubMoveSpeed = 6;
@@ -600,7 +600,20 @@ static void initGame() {
                 s_ubEnemyProjectileSafetyMargin = 0;
                 break;
             }
+    }
 
+    if (g_ubLoopIteration == 1) {
+        s_ubEnemyProjectileRange = 16;
+        s_ubEnemyProjectileSpeed = 2;
+        s_ubEnemyProjectileAccuracy = 0;
+        s_ubEnemyProjectileSafetyMargin = 32;
+    }
+    
+    if (g_ubLoopIteration >= 2) {
+        s_ubEnemyProjectileRange = 16;
+        s_ubEnemyProjectileSpeed = 3;
+        s_ubEnemyProjectileAccuracy = 0;
+        s_ubEnemyProjectileSafetyMargin = 16;
     }
 
     // s_tPlayerProjectileTypes[] = (tPlayerProjectileType){ 5,  8, .bDeltaX =  0, .bDeltaX2 =  0, .bDeltaY = -8, .ubXOffset =  0, .ubXOffset2 = 16, .ubWidth = 31, .ubHeight = 20, .ubDieOnCollision = TRUE, .ubWideSprite = TRUE,  .ubSpreadShot = FALSE, .ubSecondarySpriteIndex = 0 }; // Wideshot
@@ -1185,34 +1198,47 @@ static void processBobs() {
         }
     }
 
-    // Player Explosion
-    if (s_ubPlayerExplosionActive == TRUE) {
-        bobSetFrame(
-            &s_tPlayerExplosionBob,
-            &s_pBigExplosionImage->Planes[0][s_uwBigExplosionAnimOffset[s_ubPlayerExplosionAnimFrame]],
-            &s_pBigExplosionMask->Planes[0][s_uwBigExplosionAnimOffset[s_ubPlayerExplosionAnimFrame]]
-        );
+    // Turrets
+    if (s_ubActiveEnemies > 0) {
+        for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
+            if (s_tEnemy[enemyIdx].wHealth <= 0 || s_tEnemy[enemyIdx].ubOnScreen == FALSE) { continue; }
+            if (s_tEnemy[enemyIdx].ubEnemyType != ENEMY_TURRET_TYPE) { continue; }
+            if (s_tEnemy[enemyIdx].ubFlashTimer == 5) {
+                UBYTE ubEnemyType = s_tEnemy[enemyIdx].ubEnemyType;
+                UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyType].ubBitmapOffset;
+                UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
+                bobSetFrame(
+                    &s_tEnemy[enemyIdx].sBob,
+                    &s_pEnemyMask->Planes[0][uwOffset],
+                    &s_pEnemyMask->Planes[0][uwOffset]
+                );
+            }
 
-        bobPush(&s_tPlayerExplosionBob);        
+            if (s_tEnemy[enemyIdx].ubFlashTimer > 0) {
+                s_tEnemy[enemyIdx].ubFlashTimer--;
+                if (s_tEnemy[enemyIdx].ubFlashTimer == 0) {
+                    UBYTE ubEnemyType = s_tEnemy[enemyIdx].ubEnemyType;
+                    UBYTE ubBitmapOffsetIdx = g_tEnemyTypes[ubEnemyType].ubBitmapOffset;
+                    UWORD uwOffset = s_uwEnemyBitmapOffset[ubBitmapOffsetIdx];
+                    bobSetFrame(
+                        &s_tEnemy[enemyIdx].sBob,
+                        &s_pEnemyImage->Planes[0][uwOffset],
+                        &s_pEnemyMask->Planes[0][uwOffset]
+                    );
+                }
+            }
+
+            bobPush(&s_tEnemy[enemyIdx].sBob);
+        }
     }
-
-    // Extra Life Powerup
-    if (s_ubLifePowActive == TRUE) { bobPush(&s_tLifePowBob); }
-
-    // Special Powerup
-    if (s_ubSpecialPowActive == TRUE) { bobPush(&s_tSpecialPowBob); }
-
-    // Weapon Powerup
-    if (s_ubWeaponPowActive == TRUE) { bobPush(&s_tWeaponPowBob); }
 
     // Enemies
     if (s_ubActiveEnemies > 0) {
         UBYTE ubBigEnemyProcessed = FALSE;
 
         for (UBYTE enemyIdx=0; enemyIdx<ENEMY_MAX; enemyIdx++) {
-            if (s_tEnemy[enemyIdx].wHealth <= 0 || s_tEnemy[enemyIdx].ubOnScreen == FALSE) { continue; }
-            //UBYTE bufferCheck = tileBufferIsRectFullyOnBuffer(s_pTileBuffer, s_tEnemy[enemyIdx].sBob.sPos.uwX, s_tEnemy[enemyIdx].sBob.sPos.uwY, 16, 16);
-            //if (bufferCheck == TRUE) { bobPush(&s_tEnemy[enemyIdx].sBob); }
+            if (s_tEnemy[enemyIdx].wHealth <= 0 || s_tEnemy[enemyIdx].ubOnScreen == FALSE) { continue; }           
+            if (s_tEnemy[enemyIdx].ubEnemyType == ENEMY_TURRET_TYPE) { continue; }
 
             if (s_tEnemy[enemyIdx].ubEnemyType == ENEMY_BIG_TYPE) {
                 if (ubBigEnemyProcessed == TRUE) { continue; } // Can only have one big enemy on screen at a time.
@@ -1271,6 +1297,15 @@ static void processBobs() {
         }
     }
 
+    // Extra Life Powerup
+    if (s_ubLifePowActive == TRUE) { bobPush(&s_tLifePowBob); }
+
+    // Special Powerup
+    if (s_ubSpecialPowActive == TRUE) { bobPush(&s_tSpecialPowBob); }
+
+    // Weapon Powerup
+    if (s_ubWeaponPowActive == TRUE) { bobPush(&s_tWeaponPowBob); }
+
     // Explosions
     if (s_ubActiveExplosions > 0) {
         for (UBYTE explosionIdx=0; explosionIdx < EXPLOSIONS_MAX; explosionIdx++) {
@@ -1297,6 +1332,17 @@ static void processBobs() {
         );
 
         bobPush(&s_tBigExplosionBob);        
+    }
+
+    // Player Explosion
+    if (s_ubPlayerExplosionActive == TRUE) {
+        bobSetFrame(
+            &s_tPlayerExplosionBob,
+            &s_pBigExplosionImage->Planes[0][s_uwBigExplosionAnimOffset[s_ubPlayerExplosionAnimFrame]],
+            &s_pBigExplosionMask->Planes[0][s_uwBigExplosionAnimOffset[s_ubPlayerExplosionAnimFrame]]
+        );
+
+        bobPush(&s_tPlayerExplosionBob);        
     }
 
     // Enemy projectiles
@@ -2459,6 +2505,9 @@ static void destroyBossTurret(UBYTE ubTurret) {
     s_ubUpdateScore = TRUE;
     s_tBossTurrets[ubTurret].ubAlive = FALSE;
     s_ubBossTurretsAlive--;
+    if (s_ubBossTurretsAlive == 2) {
+        s_ubEnemyProjectileSpeed = 3;
+    }
 }
 
 static void createPowerupAtPosition(tUwCoordYX tPosition, UBYTE ubPowerupType) {
